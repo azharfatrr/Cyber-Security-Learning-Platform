@@ -1,0 +1,21 @@
+Run from this folder:
+
+    python3 -m pip install -r requirements.txt
+    python3 -m mkdocs serve
+
+Visit the URL printed by MkDocs. For a production build, run:
+
+    python3 -m mkdocs build --strict
+
+To publish, create a GitHub repository containing this folder's files at its root,
+commit and push them, then run from that repository:
+
+    python3 -m mkdocs gh-deploy
+
+In GitHub repository Settings > Pages, choose Deploy from a branch and select
+the gh-pages branch and / (root). The command pushes a generated branch to the
+configured Git remote; run it only when you intend to publish. GitHub Pages may
+be public: do not publish confidential content, lab secrets, or real user data.
+
+Only files in docs are published; do not put private files there. The site build
+directory is site. Review all content before publishing.
