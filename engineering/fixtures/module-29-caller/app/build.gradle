@@ -1,0 +1,16 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'org.lab.module29caller'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'org.lab.module29caller'
+        minSdk 24
+        targetSdk 32
+        versionCode 1
+        versionName '1.0'
+    }
+}

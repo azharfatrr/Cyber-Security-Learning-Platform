@@ -1,6 +1,8 @@
+import re
 import subprocess
 import tempfile
 import unittest
+from urllib.parse import unquote, urlsplit
 from pathlib import Path
 
 
@@ -73,6 +75,30 @@ class SiteTest(unittest.TestCase):
                 self.assertIn("<summary>Hints</summary>", lab, page.name)
             cloud = (Path(output) / "27-cloud-database" / "index.html").read_text(encoding="utf-8")
             self.assertIn("not a runnable lab", cloud)
+
+    def test_module_29_screenshots_are_copied_into_site(self):
+        root = Path(__file__).parent
+        with tempfile.TemporaryDirectory() as output:
+            result = subprocess.run(
+                ["python", "-m", "mkdocs", "build", "--strict", "--site-dir", output],
+                cwd=root, capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            html_path = Path(output) / "29-components" / "index.html"
+            html = html_path.read_text(encoding="utf-8")
+            image_sources = re.findall(
+                r'<img\b[^>]*\bsrc=["\']([^"\']*images/lab-29/[^"\']+)["\']',
+                html,
+            )
+            self.assertTrue(image_sources, "module 29 should reference at least one lab screenshot")
+
+            for source in image_sources:
+                image_path = unquote(urlsplit(source).path)
+                if image_path.startswith("/"):
+                    generated_image = Path(output) / image_path.lstrip("/")
+                else:
+                    generated_image = html_path.parent / image_path
+                self.assertTrue(generated_image.is_file(), source)
 
 
 if __name__ == "__main__":
