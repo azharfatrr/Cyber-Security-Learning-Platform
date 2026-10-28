@@ -7,15 +7,17 @@ Visit the URL printed by MkDocs. For a production build, run:
 
     python3 -m mkdocs build --strict
 
-To publish, create a GitHub repository containing this folder's files at its root,
-commit and push them, then run from that repository:
+The site is published automatically whenever a commit is pushed to the `main`
+branch. GitHub Actions runs the site tests, builds with strict mode, and deploys
+the generated site to GitHub Pages. Pull requests and other branches do not deploy.
 
-    python3 -m mkdocs gh-deploy
+The live site is:
 
-In GitHub repository Settings > Pages, choose Deploy from a branch and select
-the gh-pages branch and / (root). The command pushes a generated branch to the
-configured Git remote; run it only when you intend to publish. GitHub Pages may
-be public: do not publish confidential content, lab secrets, or real user data.
+    https://azharfatrr.github.io/Cyber-Security-Learning-Platform/
+
+For the first deployment, open GitHub repository Settings > Pages and set Build
+and deployment > Source to GitHub Actions. The workflow then publishes on each
+push to `main`.
 
 Only files in docs are published; do not put private files there. The site build
 directory is site. Review all content before publishing.

@@ -31,7 +31,7 @@ extra_javascript:
   - javascripts/header-home.js
   - javascripts/text-size.js
 nav:
-  - Home: README.md
+  - Home: index.md
   - Common setup: 00-common-setup.md
   - Lab structure: lab-structure.md
   - Labs:

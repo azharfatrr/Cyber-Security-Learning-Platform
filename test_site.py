@@ -5,6 +5,35 @@ from pathlib import Path
 
 
 class SiteTest(unittest.TestCase):
+    def test_pages_workflow_builds_before_deploying_main(self):
+        root = Path(__file__).parent
+        workflow_path = root / ".github" / "workflows" / "deploy.yml"
+        self.assertTrue(workflow_path.is_file())
+        workflow = workflow_path.read_text(encoding="utf-8")
+        self.assertIn("on:\n  push:\n    branches:\n      - main", workflow)
+        self.assertIn("python -m unittest -v test_site", workflow)
+        self.assertIn("python -m mkdocs build --strict", workflow)
+        self.assertIn("needs: build", workflow)
+        self.assertIn("pages: write", workflow)
+        self.assertIn("id-token: write", workflow)
+        self.assertIn("actions: read", workflow)
+        self.assertIn("cancel-in-progress: false", workflow)
+        self.assertIn("actions/deploy-pages@v5", workflow)
+        publishing = (root / "PUBLISHING.txt").read_text(encoding="utf-8")
+        self.assertIn("GitHub Actions", publishing)
+        self.assertIn("main", publishing)
+
+    def test_github_readme_is_plain_markdown_and_mkdocs_home_is_index(self):
+        root = Path(__file__).parent
+        readme_path = root / "README.md"
+        self.assertTrue(readme_path.is_file())
+        readme = readme_path.read_text(encoding="utf-8")
+        self.assertIn("# Cyber Security Learning Platform", readme)
+        self.assertIn("python3 -m mkdocs serve", readme)
+        self.assertNotIn("<div", readme)
+        self.assertNotIn(".md-button", readme)
+        self.assertIn("  - Home: index.md", (root / "mkdocs.yml").read_text(encoding="utf-8"))
+
     def test_build_contains_all_labs_and_collapsed_hints(self):
         root = Path(__file__).parent
         with tempfile.TemporaryDirectory() as output:
@@ -21,12 +50,16 @@ class SiteTest(unittest.TestCase):
             self.assertIn('aria-label="Jump to a lab category"', home)
             self.assertIn('href="#authentication"', home)
             self.assertIn('>Security Labs</span>', home)
+            self.assertIn('class="card-meta"', home)
+            self.assertIn('<span class="card-meta">BugBazaar · Blocked</span>', home)
             self.assertNotIn('Learn by investigating', home)
             self.assertIn("Blocked", home)
             self.assertIn("data-md-color-scheme", home)
             styles = (Path(output) / "stylesheets" / "extra.css").read_text(encoding="utf-8")
             self.assertIn(".md-typeset .grid.cards > ul > li { border-radius: .75rem; padding: .9rem 1rem; }", styles)
             self.assertIn(".md-typeset .grid.cards > ul > li strong { display: inline; margin-bottom: 0; }", styles)
+            self.assertIn(".md-typeset .grid.cards > ul > li .card-meta { font-size: .86em; color: #6b7280; }", styles)
+            self.assertIn('[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li .card-meta { color: #909ba6; }', styles)
             html = (Path(output) / "09-jwt-account-state" / "index.html").read_text(encoding="utf-8")
             self.assertIn("<details", html)
             self.assertIn("<summary>Hints</summary>", html)

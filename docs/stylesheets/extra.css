@@ -56,6 +56,8 @@
 .md-typeset .grid.cards > ul > li:hover { border-color: var(--md-accent-fg-color); transform: translateY(-2px); }
 .md-typeset .grid.cards > ul > li p { margin: 0; }
 .md-typeset .grid.cards > ul > li strong { display: inline; margin-bottom: 0; }
+.md-typeset .grid.cards > ul > li .card-meta { font-size: .86em; color: #6b7280; }
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li .card-meta { color: #909ba6; }
 .md-typeset details, .md-typeset .admonition { border-radius: .45rem; }
 .md-typeset pre > code { border-radius: .4rem; font-size: .857143em; }
 .catalog-hero { position: relative; overflow: hidden; padding: 2.4rem 2.6rem; border: 1px solid #39435d; border-radius: 1rem; background: radial-gradient(circle at 80% 30%, #383058 0, transparent 32%), linear-gradient(120deg, #1b2336, #121a29 70%); color: #f1f4fb; }
