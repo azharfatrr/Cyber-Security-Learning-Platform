@@ -5,16 +5,18 @@ hide:
 
 <div class="catalog-hero" markdown="1">
 
-<span class="catalog-kicker">ANDROID INTERMEDIATE CLASS</span>
+<span class="catalog-kicker">CYBER SECURITY LEARNING PLATFORM</span>
 
-# Android Security Labs
+# Android <span class="hero-gradient">Security Labs</span>
 
 Guides for testing Android applications and APIs in an isolated lab.
+
+<div class="hero-facts"><span>10 lab guides</span><span>Devom + BugBazaar</span><span>Linux setup</span></div>
 
 [Set up the lab](00-common-setup.md){ .md-button .md-button--primary }
 [Browse the catalog](#lab-catalog){ .md-button }
 
-<div class="hero-orbit" aria-hidden="true"><span class="orbit-core">A<span> / </span>LAB</span><i></i><b></b><em></em></div>
+<div class="hero-visual"><img class="hero-device" src="assets/android-lab.svg" alt="" /></div>
 
 </div>
 

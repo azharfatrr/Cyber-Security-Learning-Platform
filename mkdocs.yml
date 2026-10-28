@@ -1,19 +1,21 @@
-site_name: Android Intermediate Class
+site_name: Cyber Security Learning Platform
 site_description: Hands-on Android security lab guides
 docs_dir: docs
 site_dir: site
 theme:
   name: material
-  font: false
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     - scheme: slate
-      primary: indigo
+      primary: blue
       accent: light blue
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
     - scheme: default
-      primary: indigo
+      primary: blue
       accent: blue
       toggle:
         icon: material/weather-night
@@ -25,6 +27,9 @@ theme:
     - content.code.copy
 extra_css:
   - stylesheets/extra.css
+extra_javascript:
+  - javascripts/header-home.js
+  - javascripts/text-size.js
 nav:
   - Home: README.md
   - Common setup: 00-common-setup.md
