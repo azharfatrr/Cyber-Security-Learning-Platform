@@ -89,19 +89,19 @@ Inspect the new pages against the current `docs/00-common-setup.md` and `docs/29
 - Consumes the setup page paths established in Task 1.
 - Produces opening setup references that send Labs 09, 10, 14, 24, 25, 26, and 28 to Devom setup; and Labs 27, 29, and 30 to BugBazaar setup.
 
-- [ ] **Step 1: Update the lab-structure guidance**
+- [x] **Step 1: Update the lab-structure guidance**
 
 Change `docs/lab-structure.md` to distinguish shared prerequisites and target installation from lab-specific prerequisites. State that lab guides link to setup pages rather than repeat app installation.
 
-- [ ] **Step 2: Add target setup links to all lab openings**
+- [x] **Step 2: Add target setup links to all lab openings**
 
 Update the opening setup references in Labs 09, 10, 14, 24, 25, 26, 27, 28, and 30 to link to both Common prerequisites and the appropriate target setup. Keep all existing scenario-specific accounts, markers, authorization requirements, and caveats in place. For Devom labs, update host-local examples to the primary manual endpoint `https://127.0.0.1:8080` and add `--insecure` only to individual local `curl` requests for the generated certificate; tell Docker users to substitute port `8443`. Correct the stale transport claim in `docs/coverage-analysis.md`.
 
-- [ ] **Step 3: Move Lab 29 installation readiness into BugBazaar setup**
+- [x] **Step 3: Move Lab 29 installation readiness into BugBazaar setup**
 
 In `docs/29-components.md`, replace general emulator network isolation, target APK download/checksum/install, first-run guard, and caller APK checksum/install instructions with a concise readiness check and links to Common prerequisites and BugBazaar setup. Retain synthetic address creation/reuse, the distinct ordinary caller query, evidence, interpretation, troubleshooting, and cleanup. Explicitly preserve the warning that an ADB shell query is not proof of ordinary-app access.
 
-- [ ] **Step 4: Review all ten lab openings and commit Task 2**
+- [x] **Step 4: Review all ten lab openings and commit Task 2**
 
 Check that each lab links to Common prerequisites and exactly its target setup; ensure Lab 29 still explains the caller APK's distinct UID and makes no broader data-exposure claim. Stage and commit only Task 2 files.
 
@@ -117,17 +117,17 @@ Check that each lab links to Common prerequisites and exactly its target setup; 
 - Consumes the complete setup navigation and lab links from Tasks 1 and 2.
 - Produces a strict MkDocs build and a manually reviewed documentation change ready to publish.
 
-- [ ] **Step 1: Run the strict site build (not the test suite)**
+- [x] **Step 1: Run the strict site build (not the test suite)**
 
 Run: `python -m mkdocs build --strict`
 
 Expected: successful site build with no missing-page or strict-mode warnings. Do not invoke `unittest`, `test_site.py`, or other tests.
 
-- [ ] **Step 2: Manually audit scope and references**
+- [x] **Step 2: Manually audit scope and references**
 
 Review the generated navigation and the source diff. Confirm there are no stale references to app installation in lab openings, all ten labs point to the correct setup module, the exact APK hashes/revisions remain intact, and user-requested test removal remains untouched.
 
-- [ ] **Step 3: Commit the remaining requested user change if still uncommitted**
+- [x] **Step 3: Commit the remaining requested user change if still uncommitted**
 
 If `.github/workflows/deploy.yml` and `test_site.py` remain modified/deleted and are confirmed as the earlier user-requested test removal, stage only those two paths and commit them separately from documentation changes.
 
