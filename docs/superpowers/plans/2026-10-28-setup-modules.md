@@ -26,6 +26,7 @@
 - **Setup links and nav:** pages exist at every new link and Setup precedes Labs; verify through the strict MkDocs build and inspect navigation.
 - **App artifact integrity:** preserve BugBazaar and caller APK hashes, revisions, and embedded version caveat exactly; compare against the current Lab 29 source during review.
 - **Devom exposure and transport:** manual/Docker instructions state debug mode, all-interface binding, ad-hoc TLS, isolation requirements, and certificate-trust uncertainty; inspect the final section before commit.
+- **Devom lab requests:** Devom examples use manual HTTPS port `8080` by default and local one-command `--insecure`; Docker users are told to substitute `8443`, and coverage analysis no longer calls the service HTTP.
 - **Setup visuals:** no existing image is an installation screenshot; keep Module 29 images with that lab and style command-based setup steps with titled code blocks.
 - **Lab 29 scope:** setup extraction does not remove marker handling, distinct-UID proof, query limits, or cleanup caveats; compare the retained walkthrough with the spec.
 - **Lab objective focus:** every numbered lab links to Common prerequisites and its target setup without moving scenario-specific preparation out of the lab; inspect all ten opening sections.
@@ -80,6 +81,7 @@ Inspect the new pages against the current `docs/00-common-setup.md` and `docs/29
 - Modify: `docs/28-bola.md`
 - Modify: `docs/29-components.md`
 - Modify: `docs/30-runtime-bypass.md`
+- Modify: `docs/coverage-analysis.md`
 
 **Interfaces:**
 - Consumes the setup page paths established in Task 1.
@@ -91,7 +93,7 @@ Change `docs/lab-structure.md` to distinguish shared prerequisites and target in
 
 - [ ] **Step 2: Add target setup links to all lab openings**
 
-Update the opening setup references in Labs 09, 10, 14, 24, 25, 26, 27, 28, and 30 to link to both Common prerequisites and the appropriate target setup. Keep all existing scenario-specific accounts, markers, authorization requirements, and caveats in place.
+Update the opening setup references in Labs 09, 10, 14, 24, 25, 26, 27, 28, and 30 to link to both Common prerequisites and the appropriate target setup. Keep all existing scenario-specific accounts, markers, authorization requirements, and caveats in place. For Devom labs, update host-local examples to the primary manual endpoint `https://127.0.0.1:8080` and add `--insecure` only to individual local `curl` requests for the generated certificate; tell Docker users to substitute port `8443`. Correct the stale transport claim in `docs/coverage-analysis.md`.
 
 - [ ] **Step 3: Move Lab 29 installation readiness into BugBazaar setup**
 

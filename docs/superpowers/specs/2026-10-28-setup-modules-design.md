@@ -54,6 +54,7 @@ Make installation steps easy to scan with concise step headings, titled command 
 
 - Update every lab's opening/setup reference to link to Common prerequisites and the relevant target setup: Devom for Labs 09, 10, 14, 24, 25, 26, and 28; BugBazaar for Labs 27, 29, and 30.
 - Keep lab-specific accounts, scenario data, safety limits, exercise steps, interpretation, evidence, and cleanup in the lab pages.
+- Update Devom lab `curl` examples to the primary manual endpoint `https://127.0.0.1:8080`; use `--insecure` only on those individual loopback requests for the server's generated certificate, and explain that Docker users substitute port `8443`. Correct the stale HTTP statement in `docs/coverage-analysis.md`.
 - In Lab 29, remove target/caller download and installation, APK checksum/install verification, first-run guard setup, and general emulator network-isolation instructions after they are documented in BugBazaar setup. Replace them with a concise readiness check and links to both setup pages. Keep creation/reuse of the synthetic address, the read-only query from the distinct caller, result interpretation, evidence, and cleanup in Lab 29.
 - Clarify in Lab 29 that an ADB shell query is not a substitute for an ordinary-app query. The caller APK setup requirement remains because its distinct UID is essential to the stated cross-app learning objective.
 - Update `docs/lab-structure.md` to say app installation belongs in target setup modules, while lab pages retain only exercise-specific prerequisites.
@@ -69,7 +70,8 @@ Make installation steps easy to scan with concise step headings, titled command 
 6. Every lab links to Common prerequisites and its target setup without changing its learning objective or exercise-specific findings.
 7. Lab 29 assumes target and caller installation is complete, but retains the synthetic-record cross-app exercise and its evidence limitations.
 8. The design and plan remain in the repository but are not copied into the generated training site.
-9. Home-page and lab-structure guidance reflect the new separation, and a strict MkDocs build succeeds. Do not run the removed unit-test suite.
+9. Devom lab examples point to the manual HTTPS endpoint by default, restrict `curl --insecure` to those local requests, and the coverage analysis no longer calls the pinned server HTTP.
+10. Home-page and lab-structure guidance reflect the new separation, and a strict MkDocs build succeeds. Do not run the removed unit-test suite.
 
 ## Scope boundaries and risks
 
