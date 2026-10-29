@@ -100,6 +100,55 @@ class SiteTest(unittest.TestCase):
                     generated_image = html_path.parent / image_path
                 self.assertTrue(generated_image.is_file(), source)
 
+    def test_module_29_verifies_installed_target_hash(self):
+        root = Path(__file__).parent
+        guide = (root / "docs" / "29-components.md").read_text(encoding="utf-8")
+        self.assertIn("INSTALLED_APK", guide)
+        self.assertIn("EXPECTED_SHA=c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c", guide)
+        self.assertIn('shell sha256sum "$INSTALLED_APK"', guide)
+        self.assertIn('if [ "$INSTALLED_SHA" != "$EXPECTED_SHA" ]; then', guide)
+
+    def test_module_29_preserves_existing_target_preferences(self):
+        root = Path(__file__).parent
+        guide = (root / "docs" / "29-components.md").read_text(encoding="utf-8")
+        self.assertIn("if [ -e shared_prefs/MyAppPreferences.xml ]", guide)
+        self.assertGreaterEqual(guide.count("grep -Fq"), 2)
+        self.assertIn("isFirstRun=false", guide)
+        self.assertIn("Existing preferences are never overwritten", guide)
+
+    def test_module_29_fails_closed_on_checksum_or_install_error(self):
+        root = Path(__file__).parent
+        guide = (root / "docs" / "29-components.md").read_text(encoding="utf-8")
+        bash_blocks = re.findall(r"```bash\n(.*?)\n```", guide, re.DOTALL)
+        target_block = next(block for block in bash_blocks if "BugBazaar_v1.2.1.apk" in block)
+        caller_block = next(block for block in bash_blocks if "module-29-caller.apk" in block)
+        self.assertIn("set -euo pipefail", target_block)
+        self.assertIn("set -euo pipefail", caller_block)
+        self.assertIn("CALLER_EXPECTED_SHA=eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e", caller_block)
+        self.assertLess(target_block.index("sha256sum --check -"), target_block.index('adb -s "$SERIAL" install'))
+        self.assertLess(caller_block.index("sha256sum --check -"), caller_block.index("CALLER_INSTALLED_APK"))
+        self.assertLess(caller_block.index('adb -s "$SERIAL" install'), caller_block.index("am start"))
+        self.assertIn('if [ "$CALLER_INSTALLED_SHA" != "$CALLER_EXPECTED_SHA" ]; then', caller_block)
+
+    def test_module_29_requires_all_network_transports_off(self):
+        root = Path(__file__).parent
+        guide = (root / "docs" / "29-components.md").read_text(encoding="utf-8")
+        self.assertIn("cmd wifi status", guide)
+        self.assertIn("Wifi is disabled", guide)
+        self.assertIn('if [ "$AIRPLANE_STATUS" != "enabled" ]', guide)
+        self.assertIn('case "$WIFI_STATUS" in', guide)
+        self.assertIn('case "$CONNECTIVITY_STATUS" in', guide)
+        self.assertIn("mobile data", guide.lower())
+        self.assertIn("USB or Bluetooth tethering", guide)
+        self.assertIn("Active default network: none", guide)
+
+    def test_module_29_reuses_existing_synthetic_marker(self):
+        root = Path(__file__).parent
+        guide = (root / "docs" / "29-components.md").read_text(encoding="utf-8")
+        self.assertIn("Search Addresses for the exact nickname below before saving", guide)
+        self.assertIn("If exactly one matching record exists, reuse it", guide)
+        self.assertIn("If multiple matches appear or the result is uncertain, stop", guide)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,6 @@
 # 29 — Unauthorized access to Android components
 
-**Target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Runtime tested:** Android 14 / API 34, using a separate ordinary app UID and one synthetic address. The provider returned that row. This confirms cross-app access to the selected lab record; no unrelated or real records were queried.
+**Target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Runtime tested:** Android 14 / API 34. A separate ordinary app queried only the uniquely marked synthetic record, and the provider returned it. This demonstrates cross-app access to that lab record; the result does not establish access to other rows.
 
 ## Objective and challenge
 
@@ -25,81 +25,111 @@ adb -s "$SERIAL" shell getprop ro.build.version.release
 adb -s "$SERIAL" shell getprop ro.build.version.sdk
 ```
 
-The pilot device reported Android `14` and API `34`. Enable Airplane mode in the emulator's Quick Settings before launching BugBazaar, then confirm:
+The pilot device reported Android `14` and API `34`. Before launching BugBazaar, use Quick Settings to enable Airplane mode, turn Wi-Fi and mobile data off, and disconnect/disable Ethernet, VPN, and USB or Bluetooth tethering. Airplane mode alone is insufficient because Wi-Fi can be re-enabled while it remains on. Confirm the Wi-Fi state and that Android has no active default network:
 
 ```bash
-adb -s "$SERIAL" shell cmd connectivity airplane-mode
+set -euo pipefail
+AIRPLANE_STATUS=$(adb -s "$SERIAL" shell cmd connectivity airplane-mode)
+WIFI_STATUS=$(adb -s "$SERIAL" shell cmd wifi status)
+CONNECTIVITY_STATUS=$(adb -s "$SERIAL" shell dumpsys connectivity)
+if [ "$AIRPLANE_STATUS" != "enabled" ]; then
+  echo 'Airplane mode is not enabled; stopping.' >&2
+  exit 1
+fi
+case "$WIFI_STATUS" in
+  *"Wifi is disabled"*) ;;
+  *) echo 'Wi-Fi is not disabled; stopping.' >&2; exit 1 ;;
+esac
+case "$CONNECTIVITY_STATUS" in
+  *"Active default network: none"*) ;;
+  *) echo 'An active default network exists; stopping.' >&2; exit 1 ;;
+esac
+printf '%s\n' "$AIRPLANE_STATUS" "$WIFI_STATUS" 'Active default network: none'
 ```
 
-Expected: `enabled`. If ADB disconnects while changing network state, reconnect to the same existing emulator; do not wipe or reset it.
+Expected: `enabled`, `Wifi is disabled`, and `Active default network: none`. Also verify in Quick Settings that mobile data is off and no other network transport, VPN, or tethering is connected. Stop if any check fails or network isolation cannot be confirmed. If ADB disconnects while changing network state, reconnect to the same existing emulator; do not wipe or reset it.
 
 ### 2. Download and verify the prebuilt target APK
 
 ```bash
+set -euo pipefail
 APK=BugBazaar_v1.2.1.apk
+EXPECTED_SHA=c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c
 curl -fL -o "$APK" \
   https://github.com/payatu/BugBazaar/releases/download/v1.2.1/BugBazaar_v1.2.1.apk
-printf '%s  %s\n' \
-  c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c "$APK" \
-  | sha256sum --check -
-```
+printf '%s  %s\n' "$EXPECTED_SHA" "$APK" | sha256sum --check -
 
-Expected: `BugBazaar_v1.2.1.apk: OK`. The SHA-256 is `c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c`. The release is tied to the pinned source revision; the installed package reports `com.BugBazaar`, version name `1.0`, version code `1`.
-
-Check package state before installing:
-
-```bash
-adb -s "$SERIAL" shell pm path com.BugBazaar
-```
-
-If the package is absent, install the downloaded APK:
-
-```bash
-adb -s "$SERIAL" install "$APK"
-```
-
-Expected: `Success`. If BugBazaar is already installed, inspect `adb -s "$SERIAL" shell dumpsys package com.BugBazaar`; do not replace or clear an unknown installation. Confirm the installed build before continuing.
-
-Verify the package path and embedded version:
-
-```bash
-adb -s "$SERIAL" shell pm path com.BugBazaar
+INSTALLED_APK=$(adb -s "$SERIAL" shell pm path com.BugBazaar \
+  | sed -n 's/^package://p' | sed -n '1p')
+if [ -z "$INSTALLED_APK" ]; then
+  adb -s "$SERIAL" install "$APK"
+  INSTALLED_APK=$(adb -s "$SERIAL" shell pm path com.BugBazaar \
+    | sed -n 's/^package://p' | sed -n '1p')
+fi
+if [ -z "$INSTALLED_APK" ]; then
+  echo 'Could not identify the installed BugBazaar APK; stopping.' >&2
+  exit 1
+fi
+INSTALLED_SHA=$(adb -s "$SERIAL" shell sha256sum "$INSTALLED_APK" | awk '{print $1}')
+if [ "$INSTALLED_SHA" != "$EXPECTED_SHA" ]; then
+  echo 'Installed BugBazaar APK does not match the verified v1.2.1 release; stopping without replacing it.' >&2
+  exit 1
+fi
 adb -s "$SERIAL" shell dumpsys package com.BugBazaar | grep -E 'versionCode=|versionName='
 ```
 
-Expected: an installed path for `com.BugBazaar`, `versionCode=1`, and `versionName=1.0`.
+Expected: `BugBazaar_v1.2.1.apk: OK`, an installed APK SHA-256 equal to `EXPECTED_SHA`, and package version name `1.0` / version code `1`. The release is tied to the pinned source revision; package/version metadata alone cannot distinguish it from older releases. A checksum, ADB, or install error stops this block. If a pre-existing installation does not match the verified release, do not replace, uninstall, or clear it; stop and ask the instructor to resolve the emulator state.
 
 ### 3. Disable the first-run downloader before launch
 
-This debug APK's first-run path can download another APK from GitHub. Set its local guard before launching BugBazaar:
+This debug APK's first-run path can download another APK from GitHub. Preserve any existing preferences: if `MyAppPreferences.xml` already exists, accept it only when it already contains `isFirstRun=false`; otherwise stop without changing the file. Create the small guard file only when it is absent:
 
 ```bash
-adb -s "$SERIAL" shell "run-as com.BugBazaar sh -c 'mkdir -p shared_prefs && printf \"%s\\n\" \"<map>\" \"<boolean name=\\\"isFirstRun\\\" value=\\\"false\\\" />\" \"</map>\" > shared_prefs/MyAppPreferences.xml'"
+set -euo pipefail
+adb -s "$SERIAL" shell "run-as com.BugBazaar sh -c 'if [ -e shared_prefs/MyAppPreferences.xml ]; then grep -Fq \"name=\\\"isFirstRun\\\" value=\\\"false\\\"\" shared_prefs/MyAppPreferences.xml || { echo \"Existing preferences do not have isFirstRun=false; stopping without changes.\" >&2; exit 1; }; else mkdir -p shared_prefs && printf \"%s\\\\n\" \"<map>\" \"<boolean name=\\\"isFirstRun\\\" value=\\\"false\\\" />\" \"</map>\" > shared_prefs/MyAppPreferences.xml; fi'"
+adb -s "$SERIAL" shell 'run-as com.BugBazaar grep -Fq "name=\"isFirstRun\" value=\"false\"" shared_prefs/MyAppPreferences.xml'
 adb -s "$SERIAL" shell 'run-as com.BugBazaar cat shared_prefs/MyAppPreferences.xml'
 ```
 
-Expected output contains `<boolean name="isFirstRun" value="false" />`. If `run-as` fails or the value is not `false`, stop; do not launch the app. This step writes only the target's first-run preference, not its database.
+Expected output contains `<boolean name="isFirstRun" value="false" />`. If `run-as` fails or the value is not `false`, stop; do not launch the app. Existing preferences are never overwritten. The absent-file case creates only this first-run guard; it does not modify the database.
 
 ### 4. Create one synthetic address through the app UI
 
-Launch BugBazaar after the guard is verified. Use its local demo login (`admin` / `BugBazaarSeccool`) and set a lab-only four-digit passcode; these are local app credentials, not a cloud login. Deny unrelated SMS and storage/media permission prompts. Navigate to **Addresses** and save exactly one synthetic entry:
+Launch BugBazaar after the guard is verified. Use its local demo login (`admin` / `BugBazaarSeccool`) and set a lab-only four-digit passcode; these are local app credentials, not a cloud login. Deny unrelated SMS and storage/media permission prompts. The Addresses screen may display fictional seed rows; do not include those rows in submitted screenshots. Search Addresses for the exact nickname below before saving:
 
 - Nickname: `LAB29-PILOT-20261028-7F3A`
 - Address: `SYNTHETIC lab address 29 for lab only`
 
-The app should show a successful save and the exact marker in its saved-address list. Do not enter a real address or use provider writes to seed the record.
+If exactly one matching record exists, reuse it and do not save another. If no match exists, save exactly one entry with these values. If multiple matches appear or the result is uncertain, stop and ask the instructor; do not add another row. The app should show the exact marker in its search results. Do not enter a real address or use provider writes to seed the record.
 
 ![BugBazaar's address screen showing the uniquely marked synthetic lab record.](images/lab-29/bugbazaar-synthetic-address.png)
 
 ### 5. Query the provider from a separate ordinary app
 
-Obtain the instructor-supplied prebuilt caller APK separately; it is intentionally not deployed with this site. The pilot artifact's SHA-256 is `eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e`. Verify it, then install and launch its fixed read-only query:
+Obtain the instructor-supplied prebuilt caller APK separately; it is intentionally not deployed with this site. The pilot artifact's SHA-256 is `eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e`. Verify it, install only if absent, verify the installed caller APK hash too, then launch its fixed read-only query. A mismatching existing caller is not replaced; stop and ask the instructor.
 
 ```bash
-printf '%s  %s\n' \
-  eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e \
-  module-29-caller.apk | sha256sum --check -
-adb -s "$SERIAL" install module-29-caller.apk
+set -euo pipefail
+CALLER_APK=module-29-caller.apk
+CALLER_EXPECTED_SHA=eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e
+printf '%s  %s\n' "$CALLER_EXPECTED_SHA" "$CALLER_APK" | sha256sum --check -
+
+CALLER_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path org.lab.module29caller \
+  | sed -n 's/^package://p' | sed -n '1p')
+if [ -z "$CALLER_INSTALLED_APK" ]; then
+  adb -s "$SERIAL" install "$CALLER_APK"
+  CALLER_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path org.lab.module29caller \
+    | sed -n 's/^package://p' | sed -n '1p')
+fi
+if [ -z "$CALLER_INSTALLED_APK" ]; then
+  echo 'Could not identify the installed caller APK; stopping.' >&2
+  exit 1
+fi
+CALLER_INSTALLED_SHA=$(adb -s "$SERIAL" shell sha256sum "$CALLER_INSTALLED_APK" | awk '{print $1}')
+if [ "$CALLER_INSTALLED_SHA" != "$CALLER_EXPECTED_SHA" ]; then
+  echo 'Installed caller does not match the verified fixture; stopping without replacing it.' >&2
+  exit 1
+fi
 adb -s "$SERIAL" shell am start -n org.lab.module29caller/.MainActivity
 ```
 
@@ -123,7 +153,7 @@ SYNTHETIC lab address 29 for lab only
 
 ### 6. Interpret the result
 
-The installed manifest declares this provider exported and does not declare a provider read permission. The distinct ordinary app UID returned the exact synthetic row, so cross-app read access is demonstrated for that record. The helper deliberately did not query other rows; do not claim that real data was accessed or that every record is exposed based only on this run.
+The installed manifest declares this provider exported and does not declare a provider read permission. The distinct ordinary app UID returned the exact synthetic row, so cross-app read access is demonstrated for that record. The ordinary-app query was restricted to that marker; BugBazaar's UI can display other fictional seed rows, which are outside this query and must be excluded from submitted screenshots. Do not claim that real data was accessed or that every record is exposed based only on this run.
 
 ## Troubleshooting
 
