@@ -70,6 +70,7 @@ Inspect the new pages against the current `docs/00-common-setup.md` and `docs/29
 ### Task 2: Refocus lab setup references and extract Module 29 installation
 
 **Files:**
+- Modify: `docs/01-devom-setup.md` (lab endpoint guidance)
 - Modify: `docs/lab-structure.md`
 - Modify: `docs/09-jwt-account-state.md`
 - Modify: `docs/10-otp-bypass.md`
