@@ -45,23 +45,23 @@
 **Interfaces:**
 - Produces the setup page paths and navigation labels consumed by the lab pages: `00-common-setup.md` (Common prerequisites), `01-devom-setup.md` (Devom setup), and `02-bugbazaar-setup.md` (BugBazaar setup).
 
-- [ ] **Step 1: Narrow Common setup to shared prerequisites**
+- [x] **Step 1: Narrow Common setup to shared prerequisites**
 
 Keep the disposable environment, shared safety, emulator/ADB, command-line tool and licensing guidance in `docs/00-common-setup.md`. Remove the Devom and BugBazaar installation procedures, and add direct links to both target setup pages. Do not make Docker or Android Studio a universal prerequisite for installing prebuilt APKs.
 
-- [ ] **Step 2: Add the Devom setup page**
+- [x] **Step 2: Add the Devom setup page**
 
 Create `docs/01-devom-setup.md` with the pinned revision, included prebuilt `Dvom.apk`, manual Python backend setup as the primary path, app/backend URL configuration, lab credentials and source-derived caveats. State prominently that the pinned server runs in debug mode, listens on all interfaces, and uses ad-hoc TLS for manual and Docker launches; require an isolated disposable host and firewall controls. Correct the current HTTP scheme to HTTPS, note that certificate trust and app connectivity are environment-specific and unverified, and do not advise disabling certificate checks globally. Present command-driven installation in titled, clearly labeled blocks with concise success cues. Keep Docker Compose as an optional path and do not label either path runtime-verified.
 
-- [ ] **Step 3: Add the BugBazaar setup page**
+- [x] **Step 3: Add the BugBazaar setup page**
 
 Create `docs/02-bugbazaar-setup.md` with the official prebuilt `v1.2.1` asset, pinned source revision, target APK SHA-256, embedded app version caveat, offline/network-isolation checks, and the first-run downloader guard. Add the instructor-supplied prebuilt caller APK verification and installation steps, preserving caller SHA-256 `eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e`. Keep fail-closed behavior for mismatches and unknown existing state. Use titled, scannable command blocks and clear success cues; do not present existing exercise captures as installation screenshots. Do not publish the APK or instruct students to build it.
 
-- [ ] **Step 4: Add the Setup navigation group and update the home links**
+- [x] **Step 4: Add the Setup navigation group and update the home links**
 
 In `mkdocs.yml`, place Setup before Labs and list Common prerequisites, Devom setup, then BugBazaar setup. Exclude `/superpowers/` from generated site output while keeping those files in the repository. In `docs/index.md`, direct the setup CTA and notice to Common prerequisites, and make clear that learners should continue to the target setup for their chosen lab.
 
-- [ ] **Step 5: Review setup content and commit Task 1**
+- [x] **Step 5: Review setup content and commit Task 1**
 
 Inspect the new pages against the current `docs/00-common-setup.md` and `docs/29-components.md`; verify all revisions and hashes are unchanged and no target-build instructions were introduced. Stage and commit only the Task 1 files.
 
@@ -71,6 +71,7 @@ Inspect the new pages against the current `docs/00-common-setup.md` and `docs/29
 
 **Files:**
 - Modify: `docs/01-devom-setup.md` (lab endpoint guidance)
+- Modify: `docs/02-bugbazaar-setup.md` (clarify offline Lab 27 boundary)
 - Modify: `docs/lab-structure.md`
 - Modify: `docs/09-jwt-account-state.md`
 - Modify: `docs/10-otp-bypass.md`
