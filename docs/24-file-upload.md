@@ -1,48 +1,134 @@
 # 24 — Unrestricted file upload
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md).
+*Can Devom store and serve a file it should have rejected?*
 
-## Objective and challenge
-Check whether the profile picture upload validates file type and ownership. First upload a harmless image. Then try a small text file with a different declared type or extension, and check whether you can retrieve it. Do not upload executable code or real data.
+## What this lab does
+
+You will upload a harmless text file as a profile picture, retrieve it by the filename the server returns, and then upload a small HTML file the same way. The lab checks two things: whether the server validates the file type, and whether the stored file can be read without an authenticated session.
+
+A text file and an HTML file are not executable code. Storing them shows missing validation and missing access control; it does not show code execution.
+
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). The handler and expected responses come from that revision; the runtime results have **not** been piloted.
 
 ## Before you begin
 
-Obtain a disposable user ID, a harmless image and a small text file containing a unique synthetic marker. These steps are source-based and have not been piloted.
+Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use the seeded `cala` account and the disposable `uploads/` directory inside the checkout.
+
+Do not upload an executable, a script, a real photo, or personal data. Keep the test files under a few kilobytes and give them unique names so you do not overwrite anything.
+
+## Tools needed
+
+- The running Devom backend from [Devom setup](01-devom-setup.md).
+- Bash and `curl`.
+
+The upload and retrieval endpoints are exempt from Devom's response encryption, so `User-Agent` does not matter here.
 
 ## Guided walkthrough
 
-**Tools:** Bash, `curl` and two harmless files. Create the text sample in an instructor-approved working directory, using a new filename so you do not overwrite an existing file:
+### 1. Create the test files
 
-```bash
-printf '%s\n' 'LAB_UPLOAD_MARKER' > lab-marker.txt
+```bash title="Create a text file and a small HTML file"
 BASE='https://127.0.0.1:8080'
-USER_ID='LAB_USER_ID'
-curl --insecure -i -F "user_id=$USER_ID" -F 'file=@lab-marker.txt;type=text/plain' "$BASE/upload_profile_pic"
+printf 'LAB24_TEXT_MARKER_7f3a\n' > lab24-marker.txt
+printf '<h1>LAB24_HTML_MARKER_7f3a</h1>\n' > lab24-page.html
+ls -l lab24-marker.txt lab24-page.html
 ```
 
-Replace the ID with your assigned user. Repeat with an instructor-provided image by changing the file path and MIME type. The command is derived from the handler and has not been piloted; inspect the returned filename before attempting retrieval. Do not upload an executable file.
+!!! success "Expected"
+    Both files exist and are a few dozen bytes. The HTML file contains no script, only a heading.
 
-1. Send a multipart `POST /upload_profile_pic` with the assigned `user_id` and the image in field `file`. Record the response, including its returned filename.
-2. Retrieve the returned filename from `/view_upload/<filename>` and record the response status and content type. This is your normal-file baseline.
-3. Repeat the upload using the harmless text file. Record its actual content, filename, declared multipart content type and server response. Use only an instructor-approved test user ID.
-4. If a filename is returned, request it through `/view_upload/<filename>`. Check whether the synthetic marker is present and compare the response headers with the baseline.
-5. Inspect the handler for file-type and ownership checks. Explain what the results demonstrate and what they do not: storage or retrieval of text does not establish code execution.
+### 2. Upload the text file as a profile picture
+
+```bash title="Upload the text file"
+curl --insecure -i -F 'user_id=100500' \
+  -F 'file=@lab24-marker.txt;type=text/plain' "$BASE/upload_profile_pic"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK` with `{"status": "success", "filename": "user_100500_lab24-marker.txt", "server_debug": "Processing file: user_100500_lab24-marker.txt\n"}`.
+
+The upload was accepted even though it is not an image. The server prefixes the name with `user_<user_id>_` and keeps your extension.
+
+### 3. Retrieve the file without a session
+
+```bash title="Read the uploaded file back"
+curl --insecure -i "$BASE/view_upload/user_100500_lab24-marker.txt"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK`, `Content-Type: text/plain`, and the body `LAB24_TEXT_MARKER_7f3a`.
+
+Notice what the request did **not** include: an `Authorization` header, a token, or any claim to be `cala`. The file is served to anyone who knows the URL.
+
+### 4. Upload the HTML file and retrieve it
+
+```bash title="Upload the HTML file"
+curl --insecure -i -F 'user_id=100500' \
+  -F 'file=@lab24-page.html;type=text/html' "$BASE/upload_profile_pic"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK` with `"filename": "user_100500_lab24-page.html"`.
+
+```bash title="Read the HTML file back"
+curl --insecure -i "$BASE/view_upload/user_100500_lab24-page.html"
+```
+
+!!! success "Expected"
+    `HTTP/1.1 200 OK`, `Content-Type: text/html`, and the `<h1>` line as the body.
+
+The server chooses the content type from the file extension, so the same origin will render this file as a page. That is why the lab uses a heading and no script: the point is that the type was not checked, not that anything executes.
+
+### 5. Compare the checks in the handler
+
+Open `server.py` and read `upload_profile_pic` and `view_upload`. In this revision:
+
+- The handler checks only that a `file` part exists. It does not check the extension, the declared MIME type, the file's contents, or the size.
+- The stored name is `user_<uid>_<original filename>`, and `file.save()` writes it under `uploads/`.
+- `view_upload` calls `send_file(os.path.join(UPLOAD_FOLDER, filename))` with no authentication and no ownership check.
+
+### 6. State what the result proves
+
+- Uploading and retrieving a text or HTML file shows missing type validation and missing access control on retrieval.
+- It does not show code execution, a web shell, or access to another user's private file.
+- The filename includes the user ID, so two users uploading `photo.jpg` do not collide. That is a naming convenience, not an authorization check.
 
 ## Troubleshooting
 
-Use the returned filename rather than assuming the server preserves your original name. If retrieval fails, record the response and check whether upload succeeded.
+- **`400` with `{"status": "error"}`:** the `file` part is missing. Keep the `-F` field name exactly `file`.
+- **`404` when retrieving:** use the `filename` value from the upload response, not your local filename.
+- **The response shows a different content type:** the server derives it from the extension. Rename the local file rather than setting `type=` alone if you need a different type.
+- **`curl` reports a certificate error:** keep `--insecure` for this loopback request only.
+- **The upload succeeds but `profile_pic` is unchanged:** the filename contains `kyc` or `identity`, which this revision treats as KYC data. Avoid those words in test filenames.
 
 <details markdown="1">
 <summary>Hints</summary>
 
-1. Compare content, filename and multipart content type.
-2. Inspect `/upload_profile_pic` and `/view_upload`; saving a file alone is not proof of server-side code execution.
+1. Compare the extension, the multipart `type=`, and what the server actually stored.
+2. `send_file` guesses the response content type from the filename.
+3. `view_upload` has no `@token_required` decorator and no ownership lookup.
 
 </details>
 
 ## Evidence
-Provide sanitized request metadata, returned filename, retrieval response, actual content type, impact limits and an allowlist/storage/access-control remediation.
+
+Submit these four items:
+
+- **Upload responses:** the status and returned `filename` for both files.
+- **Retrieval responses:** the status, `Content-Type`, and body for both files, with the requests shown to have no `Authorization` header.
+- **Handler note:** one or two sentences quoting the missing checks in `upload_profile_pic` and `view_upload`.
+- **Limits:** state that the files were text and HTML, that nothing executed, and that no other user's file was accessed.
+
+## Vulnerability and Impact
+
+Devom stores any file a client sends and serves it back from `/view_upload` without authentication. In the inspected revision there is no extension allowlist, no content inspection, and no ownership check on retrieval. The naming scheme uses the user ID to avoid collisions but does not decide who may read the result.
+
+The practical impact is that an unauthenticated visitor can read uploaded identity documents and profile pictures if the filename is known, and the server will serve learner-supplied HTML from its own origin. The filename is predictable enough that a user ID plus a guessed name narrows the search. This lab does not demonstrate code execution or a path traversal; Lab 25 covers reading outside the uploads directory.
 
 ## Cleanup and review
 
-Ask the instructor to remove the two test uploads at reset. Where should content validation and access control be enforced, and why should uploaded content be stored separately from executable application code?
+- Remove the local test files: `rm -f lab24-marker.txt lab24-page.html`.
+- Leave the two uploaded copies in `uploads/` for the instructor's reset, or delete only `user_100500_lab24-marker.txt` and `user_100500_lab24-page.html` if your lab policy allows it.
+- `cala`'s `profile_pic` column now points at the last upload. Note it in your report; later labs do not depend on it.
+
+Where should the type check happen, where should the access check happen, and why should uploaded content be stored and served from a location that cannot execute or render application code?
