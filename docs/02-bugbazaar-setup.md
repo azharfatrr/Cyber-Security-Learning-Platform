@@ -4,7 +4,7 @@ Complete [Common prerequisites](00-common-setup.md) first. This page prepares th
 
 **Status:** The APK hash and the Module 29 workflow were tested on 29 October 2026 on Android 14 / API 34. Other emulator images may behave differently.
 
-The offline procedure below prepares the local exercises (Labs 29 and 30). Lab 27 needs a separately provisioned, authorized cloud environment; do not use the upstream Firebase project. If Lab 27 is approved later, the environment owner defines its restricted network path instead of using this offline-only state.
+The APK includes configuration for an upstream Firebase project, a Firebase Storage flow, and a first-run path that downloads another APK. Labs 29 and 30 use local app functionality and need no external network access. Keep the emulator on the approved egress-restricted lab network; do not allow public or corporate access or contact the upstream Firebase project or downloader. Lab 27 requires a separately provisioned, authorized Firebase environment with only its approved network path.
 
 ## Pinned release and artifacts
 
@@ -14,43 +14,17 @@ The offline procedure below prepares the local exercises (Labs 29 and 30). Lab 2
 - The release APK embeds app version `1.0` (version code `1`), not `1.2.1`.
 - Lab 29 also requires the prebuilt ordinary-caller APK, published here as [module-29-caller.apk](assets/apk/module-29-caller.apk). Its SHA-256 is `5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc`. Do not build or substitute another caller.
 
-Use an approved disposable emulator with ADB access. Do not use a personal phone, real contacts, or personal addresses. Keep the device offline during the local exercise; download the APKs on the host before installing them. If network isolation, package identity, or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
+Use an approved disposable emulator with ADB access on the restricted lab network described in [Common prerequisites](00-common-setup.md). Do not use a personal phone, real contacts, or personal addresses. Download the APKs on the host before installing them. If the network egress policy, package identity, or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
 
-## 1. Isolate the emulator
+## Network policy for local labs
 
-Before launching BugBazaar, enable Airplane mode, turn Wi-Fi and mobile data off, and disconnect or disable Ethernet, VPN, and USB/Bluetooth tethering. Airplane mode alone is insufficient because Wi-Fi can be re-enabled. Check the emulator state with ADB:
+Before launching BugBazaar for Labs 29 or 30, confirm that the disposable emulator's network policy blocks egress to public and corporate networks, including the upstream Firebase project and the first-run APK download host. These local exercises need no external connection. Configure this at the approved VM, firewall, or virtual-network boundary; do not rely on ADB connectivity or the emulator's Wi-Fi indicator as proof that egress is blocked. If you cannot confirm the policy, stop. Lab 27 is separate and requires its own authorized Firebase environment and restricted route.
 
-```bash title="01 · Confirm the emulator is offline"
-set -euo pipefail
-SERIAL=emulator-5554
-adb -s "$SERIAL" shell getprop ro.build.version.release
-adb -s "$SERIAL" shell getprop ro.build.version.sdk
-AIRPLANE_STATUS=$(adb -s "$SERIAL" shell cmd connectivity airplane-mode)
-WIFI_STATUS=$(adb -s "$SERIAL" shell cmd wifi status)
-CONNECTIVITY_STATUS=$(adb -s "$SERIAL" shell dumpsys connectivity)
-if [ "$AIRPLANE_STATUS" != "enabled" ]; then
-  echo 'Airplane mode is not enabled; stopping.' >&2
-  exit 1
-fi
-case "$WIFI_STATUS" in
-  *"Wifi is disabled"*) ;;
-  *) echo 'Wi-Fi is not disabled; stopping.' >&2; exit 1 ;;
-esac
-case "$CONNECTIVITY_STATUS" in
-  *"Active default network: none"*) ;;
-  *) echo 'An active default network exists; stopping.' >&2; exit 1 ;;
-esac
-printf '%s\n' "$AIRPLANE_STATUS" "$WIFI_STATUS" 'Active default network: none'
-```
+## 1. Download and verify the target APK
 
-!!! success "Expected"
-    Android reports airplane mode `enabled`, `Wifi is disabled`, and `Active default network: none`. Also verify in Quick Settings that mobile data is off and no other transport, VPN, or tethering is connected. Stop if any check fails or isolation cannot be confirmed. If ADB disconnects while changing network state, reconnect to the same existing emulator; do not wipe or reset it. Substitute the serial shown by `adb devices -l` if it differs from `emulator-5554`.
+Run on the host, not from the emulator:
 
-## 2. Download and verify the target APK
-
-Run on the host, not on the offline emulator:
-
-```bash title="02 · Download, verify, and install BugBazaar"
+```bash title="01 · Download, verify, and install BugBazaar"
 set -euo pipefail
 SERIAL=emulator-5554
 APK=BugBazaar_v1.2.1.apk
@@ -81,11 +55,11 @@ adb -s "$SERIAL" shell dumpsys package com.BugBazaar | grep -E 'versionCode=|ver
 !!! success "Expected"
     The downloaded APK hash matches, the installed APK hash is identical, and package metadata reports version name `1.0` / version code `1`. A checksum, ADB, or installation error stops this procedure. If a pre-existing installation does not match, do not replace, uninstall, or clear it; use a fresh disposable emulator. Package metadata alone cannot distinguish this release from older versions.
 
-## 3. Disable the first-run downloader before launch
+## 2. Disable the first-run downloader before launch
 
 This debug APK's first-run path can download another APK from GitHub. Preserve existing preferences: if `MyAppPreferences.xml` already exists, accept it only if it already contains `isFirstRun=false`; otherwise stop without changing it. Create the small guard only when the file is absent:
 
-```bash title="03 · Set the first-run download guard"
+```bash title="02 · Set the first-run download guard"
 set -euo pipefail
 SERIAL=emulator-5554
 adb -s "$SERIAL" shell "run-as com.BugBazaar sh -c 'if [ -e shared_prefs/MyAppPreferences.xml ]; then grep -Fq \"name=\\\"isFirstRun\\\" value=\\\"false\\\"\" shared_prefs/MyAppPreferences.xml || { echo \"Existing preferences do not have isFirstRun=false; stopping without changes.\" >&2; exit 1; }; else mkdir -p shared_prefs && printf \"%s\\\\n\" \"<map>\" \"<boolean name=\\\"isFirstRun\\\" value=\\\"false\\\" />\" \"</map>\" > shared_prefs/MyAppPreferences.xml; fi'"
@@ -96,13 +70,13 @@ adb -s "$SERIAL" shell 'run-as com.BugBazaar cat shared_prefs/MyAppPreferences.x
 !!! success "Expected"
     The output contains `<boolean name="isFirstRun" value="false" />`. If `run-as` fails or the value is not `false`, stop; do not launch the app. Existing preferences are never overwritten. In the absent-file case this creates only the first-run guard; it does not modify the database.
 
-## 4. Install the prebuilt Module 29 caller APK
+## 3. Install the prebuilt Module 29 caller APK
 
 The caller is a separate ordinary app with its own package and UID. Download the published [module-29-caller.apk](assets/apk/module-29-caller.apk) on the host during setup. Install and verify it now, but do not launch it until Lab 29 has created or confirmed its synthetic marker record.
 
-Save the downloaded `module-29-caller.apk` in the current host working directory before running the command block. Keep the emulator offline; download or copy the artifact on the host.
+Save the downloaded `module-29-caller.apk` in the current host working directory before running the command block. Download or copy the artifact on the host, not from the emulator.
 
-```bash title="04 · Verify and install the caller APK"
+```bash title="03 · Verify and install the caller APK"
 set -euo pipefail
 SERIAL=emulator-5554
 CALLER_APK=module-29-caller.apk
@@ -134,4 +108,4 @@ If a different caller is already installed, do not replace or uninstall it; use 
 
 ## Ready for a lab
 
-BugBazaar is ready only when the target APK and, for Lab 29, the caller APK match their expected hashes, the first-run guard reads back correctly, and the emulator's offline state is confirmed. Return to the selected lab for scenario-specific accounts, data, and exercise steps. BugBazaar setup alone does not satisfy Lab 27's cloud authorization requirements or replace Lab 30's Frida prerequisites.
+BugBazaar is ready for Labs 29–30 only when the target APK and, for Lab 29, the caller APK match their expected hashes, the first-run guard reads back correctly, and the restricted egress policy is confirmed. Return to the selected lab for scenario-specific accounts, data, and exercise steps. BugBazaar setup alone does not satisfy Lab 27's cloud authorization requirements or replace Lab 30's Frida prerequisites.

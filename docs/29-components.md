@@ -16,7 +16,7 @@ If the caller displays the address and the UIDs differ, BugBazaar returned that 
 
 ## Before you begin
 
-Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Install and verify BugBazaar and the prebuilt caller app before starting. Use an approved disposable emulator and keep it offline. Do not build either app or use a personal phone, real contacts, or personal addresses.
+Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Install and verify BugBazaar and the prebuilt caller app before starting. Use an approved disposable emulator on the egress-restricted lab network. Do not build either app or use a personal phone, real contacts, or personal addresses.
 
 ## Tools needed
 
@@ -54,7 +54,7 @@ Check the output:
 
 Record BugBazaar's UID. It varies by emulator; you will compare it with the caller's UID in Step 3.
 
-If the emulator is missing, unauthorized, or either package has no `package:` path, stop. Do not wipe or reset the emulator. Confirm it remains offline as described in BugBazaar setup.
+If the emulator is missing, unauthorized, or either package has no `package:` path, stop. Do not wipe or reset the emulator. Confirm its egress restrictions as described in BugBazaar setup.
 
 ### 2. Find or create the synthetic address
 

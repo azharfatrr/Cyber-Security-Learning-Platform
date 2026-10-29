@@ -15,7 +15,7 @@ The target setup pages pin the reviewed revisions and APK artifacts. Review each
 
 Use an approved disposable VM and Android emulator with synthetic data. Have Android SDK Platform Tools (`adb`), Bash, `curl`, and `sha256sum` available. Use an API client or debugging proxy only for labs that require one, and keep it local to the isolated environment.
 
-Restrict network egress and block unrelated hosts from reaching lab services. Some labs need the emulator to reach a local backend; allow only that approved path. Follow the target setup's network instructions—BugBazaar exercises should use an offline emulator where specified. Do not publicly forward a proxy or service.
+Use the same network-safety baseline for both targets: block public and corporate access, restrict network egress, and allow only the path required for the selected lab. Devom may need an approved local route from the emulator to its backend. BugBazaar Labs 29–30 need no external network access; Lab 27 uses only its separately authorized Firebase path. Do not publicly forward a proxy or service.
 
 Android Studio is not required just to install the supplied APKs; you can use it to manage an emulator. Docker is optional for the Devom backend and is not required for APK installation. Labs 29–30 may need a compatible instrumentable emulator and Frida tooling; use only the disposable lab device and follow the individual lab's prerequisites.
 

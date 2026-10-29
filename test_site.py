@@ -90,6 +90,21 @@ class SiteTest(unittest.TestCase):
                 self.assertLess(evidence, hints)
                 self.assertLess(hints, vulnerability)
 
+    def test_target_setup_guides_use_restricted_egress_not_airplane_mode(self):
+        root = Path(__file__).parent
+        devom_setup = (root / "docs/01-devom-setup.md").read_text().lower()
+        bugbazaar_setup = (root / "docs/02-bugbazaar-setup.md").read_text().lower()
+
+        self.assertIn("network egress", devom_setup)
+        self.assertIn("network egress", bugbazaar_setup)
+        self.assertNotIn("airplane mode", bugbazaar_setup)
+        self.assertNotIn("offline", bugbazaar_setup)
+
+        for lab_page in ("27-cloud-database.md", "29-components.md", "30-runtime-bypass.md"):
+            with self.subTest(path=lab_page):
+                content = (root / "docs" / lab_page).read_text().lower()
+                self.assertNotIn("keep the emulator offline", content)
+
 
 if __name__ == "__main__":
     unittest.main()

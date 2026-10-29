@@ -33,7 +33,7 @@ If any item is missing, stop. Do not guess a project ID, reuse a key from the AP
 
 ## Before you begin
 
-Do not start with the app. First confirm the scope document and the environment identifier, then confirm that the app's configuration matches that identifier. Keep the emulator offline as described in BugBazaar setup unless the approved environment requires a specific, restricted network path.
+Do not start with the app. First confirm the scope document and the environment identifier, then confirm that the app's configuration matches that identifier. Use only the separately approved Firebase environment and its restricted network path; do not connect to the upstream project or allow unrelated egress.
 
 ## Tools needed
 
