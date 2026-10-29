@@ -57,6 +57,15 @@ class SiteTest(unittest.TestCase):
                 content = (root / "docs" / lab_page).read_text()
                 self.assertIn('!!! important "Key observation"', content)
 
+    def test_key_observation_callouts_use_orange_in_both_themes(self):
+        root = Path(__file__).parent
+        stylesheet = (root / "docs/stylesheets/extra.css").read_text()
+
+        self.assertIn(".md-typeset .admonition.important", stylesheet)
+        self.assertIn("#a75a07", stylesheet)
+        self.assertIn('[data-md-color-scheme="slate"] .md-typeset .admonition.important', stylesheet)
+        self.assertIn("#ffae54", stylesheet)
+
 
 if __name__ == "__main__":
     unittest.main()
