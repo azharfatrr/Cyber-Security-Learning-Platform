@@ -17,6 +17,7 @@
 - Shared prerequisites remain separate from target-specific setup.
 - BugBazaar setup covers the separate instructor-supplied, prebuilt Module 29 caller APK; learners do not build it.
 - Setup pages use real, relevant screenshots only if available; otherwise use titled, scannable command blocks with clear success cues.
+- Keep `docs/superpowers/` in the repository but exclude it from the generated site.
 - Preserve the Module 29 synthetic-record scope and evidence limitations.
 - Preserve the pending removal of `test_site.py` and its CI invocation. Do not run tests.
 
@@ -57,7 +58,7 @@ Create `docs/02-bugbazaar-setup.md` with the official prebuilt `v1.2.1` asset, p
 
 - [ ] **Step 4: Add the Setup navigation group and update the home links**
 
-In `mkdocs.yml`, place Setup before Labs and list Common prerequisites, Devom setup, then BugBazaar setup. In `docs/index.md`, direct the setup CTA and notice to Common prerequisites, and make clear that learners should continue to the target setup for their chosen lab.
+In `mkdocs.yml`, place Setup before Labs and list Common prerequisites, Devom setup, then BugBazaar setup. Exclude `/superpowers/` from generated site output while keeping those files in the repository. In `docs/index.md`, direct the setup CTA and notice to Common prerequisites, and make clear that learners should continue to the target setup for their chosen lab.
 
 - [ ] **Step 5: Review setup content and commit Task 1**
 

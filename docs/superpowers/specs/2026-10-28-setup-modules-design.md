@@ -28,6 +28,8 @@ Add a **Setup** navigation group before **Labs**, with these entries:
 
 The **Labs** group and existing lab URLs remain unchanged. The existing home-page setup button and notice link to Common prerequisites, which directs learners to the setup module for their selected target. `docs/lab-structure.md` will describe this shared-prerequisite plus target-setup pattern.
 
+Keep the design and implementation plan available in the repository for review, but exclude `docs/superpowers/` from the generated training site.
+
 ## Setup module responsibilities
 
 ### Common prerequisites
@@ -66,7 +68,8 @@ Make installation steps easy to scan with concise step headings, titled command 
 5. Setup instructions use relevant real screenshots when available, and otherwise present command-driven steps in titled blocks with clear success cues; no exercise screenshot is repurposed as installation evidence.
 6. Every lab links to Common prerequisites and its target setup without changing its learning objective or exercise-specific findings.
 7. Lab 29 assumes target and caller installation is complete, but retains the synthetic-record cross-app exercise and its evidence limitations.
-8. Home-page and lab-structure guidance reflect the new separation, and a strict MkDocs build succeeds. Do not run the removed unit-test suite.
+8. The design and plan remain in the repository but are not copied into the generated training site.
+9. Home-page and lab-structure guidance reflect the new separation, and a strict MkDocs build succeeds. Do not run the removed unit-test suite.
 
 ## Scope boundaries and risks
 
