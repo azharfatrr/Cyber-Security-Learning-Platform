@@ -21,6 +21,8 @@ Devom is the stronger foundation for the selected backend and API scenarios: its
 
 ## Module-by-module assessment
 
+The “Pilot requirements” and “Guide gap” lines below describe what was missing at the time of the static review. The lab pages now record the pilot results and how each gap was addressed; Lab 27 and the unfinished part of Lab 30 are the exceptions.
+
 ### 9 — JWT-based account state bypass: Devom, source-backed
 
 - `/login` derives `locked` from database status, generates a token and returns it even for a blocked account. `validate_jwt` verifies the HS256 signature and then checks the token's `locked` claim; it does not consult current database status. The signing key is initialized by Compose, and `admin_routes.py` provides an authenticated user-status update.
