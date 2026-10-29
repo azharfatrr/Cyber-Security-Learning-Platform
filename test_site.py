@@ -125,10 +125,17 @@ class SiteTest(unittest.TestCase):
         self.assertIn("set -euo pipefail", target_block)
         self.assertIn("set -euo pipefail", caller_block)
         self.assertIn("CALLER_EXPECTED_SHA=eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e", caller_block)
-        self.assertLess(target_block.index("sha256sum --check -"), target_block.index('adb -s "$SERIAL" install'))
+        target_installed_hash_check = target_block.index('if [ "$INSTALLED_SHA" != "$EXPECTED_SHA" ]; then')
+        target_install = target_block.index('adb -s "$SERIAL" install')
+        caller_installed_hash_check = caller_block.index(
+            'if [ "$CALLER_INSTALLED_SHA" != "$CALLER_EXPECTED_SHA" ]; then'
+        )
+        caller_launch = caller_block.index("am start")
+        self.assertLess(target_block.index("sha256sum --check -"), target_install)
+        self.assertLess(target_installed_hash_check, target_block.index("dumpsys package com.BugBazaar"))
         self.assertLess(caller_block.index("sha256sum --check -"), caller_block.index("CALLER_INSTALLED_APK"))
-        self.assertLess(caller_block.index('adb -s "$SERIAL" install'), caller_block.index("am start"))
-        self.assertIn('if [ "$CALLER_INSTALLED_SHA" != "$CALLER_EXPECTED_SHA" ]; then', caller_block)
+        self.assertLess(caller_block.index('adb -s "$SERIAL" install'), caller_launch)
+        self.assertLess(caller_installed_hash_check, caller_launch)
 
     def test_module_29_requires_all_network_transports_off(self):
         root = Path(__file__).parent
