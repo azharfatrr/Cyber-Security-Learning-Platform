@@ -79,7 +79,7 @@ In the browser on the lab VM:
 !!! success "Expected"
     The row's status changes to the red `BLOCKED` badge and the button becomes **UNBLOCK**.
 
-![The admin console after blocking cala: the row shows the red BLOCKED badge and an UNBLOCK button.](images/lab-09/admin-console-blocked.png)
+![The admin console filtered to cala after blocking: the row shows the red BLOCKED badge and an UNBLOCK button.](images/lab-09/admin-console-blocked.png)
 
 ### 4. Compare the old token with a new one
 
