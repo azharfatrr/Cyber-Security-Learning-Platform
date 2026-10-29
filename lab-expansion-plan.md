@@ -13,7 +13,9 @@
 
 ## Tasks
 
-- [ ] Document the agreed reusable lab structure: overview, prerequisites, scenario, guided stages, hints, evidence, cleanup, and review.
-- [ ] Expand Devom labs 9, 10, 14, 24, 25, 26 and 28 with source-backed steps, expected observations clearly labeled as unverified, and lab-specific cleanup.
-- [ ] Expand BugBazaar labs 29 and 30 using inspected source, and retain module 27 as blocked until the cloud environment exists.
-- [ ] Check all guides for coverage, source fidelity, safety, working links, and consistency; run the MkDocs site test. Report which walkthroughs remain unpiloted.
+**Status (29 October 2026):** Tasks 1–3 are complete. Task 4 was checked as part of the pilots: internal links and images resolve, the strict MkDocs build and site tests pass in CI, and the pages state their status. Lab 27 remains blocked and Lab 30 remains partly piloted.
+
+- [x] Document the agreed reusable lab structure: overview, prerequisites, scenario, guided stages, hints, evidence, cleanup, and review.
+- [x] Expand Devom labs 9, 10, 14, 24, 25, 26 and 28 with source-backed steps, expected observations, and lab-specific cleanup; replace unverified expectations with observed results after each pilot.
+- [x] Expand BugBazaar labs 29 and 30 using inspected source, and retain module 27 as blocked until the cloud environment exists.
+- [x] Check all guides for coverage, source fidelity, safety, working links, and consistency; run the MkDocs site test. Report which walkthroughs remain unpiloted.

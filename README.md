@@ -27,7 +27,7 @@ python3 -m mkdocs build --strict
 
 ## Lab readiness and safety
 
-The lab walkthroughs have not been runtime-tested. An instructor should pilot each exercise before class. Use only an isolated, authorized environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services. The cloud database lab is blocked until an authorized disposable environment is available.
+Most walkthroughs have been piloted: Labs 09, 10, 14, 24, 25, 26, 28, and 29 were run end to end, and their pages include observed output and screenshots. Lab 30's hook ran, but its same-PIN comparison is incomplete. The cloud database lab (27) is blocked until an authorized disposable environment is available. Use only an isolated, authorized environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services.
 
 ## Lab guides
 

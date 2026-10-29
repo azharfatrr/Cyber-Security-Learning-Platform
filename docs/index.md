@@ -21,7 +21,7 @@ Guides for testing Android applications and APIs in an isolated lab.
 </div>
 
 <div class="catalog-notice" markdown="1">
-**Before you start:** These guides have not all been runtime-tested. An instructor should pilot each exercise. Use only an isolated, authorized environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup module for the target used by your lab.
+**Before you start:** Seven Devom labs (09, 10, 14, 24, 25, 26, 28) and the Android components lab (29) are piloted, with observed results and screenshots on each page. Lab 30's hook ran, but its same-PIN comparison is incomplete. Lab 27 is blocked until an authorized cloud environment exists. Use only an isolated, authorized environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup module for the target used by your lab.
 </div>
 
 ## Lab catalog
@@ -48,11 +48,11 @@ Test account state and second-factor checks.
 <div class="grid cards auth-cards" markdown>
 
 - **09 · [JWT account state](09-jwt-account-state.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Check how a suspended account's session is handled.
 
 - **10 · [OTP authentication](10-otp-bypass.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Trace token issuance and second-factor verification.
 
 </div>
@@ -70,15 +70,15 @@ Investigate upload processing and file retrieval.
 <div class="grid cards file-cards" markdown>
 
 - **14 · [Command injection](14-command-injection.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Follow a filename into server-side processing.
 
 - **24 · [File upload](24-file-upload.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Test how the application handles an unexpected file type.
 
 - **25 · [Path traversal](25-path-traversal.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Check a retrieval boundary using a harmless marker.
 
 </div>
@@ -96,7 +96,7 @@ Examine transactions, object access, and database permissions.
 <div class="grid cards api-cards" markdown>
 
 - **26 · [Transaction validation](26-transactions.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Compare the results of valid and invalid transfers.
 
 - **27 · [Cloud database](27-cloud-database.md)**  
@@ -104,7 +104,7 @@ Examine transactions, object access, and database permissions.
   Requires an authorized, disposable cloud environment.
 
 - **28 · [Object authorization](28-bola.md)**  
-  <span class="card-meta">Devom · Awaiting pilot</span><br>
+  <span class="card-meta">Devom · Piloted 29 Oct 2026</span><br>
   Test access between two assigned lab accounts.
 
 </div>
@@ -122,11 +122,11 @@ Inspect app components and client-side decisions.
 <div class="grid cards android-cards" markdown>
 
 - **29 · [Android components](29-components.md)**  
-  <span class="card-meta">BugBazaar · Awaiting pilot</span><br>
+  <span class="card-meta">BugBazaar · Piloted 29 Oct 2026</span><br>
   Test access to an exported component.
 
 - **30 · [Runtime bypass](30-runtime-bypass.md)**  
-  <span class="card-meta">BugBazaar · Awaiting pilot</span><br>
+  <span class="card-meta">BugBazaar · Partial pilot</span><br>
   Inspect a local passcode check at runtime.
 
 </div>
