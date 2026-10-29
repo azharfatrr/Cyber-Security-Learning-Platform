@@ -8,47 +8,64 @@ Inspect the installed package's exported Android components and their access con
 
 ## Before you begin
 
-Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md), including installation and verification of both the target and prebuilt ordinary-caller APK. Do not build either app. Use an instructor-approved disposable Android emulator with ADB access; do not use a personal phone, real contacts, or personal addresses. Keep the emulator offline as configured in setup. You need `adb` for the walkthrough.
+Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Both BugBazaar and the prebuilt caller app must already be installed and verified, and the emulator must be offline. Do not build either app. Use an instructor-approved disposable emulator; do not use a personal phone, real contacts, or personal addresses.
+
+## Tools needed
+
+- An Android emulator with ADB access.
+- Android SDK Platform Tools (`adb`) and a terminal on the host computer.
+- The BugBazaar target app and the instructor-supplied Module 29 caller app, installed as described in [BugBazaar setup](02-bugbazaar-setup.md).
+
+Run ADB commands in the host terminal. Do the login, address search, and caller-screen check in the emulator. This walkthrough does not install or build apps.
 
 ## Guided walkthrough
 
-**Tools:** Android SDK Platform Tools (`adb`). These commands use the pilot serial; substitute the serial shown by `adb devices -l` if yours differs.
+### 1. Check the emulator and installed apps
 
-### 1. Confirm the emulator and setup readiness
+In the host terminal, list connected devices. Set `SERIAL` to the emulator's serial from that list. The example below uses the pilot serial.
 
-```bash
+```bash title="Check the emulator and installed apps"
+set -euo pipefail
 adb devices -l
-SERIAL=emulator-5554
+SERIAL=emulator-5554  # Replace if your emulator has a different serial
 adb -s "$SERIAL" shell getprop ro.build.version.release
 adb -s "$SERIAL" shell getprop ro.build.version.sdk
 adb -s "$SERIAL" shell pm path com.BugBazaar
 adb -s "$SERIAL" shell pm path org.lab.module29caller
+adb -s "$SERIAL" shell pm list packages -U com.BugBazaar
 ```
 
-The pilot device reported Android `14` and API `34`. Both `pm path` commands should return an installed package path. The emulator must remain offline as verified in [BugBazaar setup](02-bugbazaar-setup.md); if its network state or either package is uncertain, stop and ask the instructor. Do not wipe or reset the emulator.
+**Expected:** `adb devices -l` lists your emulator with state `device`. The version commands print the Android release and API level; the pilot used Android `14` / API `34`. Each `pm path` command prints a `package:` path. The final command prints `package:com.BugBazaar uid:<number>`. Record that UID; it varies by emulator.
 
-### 2. Create one synthetic address through the app UI
+If the emulator is missing, unauthorized, or either package has no `package:` path, stop and ask the instructor. Do not wipe or reset it. Confirm it remains offline as described in BugBazaar setup.
 
-Launch BugBazaar after the first-run guard is verified in setup. Use its local demo login (`admin` / `BugBazaarSeccool`) and set a lab-only four-digit passcode; these are local app credentials, not a cloud login. Deny unrelated SMS and storage/media permission prompts. The Addresses screen may display fictional seed rows; do not include those rows in submitted screenshots. Search Addresses for the exact nickname below before saving:
+### 2. Find or create the synthetic address
+
+On the emulator, open BugBazaar. Sign in with its local demo account, `admin` / `BugBazaarSeccool`, then set a four-digit passcode for this disposable lab if prompted. These are local app credentials, not a cloud login. Deny unrelated SMS and storage or media permission prompts.
+
+Open **Addresses**. Enter this nickname in **Search Addresses**, then tap **Search**:
 
 - Nickname: `LAB29-PILOT-20261028-7F3A`
 - Address: `SYNTHETIC lab address 29 for lab only`
 
-If exactly one matching record exists, reuse it and do not save another. If no match exists, save exactly one entry with these values. If multiple matches appear or the result is uncertain, stop and ask the instructor; do not add another row. The app should show the exact marker in its search results. Do not enter a real address or use provider writes to seed the record.
+If one matching record appears, leave it as is and continue. If none appears, tap BugBazaar's add-address control and save one record with the exact nickname and address above. Search again after saving. Stop and ask the instructor if more than one match appears or if you cannot confirm the saved values. Do not add another copy or use provider writes to create the record. The address list may contain fictional seed records; do not include them in screenshots.
+
+!!! success "Expected"
+    The Addresses screen shows exactly one card with nickname `LAB29-PILOT-20261028-7F3A` and address `SYNTHETIC lab address 29 for lab only`.
 
 ![BugBazaar's address screen showing the uniquely marked synthetic lab record.](images/lab-29/bugbazaar-synthetic-address.png)
 
-### 3. Query the provider from a separate ordinary app
+### 3. Run the query from the ordinary caller app
 
-The prebuilt caller was installed and verified in [BugBazaar setup](02-bugbazaar-setup.md). Launch its fixed read-only query only after the synthetic marker exists:
+Return to the host terminal. This command opens **Module 29 Provider Caller** on the emulator. The caller runs its fixed, read-only query as soon as it opens; you do not need to type anything into the app.
 
-```bash
+```bash title="Open the Module 29 caller"
 adb -s "$SERIAL" shell am start -n org.lab.module29caller/.MainActivity
 ```
 
-The helper has no declared permissions, uses a separate package/UID, accepts no arbitrary URI or input, and filters only the exact synthetic nickname. On Android 11 and later, its manifest must declare visibility of the provider authority with `<queries><provider android:authorities="com.bugbazaar.provider.addresses"/></queries>`; this is package visibility, not a permission grant. Do not substitute `adb shell content query` as proof of ordinary-app access.
+Look at the caller app screen. It displays the caller's package and UID, the provider URI, the operation, the fixed nickname filter, and the query result. The supplied caller has no permissions, accepts no URI or filter input, and queries only the synthetic nickname. Its Android 11+ `<queries>` entry makes the provider discoverable to the caller; it does not grant read access. Do not use `adb shell content query` instead; a query from the ADB shell does not prove that an ordinary app can read the provider.
 
-The pilot observed target UID `10197` and caller `org.lab.module29caller` UID `10198` on this emulator. UIDs vary by device. The caller queried `content://com.bugbazaar.provider.addresses/addresses` using a read-only `nickname = ?` selection and received:
+The screen should show the following. The caller UID shown on your emulator will differ from the pilot's `10198`.
 
 ```text
 Caller package: org.lab.module29caller
@@ -62,11 +79,16 @@ LAB29-PILOT-20261028-7F3A
 SYNTHETIC lab address 29 for lab only
 ```
 
+!!! success "Expected"
+    The caller screen shows package `org.lab.module29caller`, a caller UID different from BugBazaar's `uid` from Step 1, URI `content://com.bugbazaar.provider.addresses/addresses`, and exactly the one synthetic record. If the screen says `No matching row returned` or `Query failed`, stop and use Troubleshooting. Do not broaden the query.
+
 ![Ordinary caller app displaying its UID, the provider URI, and the returned synthetic row.](images/lab-29/ordinary-app-provider-result.png)
 
-### 4. Interpret the result
+### 4. Decide what the result proves
 
-The installed manifest declares this provider exported and does not declare a provider read permission. The distinct ordinary app UID returned the exact synthetic row, so cross-app read access is demonstrated for that record. The ordinary-app query was restricted to that marker; BugBazaar's UI can display other fictional seed rows, which are outside this query and must be excluded from submitted screenshots. Do not claim that real data was accessed or that every record is exposed based only on this run.
+Compare the two identities: Step 1 printed BugBazaar's UID, and the caller screen printed the caller's package and UID. The UIDs must differ for this to show access from a separate app. In the pilot, BugBazaar's UID was `10197` and the caller's was `10198`; your numbers will vary.
+
+The pinned release's manifest declares the provider exported and does not declare a read permission. When the separate caller returns the exact marker, the result demonstrates that an ordinary app could read this one synthetic record. It does not show access to other rows, real addresses, or every component in BugBazaar. Keep the query limited to the marker.
 
 ## Troubleshooting
 
