@@ -16,6 +16,7 @@
 - Devom's manual Python backend setup is the primary path; Docker is optional.
 - Shared prerequisites remain separate from target-specific setup.
 - BugBazaar setup covers the separate instructor-supplied, prebuilt Module 29 caller APK; learners do not build it.
+- Setup pages use real, relevant screenshots only if available; otherwise use titled, scannable command blocks with clear success cues.
 - Preserve the Module 29 synthetic-record scope and evidence limitations.
 - Preserve the pending removal of `test_site.py` and its CI invocation. Do not run tests.
 
@@ -24,6 +25,7 @@
 - **Setup links and nav:** pages exist at every new link and Setup precedes Labs; verify through the strict MkDocs build and inspect navigation.
 - **App artifact integrity:** preserve BugBazaar and caller APK hashes, revisions, and embedded version caveat exactly; compare against the current Lab 29 source during review.
 - **Devom exposure and transport:** manual/Docker instructions state debug mode, all-interface binding, ad-hoc TLS, isolation requirements, and certificate-trust uncertainty; inspect the final section before commit.
+- **Setup visuals:** no existing image is an installation screenshot; keep Module 29 images with that lab and style command-based setup steps with titled code blocks.
 - **Lab 29 scope:** setup extraction does not remove marker handling, distinct-UID proof, query limits, or cleanup caveats; compare the retained walkthrough with the spec.
 - **Lab objective focus:** every numbered lab links to Common prerequisites and its target setup without moving scenario-specific preparation out of the lab; inspect all ten opening sections.
 
@@ -47,11 +49,11 @@ Keep the disposable environment, shared safety, emulator/ADB, command-line tool 
 
 - [ ] **Step 2: Add the Devom setup page**
 
-Create `docs/01-devom-setup.md` with the pinned revision, included prebuilt `Dvom.apk`, manual Python backend setup as the primary path, app/backend URL configuration, lab credentials and source-derived caveats. State prominently that the pinned server runs in debug mode, listens on all interfaces, and uses ad-hoc TLS for manual and Docker launches; require an isolated disposable host and firewall controls. Correct the current HTTP scheme to HTTPS, note that certificate trust and app connectivity are environment-specific and unverified, and do not advise disabling certificate checks globally. Keep Docker Compose as an optional path and do not label either path runtime-verified.
+Create `docs/01-devom-setup.md` with the pinned revision, included prebuilt `Dvom.apk`, manual Python backend setup as the primary path, app/backend URL configuration, lab credentials and source-derived caveats. State prominently that the pinned server runs in debug mode, listens on all interfaces, and uses ad-hoc TLS for manual and Docker launches; require an isolated disposable host and firewall controls. Correct the current HTTP scheme to HTTPS, note that certificate trust and app connectivity are environment-specific and unverified, and do not advise disabling certificate checks globally. Present command-driven installation in titled, clearly labeled blocks with concise success cues. Keep Docker Compose as an optional path and do not label either path runtime-verified.
 
 - [ ] **Step 3: Add the BugBazaar setup page**
 
-Create `docs/02-bugbazaar-setup.md` with the official prebuilt `v1.2.1` asset, pinned source revision, target APK SHA-256, embedded app version caveat, offline/network-isolation checks, and the first-run downloader guard. Add the instructor-supplied prebuilt caller APK verification and installation steps, preserving caller SHA-256 `eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e`. Keep fail-closed behavior for mismatches and unknown existing state. Do not publish the APK or instruct students to build it.
+Create `docs/02-bugbazaar-setup.md` with the official prebuilt `v1.2.1` asset, pinned source revision, target APK SHA-256, embedded app version caveat, offline/network-isolation checks, and the first-run downloader guard. Add the instructor-supplied prebuilt caller APK verification and installation steps, preserving caller SHA-256 `eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e`. Keep fail-closed behavior for mismatches and unknown existing state. Use titled, scannable command blocks and clear success cues; do not present existing exercise captures as installation screenshots. Do not publish the APK or instruct students to build it.
 
 - [ ] **Step 4: Add the Setup navigation group and update the home links**
 

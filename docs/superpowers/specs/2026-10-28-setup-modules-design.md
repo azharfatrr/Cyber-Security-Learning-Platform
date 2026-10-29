@@ -12,6 +12,7 @@ Separate environment preparation from the ten learning exercises. Learners shoul
 - Use prebuilt application APKs; learners do not build Devom or BugBazaar from source.
 - Make Devom's manual Python backend setup the primary path. Keep Docker as an optional alternative.
 - Keep shared safety and tooling prerequisites separate from target-specific setup.
+- Make setup pages visually scannable: use real, relevant screenshots only when available; otherwise make command-driven instructions polished and easy to follow.
 - Prepare BugBazaar's prebuilt Module 29 caller APK in BugBazaar setup. It is a separate ordinary app needed to demonstrate cross-app provider access; learners install the provided APK and do not build it.
 - Labs retain exercise-specific preparation and evidence, but link to setup modules for environment and app installation.
 - Preserve the existing pilot's claims and limitations, including its use of only the synthetic Module 29 record.
@@ -45,6 +46,8 @@ Use the official prebuilt BugBazaar `v1.2.1` release tied to the documented sour
 
 Include the offline/network-isolation and first-launch downloader safeguards currently needed before launching the app. Include the instructor-supplied prebuilt Module 29 caller APK, its expected SHA-256, and safe verification/install guidance. Treat the caller as a separate APK/package/UID; do not publish it with the site or instruct learners to compile it. Preserve fail-closed guidance for checksum mismatches and unknown existing emulator state.
 
+Make installation steps easy to scan with concise step headings, titled command blocks, and clear expected-result notes. Use screenshots only for actual, relevant setup states; the existing Module 29 exercise screenshots remain with that lab.
+
 ## Lab and landing-page changes
 
 - Update every lab's opening/setup reference to link to Common prerequisites and the relevant target setup: Devom for Labs 09, 10, 14, 24, 25, 26, and 28; BugBazaar for Labs 27, 29, and 30.
@@ -60,9 +63,10 @@ Include the offline/network-isolation and first-launch downloader safeguards cur
 2. Common prerequisites no longer contain Devom or BugBazaar installation procedures and clearly route learners to each target setup.
 3. Devom setup presents the manual Python backend as primary and Docker as optional, uses the pinned prebuilt APK, and prominently explains debug mode, all-interface binding, ad-hoc TLS, and the isolation/certificate-trust risks.
 4. BugBazaar setup uses the verified prebuilt target APK and covers the prebuilt caller APK; neither setup instructs learners to compile the target app.
-5. Every lab links to Common prerequisites and its target setup without changing its learning objective or exercise-specific findings.
-6. Lab 29 assumes target and caller installation is complete, but retains the synthetic-record cross-app exercise and its evidence limitations.
-7. Home-page and lab-structure guidance reflect the new separation, and a strict MkDocs build succeeds. Do not run the removed unit-test suite.
+5. Setup instructions use relevant real screenshots when available, and otherwise present command-driven steps in titled blocks with clear success cues; no exercise screenshot is repurposed as installation evidence.
+6. Every lab links to Common prerequisites and its target setup without changing its learning objective or exercise-specific findings.
+7. Lab 29 assumes target and caller installation is complete, but retains the synthetic-record cross-app exercise and its evidence limitations.
+8. Home-page and lab-structure guidance reflect the new separation, and a strict MkDocs build succeeds. Do not run the removed unit-test suite.
 
 ## Scope boundaries and risks
 
