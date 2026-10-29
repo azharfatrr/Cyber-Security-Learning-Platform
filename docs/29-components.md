@@ -1,8 +1,8 @@
-# 29 — Can another app read a BugBazaar address?
+# 29 — Android Components
+
+*Can a separate app read a fake address from BugBazaar?*
 
 ## What this lab does
-
-This lab checks one thing: can a separate Android app read one fake address stored in BugBazaar?
 
 You will:
 
@@ -23,6 +23,8 @@ Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bug
 - An Android emulator with ADB access.
 - Android SDK Platform Tools (`adb`) and a terminal on the host computer.
 - The BugBazaar target app and the instructor-supplied Module 29 caller app, installed as described in [BugBazaar setup](02-bugbazaar-setup.md).
+
+The caller is distributed as a prebuilt APK. The instructor must provide it; its source is kept outside the published site at `engineering/fixtures/module-29-caller/`.
 
 Run ADB commands in the host terminal. Do the login, address search, and caller-screen check in the emulator. This walkthrough does not install or build apps.
 
@@ -141,17 +143,13 @@ Use these checks to write your finding:
 
 ## Evidence
 
-Include these details in your evidence report:
+Submit these three items:
 
-- **Target:** BugBazaar release URL, source revision, APK SHA-256, and embedded app version.
-- **Runtime:** Android version and API level.
-- **App identities:** target package and UID; caller package and UID. State that the UIDs differ.
-- **Query:** provider URI, read-only operation, and exact nickname filter.
-- **Result:** the returned synthetic nickname and address.
-- **Conclusion:** an ordinary app read this one synthetic record. Do not claim that other rows or real addresses were accessed.
-- **Screenshots:** capture your own emulator screens showing the synthetic record in BugBazaar and the caller's package, UID, URI, filter, and returned row. Keep fictional seed records out of the images.
+- **BugBazaar screenshot:** Show the marked fake address in BugBazaar. Keep any other address rows out of the image.
+- **Caller screenshot:** Show the caller's package and UID, provider URI, exact nickname filter, and returned fake address.
+- **Short note:** Record the Android version/API and the BugBazaar UID from Step 1 and caller UID from the caller screen. State whether the UIDs differ and that the caller returned only the marked fake address.
 
-The images in this guide are examples; use screenshots from your own run. The tested helper source is kept outside the published site at `engineering/fixtures/module-29-caller/`. The instructor must distribute its prebuilt APK separately.
+The images in this guide are examples. Capture your own screenshots, and do not include real contact information.
 
 ## Cleanup and review
 
