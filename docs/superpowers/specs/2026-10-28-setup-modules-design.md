@@ -37,7 +37,7 @@ Describe the disposable, isolated lab environment; synthetic-data and network-sa
 
 Document the pinned Devom revision, the included prebuilt `Dvom.apk`, and a manual Python backend setup using the pinned checkout's `server.py` and `requirements.txt` as the primary route. Include the app-to-backend configuration and lab-only credentials where appropriate. Present Docker Compose as an optional alternative, not the default.
 
-The pinned manual server runs in debug mode and listens on all interfaces. Make the isolation and host firewall requirements prominent, and do not expose it to public or corporate networks. Clearly distinguish source-inspected instructions from runtime-verified setup; do not claim the manual path has been piloted unless it is actually validated. Retain the relevant Devom revision and behavior caveats currently in Common setup.
+The pinned server runs in debug mode, listens on all interfaces, and enables ad-hoc TLS for both manual and Docker launches. Make isolation and host firewall requirements prominent, and do not expose it to public or corporate networks. Correct the current Common setup's stale HTTP scheme, and explain that the generated certificate may require environment-specific trust handling; do not tell learners to disable certificate checks globally. Clearly distinguish source-inspected instructions from runtime-verified setup; do not claim the manual path has been piloted unless it is actually validated. Retain the relevant Devom revision and behavior caveats currently in Common setup.
 
 ### BugBazaar setup
 
@@ -58,7 +58,7 @@ Include the offline/network-isolation and first-launch downloader safeguards cur
 
 1. MkDocs navigation shows Setup (Common prerequisites, Devom setup, BugBazaar setup) before Labs.
 2. Common prerequisites no longer contain Devom or BugBazaar installation procedures and clearly route learners to each target setup.
-3. Devom setup presents the manual Python backend as primary and Docker as optional, uses the pinned prebuilt APK, and prominently explains the debug/all-interface isolation risk.
+3. Devom setup presents the manual Python backend as primary and Docker as optional, uses the pinned prebuilt APK, and prominently explains debug mode, all-interface binding, ad-hoc TLS, and the isolation/certificate-trust risks.
 4. BugBazaar setup uses the verified prebuilt target APK and covers the prebuilt caller APK; neither setup instructs learners to compile the target app.
 5. Every lab links to Common prerequisites and its target setup without changing its learning objective or exercise-specific findings.
 6. Lab 29 assumes target and caller installation is complete, but retains the synthetic-record cross-app exercise and its evidence limitations.
