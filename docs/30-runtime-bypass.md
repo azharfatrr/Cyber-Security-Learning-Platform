@@ -1,13 +1,18 @@
 # 30 — Client-side login bypass through runtime manipulation
 
-**Target:** BugBazaar. The local passcode comparison is present in source; runtime behavior and tool compatibility are unverified. Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md), and use an instructor-provided instrumentable emulator with matching Frida client/server.
+*Can changing BugBazaar's local PIN check make an incorrect PIN work?*
 
-## Objective and challenge
-Set a disposable app PIN and confirm that an incorrect PIN is rejected. Inspect the client-side validation and find a point where you can observe it at runtime. Test whether changing the local decision lets the app proceed without the correct PIN. Verify the PIN-validation branch itself, since other navigation paths may also reach the dashboard. A local UI bypass alone does not prove server-side authorization bypass.
+## What this lab does
+
+Set a synthetic PIN in BugBazaar, confirm that an incorrect PIN is rejected, then inspect the local PIN check. With instructor-provided Frida on a disposable emulator, test whether changing that check lets the app proceed with the same incorrect PIN.
+
+This tests BugBazaar's local check only. Reaching another screen does not prove that a server accepted an unauthorized request.
 
 ## Before you begin
 
-The instructor must provide an instrumentable disposable emulator and compatible Frida tooling. Set a synthetic PIN. Runtime behavior has not been tested.
+Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Use an instructor-provided instrumentable emulator with matching Frida client/server, and set a synthetic PIN.
+
+The local passcode comparison is present in the source, but runtime behavior and tool compatibility have not been verified. The instructor must confirm the emulator, architecture, and Frida versions before you attach. Do not guess at hooks or treat this as a verified working bypass.
 
 ## Guided walkthrough
 
@@ -20,11 +25,11 @@ frida --version
 
 The instructor must verify that the server version and architecture match the emulator. Exact hooks depend on the installed build and have not been validated; do not treat the examples as a working bypass script.
 
-1. Navigate to the passcode screen in a logged-in lab session. Enter an incorrect PIN and record the rejection. Confirm the correct PIN reaches the intended screen, then return to the passcode screen.
-2. Read `PasscodeActivity` in the pinned source. Follow the validation button's click listener from the entered PIN through `UserAuthSave.getpasscode()` to the comparison and navigation decision.
-3. Attach the approved runtime tool to the lab app process. First observe the relevant execution path without changing it, and confirm that the incorrect-PIN baseline still rejects.
-4. Instrument the local validation decision in the lab process and retry the same incorrect PIN. Record which method or branch was observed and whether the result changes. Do not instrument other apps or devices.
-5. Confirm that the observed transition came through the PIN-validation branch. Other app navigation paths may reach the same dashboard, so dashboard visibility by itself is not proof. Describe whether any protected server action was actually tested.
+1. **Record the baseline.** In a logged-in lab session, enter an incorrect PIN and confirm BugBazaar rejects it. Enter the correct PIN and confirm it reaches the intended screen. Return to the PIN screen.
+2. **Find the local check.** In the pinned source, follow `PasscodeActivity`'s validation button through `UserAuthSave.getpasscode()` to the PIN comparison and navigation decision.
+3. **Observe the check.** Attach the instructor-approved Frida setup to the BugBazaar process without changing its behavior. Retry the incorrect PIN and confirm the baseline rejection.
+4. **Test the local change.** Change only the local validation decision in the BugBazaar process, then retry the same incorrect PIN. Record which method or branch you observed and whether the app proceeds. Do not instrument other apps or devices.
+5. **Confirm the result.** Check that the transition came through the PIN-validation branch. Another navigation path may reach the same dashboard, so seeing the dashboard alone is not proof. State whether you tested a protected server action.
 
 ## Troubleshooting
 
@@ -39,7 +44,18 @@ If attachment fails, check that the Frida client and server versions match and t
 </details>
 
 ## Evidence
-Submit the baseline, observed method or decision point, sanitized instrumentation and result, limits of impact, and a recommendation to enforce security-sensitive authorization server-side.
+
+Submit these three items:
+
+- **Baseline:** a short note that the incorrect PIN was rejected and the correct PIN was accepted before instrumentation.
+- **Runtime result:** a sanitized capture showing the method or branch observed, the repeated incorrect-PIN attempt, and what the app did after the local change.
+- **Context and limits:** Android version/API, Frida client/server versions, and whether you tested a protected server action. If you did not test one, say that the result covers only the app's local PIN check.
+
+## Vulnerability and Impact
+
+**Potential vulnerability:** BugBazaar checks the PIN in the app. If runtime instrumentation can change that check, the app may proceed with an incorrect PIN. This bypass has not been verified at runtime.
+
+**Potential impact:** Someone who can instrument the running app may get past the local PIN screen and reach content available after it on that device. This does not show that a server accepts unauthorized requests or exposes server-side data. Test a protected server action separately before claiming that impact.
 
 ## Cleanup and review
 
