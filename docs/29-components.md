@@ -1,14 +1,22 @@
-# 29 — Unauthorized access to Android components
+# 29 — Can another app read a BugBazaar address?
 
-**Target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Runtime tested:** Android 14 / API 34. A separate ordinary app queried only the uniquely marked synthetic record, and the provider returned it. This demonstrates cross-app access to that lab record; the result does not establish access to other rows.
+## What this lab does
 
-## Objective and challenge
+This lab checks one thing: can a separate Android app read one fake address stored in BugBazaar?
 
-Inspect the installed package's exported Android components and their access controls. This walkthrough tests the `AddressContentProvider`: determine whether an ordinary app can read the one synthetic address created for the exercise. An `exported` declaration is a clue, not proof; the finding below is based on an actual query from a distinct app UID.
+You will:
+
+1. Find or add one fake address with a unique nickname in BugBazaar.
+2. Open the supplied Module 29 caller app. It asks BugBazaar for that exact address.
+3. Check whether the caller displays the address, then compare its UID (Android's numeric app ID) with BugBazaar's UID.
+
+If the caller displays the address and the UIDs differ, BugBazaar returned that record to a separate app. The lab tests one fake record only. It does not test real contacts or BugBazaar's other records.
+
+**Tested target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Tested on:** Android 14 / API 34. In the pilot run, the caller received the uniquely marked record.
 
 ## Before you begin
 
-Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Both BugBazaar and the prebuilt caller app must already be installed and verified, and the emulator must be offline. Do not build either app. Use an instructor-approved disposable emulator; do not use a personal phone, real contacts, or personal addresses.
+Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Install and verify BugBazaar and the prebuilt caller app before starting. Use an instructor-approved disposable emulator and keep it offline. Do not build either app or use a personal phone, real contacts, or personal addresses.
 
 ## Tools needed
 
@@ -79,7 +87,7 @@ Return to the host terminal and run this command to open **Module 29 Provider Ca
 adb -s "$SERIAL" shell am start -n org.lab.module29caller/.MainActivity
 ```
 
-The caller screen displays its package and UID, the provider URI, the operation, the fixed nickname filter, and the query result. Check each item:
+On the caller screen, verify:
 
 - Caller package is `org.lab.module29caller`.
 - Caller UID is different from BugBazaar's UID recorded in Step 1.
@@ -87,9 +95,9 @@ The caller screen displays its package and UID, the provider URI, the operation,
 - Filter is the exact synthetic nickname.
 - Result contains the synthetic nickname and address, with no other rows.
 
-The supplied caller has no permissions and accepts no URI or filter input. Its Android 11+ `<queries>` entry makes the provider discoverable; it does not grant read access. Do not use `adb shell content query` instead. A query from the ADB shell does not prove that an ordinary app can read the provider.
+The supplied caller has no permissions and accepts no URI or filter input. On Android 11 and later, its `<queries>` entry makes the provider discoverable but does not grant read access. Do not use `adb shell content query` as evidence; that query runs from the ADB shell, not the ordinary caller app.
 
-The screen should show the following. The caller UID shown on your emulator will differ from the pilot's `10198`.
+Pilot example (your caller UID will differ from `10198`):
 
 ```text
 Caller package: org.lab.module29caller
@@ -112,7 +120,7 @@ If the screen says `No matching row returned` or `Query failed`, stop and use Tr
 Use these checks to write your finding:
 
 - Confirm the caller UID differs from BugBazaar's UID from Step 1. In the pilot, BugBazaar's UID was `10197` and the caller's was `10198`; your numbers will vary.
-- If the caller returns the exact marker, state that an ordinary app could read this one synthetic record from the provider, which is declared exported and has no read permission.
+- The pinned release declares the provider exported and has no read permission. If the caller returns the exact marker, report that it read this one synthetic record from a separate app.
 - Limit the finding to this record. The result does not establish access to other rows, real addresses, or every component in BugBazaar.
 
 ## Troubleshooting
@@ -147,6 +155,10 @@ The images in this guide are examples; use screenshots from your own run. The te
 
 ## Cleanup and review
 
-The tested app UI has no address-delete control, and this provider's `delete()` method returns `0`; there is no verified safe way to remove the row. Leave the uniquely marked synthetic record in the disposable lab and do not clear BugBazaar data, uninstall apps, or call provider delete. The marker to identify is `LAB29-PILOT-20261028-7F3A`; use the instructor's disposable-emulator disposal procedure when finished.
+The app has no address-delete control, and the provider's `delete()` method returns `0`. No safe way to remove the row has been verified.
+
+- Leave the synthetic record on the disposable emulator. Its nickname is `LAB29-PILOT-20261028-7F3A`.
+- Do not clear BugBazaar data, uninstall apps, or call provider delete.
+- Follow the instructor's disposable-emulator disposal procedure when finished.
 
 Which access control would prevent an unrelated app from reading these addresses? What negative test would confirm that the same caller is denied after the provider is protected?
