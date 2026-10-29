@@ -13,7 +13,7 @@ Guides for testing Android applications and APIs in an isolated lab.
 
 <div class="hero-facts"><span>10 lab guides</span><span>Devom + BugBazaar</span><span>Linux setup</span></div>
 
-[Set up the lab](00-common-setup.md){ .md-button .md-button--primary }
+[Start with setup](00-common-setup.md){ .md-button .md-button--primary }
 [Browse the catalog](#lab-catalog){ .md-button }
 
 <div class="hero-visual"><img class="hero-device" src="assets/android-lab.svg" alt="" /></div>
@@ -21,7 +21,7 @@ Guides for testing Android applications and APIs in an isolated lab.
 </div>
 
 <div class="catalog-notice" markdown="1">
-**Before you start:** These guides have not been runtime-tested. An instructor should pilot each exercise. Use only an isolated, authorized environment with synthetic data. [Read the setup guide](00-common-setup.md).
+**Before you start:** These guides have not all been runtime-tested. An instructor should pilot each exercise. Use only an isolated, authorized environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup module for the target used by your lab.
 </div>
 
 ## Lab catalog

@@ -2,6 +2,8 @@ site_name: Cyber Security Learning Platform
 site_description: Hands-on Android security lab guides
 docs_dir: docs
 site_dir: site
+exclude_docs: |
+  /superpowers/
 theme:
   name: material
   font:
@@ -32,8 +34,11 @@ extra_javascript:
   - javascripts/text-size.js
 nav:
   - Home: index.md
-  - Common setup: 00-common-setup.md
   - Lab structure: lab-structure.md
+  - Setup:
+      - Common prerequisites: 00-common-setup.md
+      - Devom setup: 01-devom-setup.md
+      - BugBazaar setup: 02-bugbazaar-setup.md
   - Labs:
       - 09 — JWT account state: 09-jwt-account-state.md
       - 10 — OTP bypass: 10-otp-bypass.md
