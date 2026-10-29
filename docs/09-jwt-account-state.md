@@ -13,7 +13,7 @@ You will:
 
 If the pre-block token and the re-signed token both return the profile while the admin console shows `BLOCKED`, the server is trusting a claim inside the token instead of the account's current state.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). The request and response shapes below come from that revision; the runtime results are expected behavior and have **not** been piloted.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Piloted** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below were observed in that run.
 
 ## Before you begin
 
@@ -79,6 +79,8 @@ In the browser on the lab VM:
 !!! success "Expected"
     The row's status changes to the red `BLOCKED` badge and the button becomes **UNBLOCK**.
 
+![The admin console after blocking cala: the row shows the red BLOCKED badge and an UNBLOCK button.](images/lab-09/admin-console-blocked.png)
+
 ### 4. Compare the old token with a new one
 
 First repeat the exact request from Step 2 with the token you saved before the block:
@@ -143,6 +145,10 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $MUTATED" \
 
 !!! success "Expected"
     `HTTP/1.1 200 OK` with cala's profile, while the admin console still shows `BLOCKED`. A payload edit without a valid signature is not a valid control, so this test only works because you signed it with the lab key.
+
+![The pilot run in one view: the pre-block token still returns 200 after the block, a token issued while blocked returns 403, and the re-signed token returns 200. Only selected response fields are shown. The block was applied through the same admin endpoint the console button calls.](images/lab-09/jwt-stale-token.png)
+
+In the pilot, the pre-block token returned `200` after the admin console showed `BLOCKED`; the token issued while blocked returned `403`; and the same claims re-signed with `"locked": false` returned `200` again.
 
 ### 6. Decide what the result proves
 
