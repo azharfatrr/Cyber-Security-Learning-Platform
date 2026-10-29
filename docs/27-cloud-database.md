@@ -70,6 +70,9 @@ Use the second identity, which should have no legitimate access to that document
 
 Read the rules provided with the environment and identify which rule is supposed to allow or deny the read. Quote the specific match condition. A result without the corresponding rule is not evidence of a misconfiguration, only of an unexpected response.
 
+!!! important "Key observation"
+    A misconfiguration finding needs both a lower-privilege read of the designated record and a deployed rule that should deny that read. A denial is a valid secure result; a response alone, without the relevant rule, is not enough to claim a vulnerability. No Firebase environment is included with this guide, so it does not claim a tested outcome.
+
 ### 5. Write only if the scope allows it
 
 If, and only if, the environment scope authorizes a write test, change one designated synthetic field and verify it with the authorized identity. Restore the original value immediately. Otherwise, stop after the read tests.

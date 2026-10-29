@@ -66,6 +66,9 @@ Nothing else in the request changed except the path. The token still belongs to 
 
 The screenshot shows the two reads side by side. The token is hidden and only `id`, `username`, `email`, and `balance` are displayed.
 
+!!! important "Key observation"
+    The token stayed the same and only the profile ID in the URL changed; the response then contained admin's profile. That demonstrates a missing ownership check on this profile route. It does not establish that every route is affected.
+
 ### 4. Check the other object routes
 
 The same revision passes the URL ID straight into the query on two more routes. With the same token, run one read for each:

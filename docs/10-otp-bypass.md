@@ -94,6 +94,9 @@ This is a fixed bypass value, not a guess. Send it once, record the result, and 
 
 The profile returned `200` with no code submitted, `0000` returned `401`, the code from `debug_token` returned `200`, and `1293` returned `200` for user `999999`.
 
+!!! important "Key observation"
+    Keep the three findings distinct: `debug_token` disclosed the live code, `/profile` accepted the session before OTP verification, and the fixed value `1293` succeeded for a user with no pending login. A successful verification response does not undo the pre-verification profile access.
+
 ### 6. Decide what the result proves
 
 Write down each finding separately, because each has a different fix:

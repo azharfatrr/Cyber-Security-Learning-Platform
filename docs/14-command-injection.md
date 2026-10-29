@@ -107,6 +107,9 @@ The first line ends where the `;` begins. The second line is not part of the ech
 
 The baseline response printed only `Processing file: user_100500_lab14-base.txt`; the injected filename printed that same line followed by `LAB14_MARKER_7f3a` on its own line.
 
+!!! important "Key observation"
+    Look for `LAB14_MARKER_7f3a` on a separate line in `server_debug`: the baseline has one processing line, while the injected request has the extra command's output. An HTTP `200` or a marker appearing only inside the echoed filename is not enough to show command execution.
+
 ### 4. Confirm what the marker proves
 
 Compare the two responses:

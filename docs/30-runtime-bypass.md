@@ -164,7 +164,7 @@ To undo the hook, type `exit` at the Frida prompt and restart BugBazaar from the
 
 With the hook active, the same `0000` entry that was rejected in Step 2 opened `NavigationDrawer_Dashboard` and showed `Passcode correct!`.
 
-!!! success "What the test showed"
+!!! important "Key observation"
     The stored PIN was `2468`. Entering `0000` was rejected before the hook, and `2468` opened the dashboard. With the hook active, the same `0000` opened the dashboard, and Frida printed `hook installed` followed by the `getpasscode` line. That controlled before-and-after comparison is the bypass: the local check compared the entry against the value returned by the hooked method, not against the stored PIN.
 
 Seeing the dashboard by itself does not prove that the PIN check was bypassed. Confirm that the transition came from the PIN-validation branch and that the Frida output shows the hooked call.

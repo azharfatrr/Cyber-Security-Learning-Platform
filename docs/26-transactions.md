@@ -114,6 +114,9 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 
 The balances moved `1000/999999` → `995/1000004` → `1000/999999` → `1001/999998` → `1000/999999`. Each transfer returned `200`.
 
+!!! important "Key observation"
+    Use the before-and-after balances, not the `200` status alone: the negative amount reversed the normal transfer, and `cala`'s token debited `admin` when `from_id` named admin's account. These observations show missing amount and ownership checks in the tested cases.
+
 ### 5. Read the handler
 
 Open `server.py` and find `transfer`. In this revision it runs three statements and returns success:

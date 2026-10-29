@@ -37,6 +37,26 @@ class SiteTest(unittest.TestCase):
             with self.subTest(path=str(page.relative_to(root))):
                 self.assertNotIn("pilot", page.read_text().lower())
 
+    def test_each_lab_has_a_key_observation_callout(self):
+        root = Path(__file__).parent
+        lab_pages = (
+            "09-jwt-account-state.md",
+            "10-otp-bypass.md",
+            "14-command-injection.md",
+            "24-file-upload.md",
+            "25-path-traversal.md",
+            "26-transactions.md",
+            "27-cloud-database.md",
+            "28-bola.md",
+            "29-components.md",
+            "30-runtime-bypass.md",
+        )
+
+        for lab_page in lab_pages:
+            with self.subTest(path=lab_page):
+                content = (root / "docs" / lab_page).read_text()
+                self.assertIn('!!! important "Key observation"', content)
+
 
 if __name__ == "__main__":
     unittest.main()

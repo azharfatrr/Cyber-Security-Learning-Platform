@@ -117,6 +117,9 @@ If the screen says `No matching row returned` or `Query failed`, stop and use Tr
 
 ![Ordinary caller app displaying its UID, the provider URI, and the returned synthetic row.](images/lab-29/ordinary-app-provider-result.png)
 
+!!! important "Key observation"
+    Check that the caller's UID differs from BugBazaar's and that the ordinary caller displays the exact synthetic row. Together, these show that a separate app read this one record through the provider; an ADB shell query or access to other rows would not establish that result.
+
 ### 4. Decide what the result proves
 
 Use these checks to write your finding:

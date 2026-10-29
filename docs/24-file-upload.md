@@ -81,6 +81,9 @@ curl --insecure -i "$BASE/view_upload/user_100500_lab24-page.html"
 
 Both uploads returned `200` and both retrievals returned `200` without an `Authorization` header: the text file as `text/plain`, the HTML file as `text/html`.
 
+!!! important "Key observation"
+    The text and HTML files were both accepted, and both were retrievable without an authorization header. This demonstrates missing type validation and unauthenticated retrieval for these test files; it does not demonstrate code execution or access to another user's file.
+
 The server chooses the content type from the file extension, so the same origin will render this file as a page. That is why the lab uses a heading and no script: the point is that the type was not checked, not that anything executes.
 
 ### 5. Compare the checks in the handler

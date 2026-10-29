@@ -87,6 +87,9 @@ curl --insecure -v --path-as-is "$BASE/view_upload/../lab25-marker.txt" 2>&1 | g
 
 The `> GET` line must still contain `/view_upload/../lab25-marker.txt`. If it shows `/lab25-marker.txt`, the client normalized the path and the test did not exercise the server.
 
+!!! important "Key observation"
+    Confirm both parts of the evidence: the raw request still contains `../`, and the response returns the marker from beside `uploads/`. Together, these show that the server served this out-of-directory marker; they do not establish that you tested or can read any other file.
+
 ### 6. Decide what the result proves
 
 - A `200` with the marker shows that the requested path escaped `uploads/`.

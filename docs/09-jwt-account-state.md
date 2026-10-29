@@ -150,6 +150,9 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $MUTATED" \
 
 The pre-block token returned `200` after the admin console showed `BLOCKED`; the token issued while blocked returned `403`; and the same claims re-signed with `"locked": false` returned `200` again.
 
+!!! important "Key observation"
+    Compare token status with the console: the pre-block and re-signed tokens returned `200` while `cala` remained `BLOCKED`, but the token issued after the block returned `403`. This shows that protected requests trust the signed token's `locked` claim rather than rechecking the current account status. It does not show that an unsigned token edit would work.
+
 ### 6. Decide what the result proves
 
 Use these checks when you write the finding:
