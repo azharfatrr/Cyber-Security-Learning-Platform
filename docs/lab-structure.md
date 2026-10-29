@@ -6,8 +6,8 @@ Each lab uses the following sections. First complete [Common prerequisites](00-c
 2. **Before you begin:** lab-specific accounts, tools, starting state and safety limits.
 3. **Understand the scenario:** the relevant feature and security boundary.
 4. **Guided walkthrough:** use numbered `###` headings for the major steps. Each step says where to work, what to do, and what to check. Include commands or screen instructions where needed, then state the expected result or when to stop. Add a relevant screenshot after the step it illustrates. The number of steps can vary by lab.
-5. **Hints and troubleshooting:** optional guidance and known obstacles.
-6. **Evidence:** sanitized material and findings to submit.
+5. **Troubleshooting:** known obstacles and safe recovery steps.
+6. **Evidence:** sanitized material and findings to submit, followed by the optional collapsible **Hints** block.
 7. **Vulnerability and Impact:** describe the security weakness, the demonstrated or potential impact, and the limits of the evidence.
 8. **Cleanup and review:** restore changed state and answer questions about remediation.
 

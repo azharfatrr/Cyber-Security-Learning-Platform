@@ -146,15 +146,6 @@ The submitted filename is pasted into a string that is handed to a shell. That s
 - **The filename in the response is truncated at the `;`:** your client split the multipart filename. Use the Python scripts above, which quote the value.
 - **`400` with `{"status": "error"}`:** the request did not include a `file` part. Check the `files=` argument.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Multipart filenames are metadata, not file contents; changing the filename is enough.
-2. `subprocess.check_output(..., shell=True)` passes the whole string to `/bin/sh -c`.
-3. `;`, `&&`, and `$()` all separate commands. Use only the harmless `echo` marker in this lab.
-
-</details>
-
 ## Evidence
 
 Submit these four items:
@@ -165,6 +156,15 @@ Submit these four items:
 - **Limits:** state that the marker only printed text, that the test ran inside your disposable container, and what the server's user privileges turned out to be only if you checked them with a harmless command such as `id`.
 
 Redact `user_id` if your lab policy requires it, and do not include the response's full user row.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Multipart filenames are metadata, not file contents; changing the filename is enough.
+2. `subprocess.check_output(..., shell=True)` passes the whole string to `/bin/sh -c`.
+3. `;`, `&&`, and `$()` all separate commands. Use only the harmless `echo` marker in this lab.
+
+</details>
 
 ## Vulnerability and Impact
 

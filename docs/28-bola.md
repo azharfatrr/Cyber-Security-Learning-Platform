@@ -112,15 +112,6 @@ def profile(decoded_token, user_id):
 - **The body is unreadable:** add `User-Agent: Postman`.
 - **`403 USER_LOCKED`:** `cala` is still blocked from another lab. Unblock it in the admin console and sign in again.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Compare the token's `sub` claim with the ID in the path.
-2. `decoded_token` is passed into the handler but only the URL value is used in the query.
-3. Authentication answers "who is calling"; object-level authorization answers "may this caller read this object".
-
-</details>
-
 ## Evidence
 
 Submit these three items:
@@ -130,6 +121,15 @@ Submit these three items:
 - **Limits:** the two account IDs used, the endpoints tested, and a statement that no account was modified.
 
 Redact `password`, `recovery_pin`, `security_answer`, and the full token.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Compare the token's `sub` claim with the ID in the path.
+2. `decoded_token` is passed into the handler but only the URL value is used in the query.
+3. Authentication answers "who is calling"; object-level authorization answers "may this caller read this object".
+
+</details>
 
 ## Vulnerability and Impact
 

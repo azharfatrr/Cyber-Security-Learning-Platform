@@ -146,15 +146,6 @@ Each has its own fix. A response of `200` alone does not show a balance change, 
 - **`500` from `/transfer`:** a required field is missing. The body needs `from_id`, `to_id`, and `amount` as numbers or numeric strings.
 - **The balances do not match the expected values:** you are not on a fresh database, or a previous lab changed them. Record the actual baseline and compare differences instead of absolute numbers.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Look at which claims the handler uses. `decoded_token` is passed in but never compared with `from_id`.
-2. `amount` is inserted straight into a SQL `UPDATE` with no validation.
-3. Check whether the two updates and the insert run inside one database transaction.
-
-</details>
-
 ## Evidence
 
 Submit these four items:
@@ -163,6 +154,15 @@ Submit these four items:
 - **Normal transfer:** request body, response, and the two balances after it.
 - **Invalid transfers:** the negative-amount request and the cross-account request, each with its response and the resulting balances.
 - **Limits:** state that only the two seeded accounts were used, the amounts were small, and the balances were restored.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Look at which claims the handler uses. `decoded_token` is passed in but never compared with `from_id`.
+2. `amount` is inserted straight into a SQL `UPDATE` with no validation.
+3. Check whether the two updates and the insert run inside one database transaction.
+
+</details>
 
 ## Vulnerability and Impact
 

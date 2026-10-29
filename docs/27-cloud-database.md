@@ -87,15 +87,6 @@ If, and only if, the environment scope authorizes a write test, change one desig
 - **Every identity is denied:** the rules may already be correct, or the identity is not the one intended. Record the denial and check the identity before drawing a conclusion.
 - **The rules mention a different collection or field:** the scope does not match the test. Request the correct rules rather than testing around them.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Identify which Firebase product the app actually uses; Storage and Firestore have separate rules.
-2. Compare an authorized baseline with a minimally privileged client, then read the deployed rules.
-3. A permissive rule is a configuration finding; a working exploit path also needs a client that can reach the document.
-
-</details>
-
 ## Evidence
 
 Submit these five items:
@@ -107,6 +98,15 @@ Submit these five items:
 - **Limits:** which identity should have access, which rule enforces that decision, and whether any write was authorized and performed.
 
 Never submit API keys, service-account files, tokens, or real data.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Identify which Firebase product the app actually uses; Storage and Firestore have separate rules.
+2. Compare an authorized baseline with a minimally privileged client, then read the deployed rules.
+3. A permissive rule is a configuration finding; a working exploit path also needs a client that can reach the document.
+
+</details>
 
 ## Vulnerability and Impact
 

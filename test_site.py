@@ -66,6 +66,30 @@ class SiteTest(unittest.TestCase):
         self.assertIn('[data-md-color-scheme="slate"] .md-typeset .admonition.important', stylesheet)
         self.assertIn("#ffae54", stylesheet)
 
+    def test_hints_are_nested_under_evidence_on_every_lab_page(self):
+        root = Path(__file__).parent
+        lab_pages = (
+            "09-jwt-account-state.md",
+            "10-otp-bypass.md",
+            "14-command-injection.md",
+            "24-file-upload.md",
+            "25-path-traversal.md",
+            "26-transactions.md",
+            "27-cloud-database.md",
+            "28-bola.md",
+            "29-components.md",
+            "30-runtime-bypass.md",
+        )
+
+        for lab_page in lab_pages:
+            with self.subTest(path=lab_page):
+                content = (root / "docs" / lab_page).read_text()
+                evidence = content.index("## Evidence")
+                hints = content.index("<summary>Hints</summary>")
+                vulnerability = content.index("## Vulnerability and Impact")
+                self.assertLess(evidence, hints)
+                self.assertLess(hints, vulnerability)
+
 
 if __name__ == "__main__":
     unittest.main()

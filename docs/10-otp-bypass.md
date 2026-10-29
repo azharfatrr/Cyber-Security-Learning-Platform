@@ -115,15 +115,6 @@ If Step 2 returned `401`, the session is being bound to verification in your bui
 - **`401` on the disclosed code:** the code changed. Every successful login overwrites `pending_2fa` for that user, so use the newest `debug_token`.
 - **The wrong code is `1293` by accident:** pick a different value such as `0000` and repeat Step 3.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Compare when `session_token` is issued with when `pending_2fa` is checked.
-2. `verify_login_2fa` checks the hardcoded value `1293` first and only then compares against `pending_2fa[user_id]`.
-3. `token_required` never reads `pending_2fa`, so a JWT alone opens the protected routes.
-
-</details>
-
 ## Evidence
 
 Submit these four items:
@@ -134,6 +125,15 @@ Submit these four items:
 - **Limits:** state that the test covers the API only, and which of the three findings your own run reproduced.
 
 Do not submit a live `session_token` or real personal data.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Compare when `session_token` is issued with when `pending_2fa` is checked.
+2. `verify_login_2fa` checks the hardcoded value `1293` first and only then compares against `pending_2fa[user_id]`.
+3. `token_required` never reads `pending_2fa`, so a JWT alone opens the protected routes.
+
+</details>
 
 ## Vulnerability and Impact
 

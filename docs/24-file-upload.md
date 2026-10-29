@@ -108,15 +108,6 @@ Open `server.py` and read `upload_profile_pic` and `view_upload`. In this revisi
 - **`curl` reports a certificate error:** keep `--insecure` for this loopback request only.
 - **The upload succeeds but `profile_pic` is unchanged:** the filename contains `kyc` or `identity`, which this revision treats as KYC data. Avoid those words in test filenames.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Compare the extension, the multipart `type=`, and what the server actually stored.
-2. `send_file` guesses the response content type from the filename.
-3. `view_upload` has no `@token_required` decorator and no ownership lookup.
-
-</details>
-
 ## Evidence
 
 Submit these four items:
@@ -125,6 +116,15 @@ Submit these four items:
 - **Retrieval responses:** the status, `Content-Type`, and body for both files, with the requests shown to have no `Authorization` header.
 - **Handler note:** one or two sentences quoting the missing checks in `upload_profile_pic` and `view_upload`.
 - **Limits:** state that the files were text and HTML, that nothing executed, and that no other user's file was accessed.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Compare the extension, the multipart `type=`, and what the server actually stored.
+2. `send_file` guesses the response content type from the filename.
+3. `view_upload` has no `@token_required` decorator and no ownership lookup.
+
+</details>
 
 ## Vulnerability and Impact
 

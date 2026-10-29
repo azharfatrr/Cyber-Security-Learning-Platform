@@ -179,14 +179,6 @@ This test covers BugBazaar's local PIN screen. Only claim a server-side impact i
 - **The app still rejects `0000`:** the hook is not active in that process. Stop Frida with `exit`, attach again, and confirm the `getpasscode called` line when you tap **VALIDATE**.
 - **Frida reports a version mismatch:** the client and server versions must match. Use the server version installed on the lab emulator; do not install a different server into another environment.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Trace the PIN validation method using static analysis before attaching a runtime tool.
-2. Instrument only the lab process; observe the return value before attempting to alter it. Check app protections and version compatibility if attachment fails.
-
-</details>
-
 ## Evidence
 
 Submit these three items:
@@ -194,6 +186,14 @@ Submit these three items:
 - **Baseline:** record the four digits you entered and the message shown before instrumentation. Confirm that the incorrect PIN was rejected and the correct PIN was accepted. If you could not reach the passcode screen, say so instead.
 - **Frida result:** include the sanitized Frida output showing `hook installed` and `getpasscode called`, the PIN you entered after attaching, and a capture of the screen the app showed. State that the same PIN was rejected before the hook.
 - **Context and limits:** Android version/API, Frida client/server versions, and whether you tested a protected server action. If you did not test one, say that the result covers only the app's local PIN check.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Trace the PIN validation method using static analysis before attaching a runtime tool.
+2. Instrument only the lab process; observe the return value before attempting to alter it. Check app protections and version compatibility if attachment fails.
+
+</details>
 
 ## Vulnerability and Impact
 

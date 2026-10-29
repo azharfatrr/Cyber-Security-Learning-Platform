@@ -175,15 +175,6 @@ Restore the account before you finish:
 - **`jwt_keys/prod.key` is missing:** the server creates it on first start. Confirm you ran the Python script inside the Devom checkout.
 - **The admin console shows an empty user table:** sign in again; the console needs an active admin session.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Compare the claims in `session-before.jwt` and `session-blocked.jwt`; only `locked`, `iat`, and `exp` should differ.
-2. `validate_jwt` reads `jwt_keys/<kid>` and then checks the `locked` claim. Neither step consults the `users` table.
-3. The database status is checked only inside `/login`, when it builds the token.
-
-</details>
-
 ## Evidence
 
 Submit these four items:
@@ -194,6 +185,15 @@ Submit these four items:
 - **Limits:** state that the test covers the API's account-state check only, and that the re-signed token required the lab's signing key.
 
 Redact the full token, `password`, `recovery_pin`, and `security_answer` from everything you submit.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Compare the claims in `session-before.jwt` and `session-blocked.jwt`; only `locked`, `iat`, and `exp` should differ.
+2. `validate_jwt` reads `jwt_keys/<kid>` and then checks the `locked` claim. Neither step consults the `users` table.
+3. The database status is checked only inside `/login`, when it builds the token.
+
+</details>
 
 ## Vulnerability and Impact
 

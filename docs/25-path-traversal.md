@@ -104,15 +104,6 @@ The `> GET` line must still contain `/view_upload/../lab25-marker.txt`. If it sh
 - **`403` or `401`:** this revision serves `/view_upload` without authentication. If you see a refusal, you are not talking to the lab instance.
 - **The contract file is absent:** the database may have been created before contracts were generated. Use a Lab 24 upload as the baseline instead.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Compare a path inside `uploads/` with a path that starts with `../`.
-2. `os.path.join(UPLOAD_FOLDER, filename)` does not resolve or compare the final path against `UPLOAD_FOLDER`.
-3. `send_from_directory` performs that containment check; `send_file` does not.
-
-</details>
-
 ## Evidence
 
 Submit these four items:
@@ -121,6 +112,15 @@ Submit these four items:
 - **Traversal:** the exact request path, status, and the marker body for both endpoints.
 - **Raw request:** the `> GET` line from Step 5, showing that `../` reached the server.
 - **Limits:** state that only `lab25-marker.txt` was requested, and that no database, key, or source file was read.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Compare a path inside `uploads/` with a path that starts with `../`.
+2. `os.path.join(UPLOAD_FOLDER, filename)` does not resolve or compare the final path against `UPLOAD_FOLDER`.
+3. `send_from_directory` performs that containment check; `send_file` does not.
+
+</details>
 
 ## Vulnerability and Impact
 

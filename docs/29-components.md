@@ -135,15 +135,6 @@ Use these checks to write your finding:
 - **The provider reports an access error:** record the exact Android version, package versions, caller UID, URI, and error. An exported declaration does not guarantee the same runtime behavior on every Android release.
 - **ADB shell returns a row but the helper does not:** that is not proof of cross-app access. Resolve the helper's package visibility and repeat the query from the ordinary app.
 
-<details markdown="1">
-<summary>Hints</summary>
-
-1. Compare the provider's `exported` and permission attributes with the caller's package and UID.
-2. Android package visibility and Android component permissions are separate controls. The helper's `<queries>` entry makes the named authority discoverable; it does not grant access.
-3. Use a parameterized exact-marker selection. Never query real contacts or unrelated rows for this exercise.
-
-</details>
-
 ## Evidence
 
 Submit these three items:
@@ -153,6 +144,15 @@ Submit these three items:
 - **Short note:** Record the Android version/API and the BugBazaar UID from Step 1 and caller UID from the caller screen. State whether the UIDs differ and that the caller returned only the marked fake address.
 
 The images in this guide are examples. Capture your own screenshots, and do not include real contact information.
+
+<details markdown="1">
+<summary>Hints</summary>
+
+1. Compare the provider's `exported` and permission attributes with the caller's package and UID.
+2. Android package visibility and Android component permissions are separate controls. The helper's `<queries>` entry makes the named authority discoverable; it does not grant access.
+3. Use a parameterized exact-marker selection. Never query real contacts or unrelated rows for this exercise.
+
+</details>
 
 ## Vulnerability and Impact
 
