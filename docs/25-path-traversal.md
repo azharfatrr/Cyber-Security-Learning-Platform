@@ -8,11 +8,11 @@ You will place one harmless marker file next to `server.py`, outside Devom's `up
 
 If the second request returns the marker, the endpoint joined the requested path onto the uploads directory without checking that the result stayed inside it. Only the marker file is in scope.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Piloted** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below were observed in that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
 
 ## Before you begin
 
-Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Create the marker yourself in the Devom checkout, so the lab does not depend on an instructor-supplied file.
+Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Create the marker yourself in the Devom checkout; no supplied file is needed.
 
 Request only `lab25-marker.txt`. Do not request the SQLite database, the JWT key files, the server source, or anything outside the checkout. Those files exist beside the marker, and reading them is out of scope for this lab.
 
@@ -73,9 +73,9 @@ curl --insecure -i --path-as-is "$BASE/download_pdf/../lab25-marker.txt"
 !!! success "Expected"
     `HTTP/1.1 200 OK` with the same marker. Two endpoints share the flaw.
 
-![The pilot: the contract loads as a baseline, the raw request line keeps ../, and both view_upload and download_pdf return the marker with 200.](images/lab-25/traversal-marker.png)
+![The two retrievals: the contract loads as a baseline, the raw request line keeps ../, and both view_upload and download_pdf return the marker with 200.](images/lab-25/traversal-marker.png)
 
-In the pilot, both endpoints returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The same request without `--path-as-is` returned `404`, because curl removed `../` before sending it.
+Both endpoints returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The same request without `--path-as-is` returned `404`, because curl removed `../` before sending it.
 
 ### 5. Confirm the request that reached the server
 

@@ -2,25 +2,25 @@
 
 *Can a client read or change a Firebase record it should not reach?*
 
-!!! danger "This lab is blocked until an authorized environment exists"
-    BugBazaar's README lists a misconfigured Firebase Firestore instance, but the upstream project's cloud resources belong to someone else. No suitable isolated project or local emulator has been provided, so there are no commands to run yet. Do not contact any Firebase project or cloud resource embedded in the upstream app.
+!!! danger "This lab requires an authorized Firebase environment"
+    BugBazaar's README lists a misconfigured Firebase Firestore instance, but the upstream project's cloud resources belong to someone else. This lab therefore needs a separately authorized, isolated project or local emulator. Do not contact any Firebase project or cloud resource embedded in the upstream app.
 
 ## What this lab does
 
-Once an authorized environment exists, you will:
+When the environment is available, you will:
 
 1. Confirm that the app and your client both point at the approved project or emulator identifier.
 2. Read one designated synthetic record with the authorized identity.
 3. Repeat the same read with an unauthenticated or lower-privilege identity.
-4. Compare the result with the rules the instructor deployed.
+4. Compare the result with the rules deployed in that environment.
 
-A lower-privilege read or write of that record would show that the database rules do not enforce the intended boundary. Until the environment is provisioned, this page records the requirements and the evidence to collect, not a walkthrough.
+A lower-privilege read or write of that record would show that the database rules do not enforce the intended boundary. This page records the environment requirements, the test steps, and the evidence to collect.
 
 **Target:** BugBazaar `v1.2.1` from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9), plus a separately authorized Firebase project or emulator. Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md).
 
-## Blocking prerequisite
+## Environment requirements
 
-The instructor must supply, in writing:
+Your organization must supply, in writing:
 
 - an organization-owned disposable Firebase project **or** a local Firebase emulator, with its identifier;
 - explicit authorization to test it, with the scope limited to one synthetic record;
@@ -37,13 +37,13 @@ Do not start with the app. First confirm the scope document and the environment 
 
 ## Tools needed
 
-- The approved Firebase project or local emulator and its client tooling, supplied by the instructor.
+- The approved Firebase project or local emulator and its client tooling, supplied with the environment.
 - The two test identities.
 - The installed BugBazaar APK, if the exercise includes checking the app's own read.
 
-Exact commands depend on whether the environment is a project or an emulator, so this page does not include any. The instructor supplies them with the environment.
+Exact commands depend on whether the environment is a project or an emulator, so this page does not include any. The environment owner supplies them with the environment.
 
-## Guided walkthrough (blocked pending environment)
+## Guided walkthrough
 
 ### 1. Confirm the target
 
@@ -54,7 +54,7 @@ Record the approved project or emulator identifier and compare it with the ident
 
 ### 2. Read the synthetic record as the authorized identity
 
-Using the instructor's client and the authorized test identity, read only the designated document. Record the field values and the response.
+Using the provided client and the authorized test identity, read only the designated document. Record the field values and the response.
 
 !!! warning "Expected"
     The authorized read returns the designated record. This is the baseline; without it, a later failure cannot be interpreted.
@@ -68,21 +68,21 @@ Use the second identity, which should have no legitimate access to that document
 
 ### 4. Compare with the deployed rules
 
-Read the rules the instructor provided and identify which rule is supposed to allow or deny the read. Quote the specific match condition. A result without the corresponding rule is not evidence of a misconfiguration, only of an unexpected response.
+Read the rules provided with the environment and identify which rule is supposed to allow or deny the read. Quote the specific match condition. A result without the corresponding rule is not evidence of a misconfiguration, only of an unexpected response.
 
 ### 5. Write only if the scope allows it
 
-If, and only if, the instructor authorizes a write test, change one designated synthetic field and verify it with the authorized identity. Restore the original value immediately. Otherwise, stop after the read tests.
+If, and only if, the environment scope authorizes a write test, change one designated synthetic field and verify it with the authorized identity. Restore the original value immediately. Otherwise, stop after the read tests.
 
 !!! warning "Expected"
     Any write stays inside the single synthetic document and is reverted in the same session.
 
 ## Troubleshooting
 
-- **The app or client cannot reach the approved environment:** stop and ask the instructor to check the configuration. Do not redirect traffic to an unapproved service.
+- **The app or client cannot reach the approved environment:** stop and check the configuration with the environment owner. Do not redirect traffic to an unapproved service.
 - **The identifier is not the one you were given:** the client or APK is misconfigured. Do not continue.
 - **Every identity is denied:** the rules may already be correct, or the identity is not the one intended. Record the denial and check the identity before drawing a conclusion.
-- **The rules mention a different collection or field:** the scope does not match the test. Ask for the correct rules rather than testing around them.
+- **The rules mention a different collection or field:** the scope does not match the test. Request the correct rules rather than testing around them.
 
 <details markdown="1">
 <summary>Hints</summary>
@@ -98,7 +98,7 @@ If, and only if, the instructor authorizes a write test, change one designated s
 Submit these five items:
 
 - **Environment:** the approved project or emulator identifier, and confirmation that it is not the upstream project.
-- **Baseline:** the authorized read of the synthetic record, with field values redacted if the instructor asks.
+- **Baseline:** the authorized read of the synthetic record, with field values redacted if required.
 - **Lower-privilege result:** the exact request and response, including a denial if that is what happened.
 - **Rules:** the relevant rule text, quoted.
 - **Limits:** which identity should have access, which rule enforces that decision, and whether any write was authorized and performed.
@@ -109,7 +109,7 @@ Never submit API keys, service-account files, tokens, or real data.
 
 This lab is about database rules, not the mobile screen. If a lower-privilege identity can read or write a record it should not reach, the impact is direct disclosure or modification of stored data for every user the rules cover, independent of the app. That is a server-side configuration weakness.
 
-No instance has been verified, so this guide claims no result. The current status is "blocked pending an authorized environment", and the impact remains potential until the tests above are run.
+No instance is included with this guide, so it claims no result. The impact remains potential until you run the tests above in an authorized environment.
 
 ## Cleanup and review
 

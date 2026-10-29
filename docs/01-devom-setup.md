@@ -2,16 +2,16 @@
 
 Complete [Common prerequisites](00-common-setup.md) first. This page prepares the Devom Android app and its backend; the app is supplied as a prebuilt APK. Learners do not build it from source.
 
-**Status:** Instructions are based on the pinned repository and have not been runtime-validated as a manual setup. Have an instructor pilot them in the intended disposable environment before assigning labs.
+**Status:** The backend and API workflow in this page were tested on 29 October 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
 
 ## Pinned version and safety
 
-Use the reviewed [Devom revision](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161): `af4290ce8d2178765bfc2bd96cf233f6d3d03161`. This checkout contains `server.py`, `requirements.txt`, and the prebuilt `Dvom.apk` at its root. Python dependencies in `requirements.txt` are not version-pinned; Python 3.12 matches the pinned Dockerfile, but compatibility of the manual setup has not been tested.
+Use the reviewed [Devom revision](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161): `af4290ce8d2178765bfc2bd96cf233f6d3d03161`. This checkout contains `server.py`, `requirements.txt`, and the prebuilt `Dvom.apk` at its root. Python dependencies in `requirements.txt` are not version-pinned. Python 3.12 matches the pinned Dockerfile; the tested loopback run used Python 3.14 with Flask 3.1.3.
 
 !!! danger "Run only in an isolated disposable lab"
-    The pinned server starts Flask with `debug=True`, binds to `0.0.0.0`, and enables an ad-hoc TLS certificate. The debug server can expose sensitive server internals and is reachable on every host interface unless the host firewall restricts it. Use a disposable VM with an instructor-approved firewall/network policy. Do not run this service on a personal workstation with sensitive files, or expose it to public or corporate networks.
+    The pinned server starts Flask with `debug=True`, binds to `0.0.0.0`, and enables an ad-hoc TLS certificate. The debug server can expose sensitive server internals and is reachable on every host interface unless the host firewall restricts it. Use a disposable VM with an approved firewall and network policy. Do not run this service on a personal workstation with sensitive files, or expose it to public or corporate networks.
 
-The server uses HTTPS with a generated, ad-hoc certificate. Certificate trust and the prebuilt Android app's behavior with that certificate are environment-specific and have not been verified here. Do not switch to HTTP or disable certificate checks globally just to make a connection work; stop and ask the instructor if the client rejects the certificate.
+The server uses HTTPS with a generated, ad-hoc certificate. Certificate trust and the prebuilt Android app's behavior with that certificate depend on your environment. Do not switch to HTTP or disable certificate checks globally just to make a connection work; if the client rejects the certificate, use the API workflow in the labs or stop.
 
 ## Primary path: manual Python backend
 
@@ -32,7 +32,7 @@ python -m pip install -r requirements.txt
 python server.py
 ```
 
-The server listens on port `8080` and creates its SQLite database and runtime directories under this checkout on first launch. Keep the checkout and all generated data inside the disposable lab. Stop the server with `Ctrl+C`; do not delete or reset generated data unless the instructor has approved the cleanup procedure.
+The server listens on port `8080` and creates its SQLite database and runtime directories under this checkout on first launch. Keep the checkout and all generated data inside the disposable lab. Stop the server with `Ctrl+C`; do not delete or reset generated data unless your lab policy approves the cleanup procedure.
 
 The command occupies this terminal; leave it running. Open a second terminal at the checkout root for the local diagnostic and APK installation. The source defines `DVOM SERVER LIVE` at `/`. A loopback-only diagnostic can check that the local server responds:
 
@@ -41,7 +41,7 @@ curl --insecure -i https://127.0.0.1:8080/
 ```
 
 !!! info "Expected"
-    The source-defined response is `DVOM SERVER LIVE`. `--insecure` applies only to this one request to the local ad-hoc certificate; it does not validate certificate trust and is not a recommended general client setting. This expected response is source-derived, not a claim that this setup has been run successfully.
+    The source-defined response is `DVOM SERVER LIVE`. `--insecure` applies only to this one request to the local ad-hoc certificate; it does not validate certificate trust and is not a recommended general client setting.
 
 ## Install and configure the prebuilt Android app
 
@@ -53,9 +53,9 @@ adb install Dvom.apk
 ```
 
 !!! success "Expected"
-    ADB reports `Success`. If installation fails because another app version is present, stop and ask the instructor; do not uninstall or clear app data to force it through.
+    ADB reports `Success`. If installation fails because another app version is present, stop; do not uninstall or clear app data to force it through.
 
-The project README describes long-pressing the login logo to set the backend URL. For an Android Studio emulator running on the same host, `https://10.0.2.2:8080` commonly routes to the host service; for another emulator, use only the instructor-approved address and firewall path. The app's ability to trust the generated certificate is unverified; stop if it cannot connect rather than weakening network or certificate protections.
+The project README describes long-pressing the login logo to set the backend URL. For an Android Studio emulator running on the same host, `https://10.0.2.2:8080` commonly routes to the host service; for another emulator, use only the approved address and firewall path. If the app cannot connect, use the API workflow in the labs rather than weakening network or certificate protections.
 
 Lab-only default credentials in the inspected source:
 
@@ -64,7 +64,7 @@ Lab-only default credentials in the inspected source:
 
 Never reuse these credentials outside the disposable lab. Do not treat the ad-hoc TLS or application-layer encryption as a production security boundary.
 
-For API exercises, the server returns encrypted JSON responses unless the request's `User-Agent` contains `Postman`. An instructor-approved local API client can use `User-Agent: Postman` to select plaintext responses in the inspected version. Keep any captured tokens and synthetic data private.
+For API exercises, the server returns encrypted JSON responses unless the request's `User-Agent` contains `Postman`. A local API client can use `User-Agent: Postman` to select plaintext responses in the inspected version. Keep any captured tokens and synthetic data private.
 
 ## URL for the Devom lab examples
 
@@ -74,7 +74,7 @@ The lab examples use the manual backend by default. If you chose the optional Co
 BASE='https://127.0.0.1:8080'
 ```
 
-For an instructor-approved API client or proxy, configure trust only for the local lab certificate. If it rejects the generated certificate and cannot be configured safely, stop and ask the instructor.
+For a local API client or proxy, configure trust only for the local lab certificate. If it rejects the generated certificate and cannot be configured safely, use `curl --insecure` for loopback requests as shown, or stop.
 
 ## Optional alternative: Docker Compose
 
@@ -92,4 +92,4 @@ docker compose config
 docker compose up --build
 ```
 
-Compose bind-mounts `usersdb`, `uploads`, `jwt_keys`, and `templates`; keep these inside the disposable checkout. Do not remove or reset existing data without instructor approval. The service uses HTTPS on `https://127.0.0.1:8443/` with the same ad-hoc certificate. A remote emulator needs a separately approved isolated network configuration; loopback is not reachable from another host. The pinned Compose configuration and app connection have not been runtime-validated here.
+Compose bind-mounts `usersdb`, `uploads`, `jwt_keys`, and `templates`; keep these inside the disposable checkout. Do not remove or reset existing data without approval. The service uses HTTPS on `https://127.0.0.1:8443/` with the same ad-hoc certificate. A remote emulator needs a separately approved isolated network configuration; loopback is not reachable from another host. The Compose path was not part of the tested loopback run.

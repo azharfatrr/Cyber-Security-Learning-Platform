@@ -8,7 +8,7 @@ You will sign in as `cala`, read `cala`'s profile as a baseline, and then change
 
 If the second request returns the other account's record, the endpoint authorizes the token but never checks that the token's user owns the requested object.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Piloted** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below were observed in that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
 
 ## Before you begin
 
@@ -64,7 +64,7 @@ Nothing else in the request changed except the path. The token still belongs to 
 
 ![Two profile reads with cala's token: the baseline for 100500 and the cross-account read for 133700. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
 
-The screenshot shows the two reads side by side. It was taken in the pilot with the token hidden and only `id`, `username`, `email`, and `balance` displayed.
+The screenshot shows the two reads side by side. The token is hidden and only `id`, `username`, `email`, and `balance` are displayed.
 
 ### 4. Check the other object routes
 

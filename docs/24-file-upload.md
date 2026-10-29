@@ -8,7 +8,7 @@ You will upload a harmless text file as a profile picture, retrieve it by the fi
 
 A text file and an HTML file are not executable code. Storing them shows missing validation and missing access control; it does not show code execution.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Piloted** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below were observed in that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
 
 ## Before you begin
 
@@ -77,9 +77,9 @@ curl --insecure -i "$BASE/view_upload/user_100500_lab24-page.html"
 !!! success "Expected"
     `HTTP/1.1 200 OK`, `Content-Type: text/html`, and the `<h1>` line as the body.
 
-![The pilot upload and retrieval: a text file and an HTML file are both accepted, then read back with no session, with Content-Type taken from the extension.](images/lab-24/upload-and-retrieve.png)
+![The upload and retrieval: a text file and an HTML file are both accepted, then read back with no session, with Content-Type taken from the extension.](images/lab-24/upload-and-retrieve.png)
 
-In the pilot both uploads returned `200` and both retrievals returned `200` without an `Authorization` header: the text file as `text/plain`, the HTML file as `text/html`.
+Both uploads returned `200` and both retrievals returned `200` without an `Authorization` header: the text file as `text/plain`, the HTML file as `text/html`.
 
 The server chooses the content type from the file extension, so the same origin will render this file as a page. That is why the lab uses a heading and no script: the point is that the type was not checked, not that anything executes.
 
@@ -132,7 +132,7 @@ The practical impact is that an unauthenticated visitor can read uploaded identi
 ## Cleanup and review
 
 - Remove the local test files: `rm -f lab24-marker.txt lab24-page.html`.
-- Leave the two uploaded copies in `uploads/` for the instructor's reset, or delete only `user_100500_lab24-marker.txt` and `user_100500_lab24-page.html` if your lab policy allows it.
+- Leave the two uploaded copies in `uploads/` for the lab reset, or delete only `user_100500_lab24-marker.txt` and `user_100500_lab24-page.html` if your lab policy allows it.
 - `cala`'s `profile_pic` column now points at the last upload. Note it in your report; later labs do not depend on it.
 
 Where should the type check happen, where should the access check happen, and why should uploaded content be stored and served from a location that cannot execute or render application code?

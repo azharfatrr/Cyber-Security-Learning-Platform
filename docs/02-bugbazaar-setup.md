@@ -1,10 +1,10 @@
 # BugBazaar setup
 
-Complete [Common prerequisites](00-common-setup.md) first. This page prepares the prebuilt BugBazaar app for Labs 27, 29, and 30; learners do not build the app from source. Lab 27 remains blocked until its separate cloud-environment requirements are met, and Lab 30 has additional Frida/instrumentable-emulator prerequisites.
+Complete [Common prerequisites](00-common-setup.md) first. This page prepares the prebuilt BugBazaar app for Labs 27, 29, and 30; learners do not build the app from source. Lab 27 requires a separately authorized cloud environment, and Lab 30 also requires an instrumentable emulator with Frida.
 
-**Status:** The official APK hash and Module 29 workflow were verified in the documented Android 14 / API 34 pilot. Other environments and labs still require instructor validation.
+**Status:** The APK hash and the Module 29 workflow were tested on 29 October 2026 on Android 14 / API 34. Other emulator images may behave differently.
 
-The offline procedure below prepares the local exercises (Labs 29 and 30). Lab 27 remains blocked unless an instructor separately provisions and authorizes an isolated cloud environment; do not use the upstream Firebase project. If Lab 27 is approved later, the instructor must define its restricted network path instead of using this offline-only state.
+The offline procedure below prepares the local exercises (Labs 29 and 30). Lab 27 needs a separately provisioned, authorized cloud environment; do not use the upstream Firebase project. If Lab 27 is approved later, the environment owner defines its restricted network path instead of using this offline-only state.
 
 ## Pinned release and artifacts
 
@@ -12,9 +12,9 @@ The offline procedure below prepares the local exercises (Labs 29 and 30). Lab 2
 - Pinned source revision: [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9).
 - Target APK SHA-256: `c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c`.
 - The release APK embeds app version `1.0` (version code `1`), not `1.2.1`.
-- Lab 29 also requires the separate, instructor-supplied prebuilt ordinary-caller APK. Its SHA-256 is `eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e`. It is intentionally not published with this site; do not build or substitute another caller.
+- Lab 29 also requires the prebuilt ordinary-caller APK, published here as [module-29-caller.apk](assets/apk/module-29-caller.apk). Its SHA-256 is `5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc`. Do not build or substitute another caller.
 
-Use an instructor-approved disposable emulator with ADB access. Do not use a personal phone, real contacts, or personal addresses. Keep the device offline during the local exercise; download the APKs on the host before installing them. If network isolation, package identity, or an existing installation cannot be verified, stop and ask the instructor rather than replacing or clearing emulator state.
+Use an approved disposable emulator with ADB access. Do not use a personal phone, real contacts, or personal addresses. Keep the device offline during the local exercise; download the APKs on the host before installing them. If network isolation, package identity, or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
 
 ## 1. Isolate the emulator
 
@@ -79,7 +79,7 @@ adb -s "$SERIAL" shell dumpsys package com.BugBazaar | grep -E 'versionCode=|ver
 ```
 
 !!! success "Expected"
-    The downloaded APK hash matches, the installed APK hash is identical, and package metadata reports version name `1.0` / version code `1`. A checksum, ADB, or installation error stops this procedure. If a pre-existing installation does not match, do not replace, uninstall, or clear it; ask the instructor to resolve the emulator state. Package metadata alone cannot distinguish this release from older versions.
+    The downloaded APK hash matches, the installed APK hash is identical, and package metadata reports version name `1.0` / version code `1`. A checksum, ADB, or installation error stops this procedure. If a pre-existing installation does not match, do not replace, uninstall, or clear it; use a fresh disposable emulator. Package metadata alone cannot distinguish this release from older versions.
 
 ## 3. Disable the first-run downloader before launch
 
@@ -98,15 +98,15 @@ adb -s "$SERIAL" shell 'run-as com.BugBazaar cat shared_prefs/MyAppPreferences.x
 
 ## 4. Install the prebuilt Module 29 caller APK
 
-The caller is a separate ordinary app with its own package and UID. The instructor distributes this prebuilt artifact separately; it is not hosted with the documentation. Install and verify it during setup, but do not launch it until Lab 29 has created or confirmed its synthetic marker record.
+The caller is a separate ordinary app with its own package and UID. Download the published [module-29-caller.apk](assets/apk/module-29-caller.apk) on the host during setup. Install and verify it now, but do not launch it until Lab 29 has created or confirmed its synthetic marker record.
 
-Save the instructor-supplied `module-29-caller.apk` in the current host working directory before running the command block. Keep the emulator offline; download/copy the artifact on the host.
+Save the downloaded `module-29-caller.apk` in the current host working directory before running the command block. Keep the emulator offline; download or copy the artifact on the host.
 
 ```bash title="04 · Verify and install the caller APK"
 set -euo pipefail
 SERIAL=emulator-5554
 CALLER_APK=module-29-caller.apk
-CALLER_EXPECTED_SHA=eedfec951335a8ed876241d86bc9e6c53a7dff4833b98fa522f8cbfc1168900e
+CALLER_EXPECTED_SHA=5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc
 printf '%s  %s\n' "$CALLER_EXPECTED_SHA" "$CALLER_APK" | sha256sum --check -
 
 CALLER_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path org.lab.module29caller \
@@ -128,10 +128,10 @@ fi
 ```
 
 !!! success "Expected"
-    The block exits successfully only after the installed caller's APK hash matches the instructor-supplied fixture.
+    The block exits successfully only after the installed caller's APK hash matches the published fixture.
 
-If a different caller is already installed, do not replace or uninstall it; stop and ask the instructor. The caller is read-only and has no declared permissions. Lab 29 uses its distinct UID to demonstrate ordinary-app access; an `adb shell content query` is not an equivalent check.
+If a different caller is already installed, do not replace or uninstall it; use a fresh disposable emulator. The caller is read-only and has no declared permissions. Lab 29 uses its distinct UID to demonstrate ordinary-app access; an `adb shell content query` is not an equivalent check.
 
 ## Ready for a lab
 
-BugBazaar is ready only when the target APK and, for Lab 29, the caller APK match their expected hashes, the first-run guard reads back correctly, and the emulator's offline state is confirmed. Return to the selected lab for scenario-specific accounts, data, and exercise steps. BugBazaar setup alone does not satisfy Lab 27's cloud authorization requirements or Lab 30's instrumentation prerequisites.
+BugBazaar is ready only when the target APK and, for Lab 29, the caller APK match their expected hashes, the first-run guard reads back correctly, and the emulator's offline state is confirmed. Return to the selected lab for scenario-specific accounts, data, and exercise steps. BugBazaar setup alone does not satisfy Lab 27's cloud authorization requirements or replace Lab 30's Frida prerequisites.

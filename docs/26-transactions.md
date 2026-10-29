@@ -12,7 +12,7 @@ You will use `cala`'s session to make three transfers between the two seeded acc
 
 The endpoint checks only that a valid token is present. It does not check that the token's user owns `from_id`, that the amount is positive, or that the sender has enough money.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Piloted** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below were observed in that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
 
 ## Before you begin
 
@@ -110,9 +110,9 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 !!! success "Expected"
     `HTTP/1.1 200 OK`, and the balances return to `1000` and `999999`.
 
-![The pilot: four transfers with the balances after each, showing normal, negative, cross-account, and the restoring transfer.](images/lab-26/transfer-balances.png)
+![The four transfers with the balances after each, showing normal, negative, cross-account, and the restoring transfer.](images/lab-26/transfer-balances.png)
 
-In the pilot the balances moved `1000/999999` → `995/1000004` → `1000/999999` → `1001/999998` → `1000/999999`. Each transfer returned `200`.
+The balances moved `1000/999999` → `995/1000004` → `1000/999999` → `1001/999998` → `1000/999999`. Each transfer returned `200`.
 
 ### 5. Read the handler
 

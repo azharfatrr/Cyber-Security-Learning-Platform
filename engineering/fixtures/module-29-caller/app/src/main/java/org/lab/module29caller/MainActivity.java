@@ -10,7 +10,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
     private static final Uri ADDRESSES_URI = Uri.parse(
             "content://com.bugbazaar.provider.addresses/addresses");
-    private static final String NICKNAME = "LAB29-PILOT-20261028-7F3A";
+    private static final String NICKNAME = "LAB29-20261028-7F3A";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

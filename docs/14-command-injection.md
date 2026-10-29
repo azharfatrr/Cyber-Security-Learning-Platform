@@ -8,7 +8,7 @@ You will upload the same harmless text file twice. The first upload uses a norma
 
 If `server_debug` in the second response contains `LAB14_MARKER_7f3a` on its own line, the filename reached a shell and the extra command ran. The payload only prints a marker: it makes no network request and reads no files.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Piloted** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below were observed in that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
 
 ## Before you begin
 
@@ -103,9 +103,9 @@ python lab14-inject.py
 
 The first line ends where the `;` begins. The second line is not part of the echoed filename; it is the output of the separate `echo` command that the server ran.
 
-![The pilot run: the baseline upload prints one server_debug line, and the injected filename prints the marker on a second line.](images/lab-14/command-injection-server-debug.png)
+![The two responses: the baseline upload prints one server_debug line, and the injected filename prints the marker on a second line.](images/lab-14/command-injection-server-debug.png)
 
-In the pilot, the baseline response printed only `Processing file: user_100500_lab14-base.txt`; the injected filename printed that same line followed by `LAB14_MARKER_7f3a` on its own line.
+The baseline response printed only `Processing file: user_100500_lab14-base.txt`; the injected filename printed that same line followed by `LAB14_MARKER_7f3a` on its own line.
 
 ### 4. Confirm what the marker proves
 
@@ -161,7 +161,7 @@ Submit these four items:
 - **Comparison:** quote the two `server_debug` values and point out the line produced by the second command.
 - **Limits:** state that the marker only printed text, that the test ran inside your disposable container, and what the server's user privileges turned out to be only if you checked them with a harmless command such as `id`.
 
-Redact `user_id` if your instructor asks, and do not include the response's full user row.
+Redact `user_id` if your lab policy requires it, and do not include the response's full user row.
 
 ## Vulnerability and Impact
 
@@ -172,7 +172,7 @@ The impact is arbitrary command execution with the web server's privileges on th
 ## Cleanup and review
 
 - Remove the test files from the checkout: `rm -f lab14-marker.txt lab14-baseline.py lab14-inject.py`.
-- The uploaded copies remain in `uploads/` with names beginning `user_100500_`. Leave them for the instructor's reset, or delete only the two files you created if your lab policy allows it.
+- The uploaded copies remain in `uploads/` with names beginning `user_100500_`. Leave them for the lab reset, or delete only the two files you created if your lab policy allows it.
 - Note that `cala`'s `profile_pic` column now holds the last uploaded filename; this does not affect later labs.
 
 How would you build the same processing step with `subprocess.run(["echo", "Processing file:", fname])`, and why is an allowlist on the filename still needed?
