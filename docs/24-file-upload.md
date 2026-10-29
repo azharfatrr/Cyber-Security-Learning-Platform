@@ -1,13 +1,13 @@
 # 24 — Unrestricted file upload
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md).
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md).
 
 ## Objective and challenge
 Check whether the profile picture upload validates file type and ownership. First upload a harmless image. Then try a small text file with a different declared type or extension, and check whether you can retrieve it. Do not upload executable code or real data.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). Obtain a disposable user ID, a harmless image and a small text file containing a unique synthetic marker. These steps are source-based and have not been piloted.
+Obtain a disposable user ID, a harmless image and a small text file containing a unique synthetic marker. These steps are source-based and have not been piloted.
 
 ## Guided walkthrough
 
@@ -15,9 +15,9 @@ Follow [common setup](00-common-setup.md). Obtain a disposable user ID, a harmle
 
 ```bash
 printf '%s\n' 'LAB_UPLOAD_MARKER' > lab-marker.txt
-BASE='http://127.0.0.1:8443'
+BASE='https://127.0.0.1:8080'
 USER_ID='LAB_USER_ID'
-curl -i -F "user_id=$USER_ID" -F 'file=@lab-marker.txt;type=text/plain' "$BASE/upload_profile_pic"
+curl --insecure -i -F "user_id=$USER_ID" -F 'file=@lab-marker.txt;type=text/plain' "$BASE/upload_profile_pic"
 ```
 
 Replace the ID with your assigned user. Repeat with an instructor-provided image by changing the file path and MIME type. The command is derived from the handler and has not been piloted; inspect the returned filename before attempting retrieval. Do not upload an executable file.

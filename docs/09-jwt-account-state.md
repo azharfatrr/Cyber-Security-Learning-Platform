@@ -1,23 +1,23 @@
 # 09 — JWT-based account-state bypass
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md). Obtain instructor approval to block and restore a disposable test account.
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Obtain instructor approval to block and restore a disposable test account.
 
 ## Objective and challenge
 Find out whether the server checks the account's current status or relies on a claim in the token. Log in and request your profile to establish a baseline. Ask the instructor to block the lab account, then log in again and compare the tokens and responses. Test whether an appropriately signed lab token changes the result. Use a harmless profile request to confirm any access, then restore the account.
 
 ## Before you begin
 
-Use a dedicated account whose status the instructor can change. You need its username, password and user ID, plus an API client. Follow [common setup](00-common-setup.md) and set `User-Agent: Postman` on API requests so the inspected server returns plaintext JSON. Keep tokens private. The steps below are derived from source and have not been piloted.
+Use a dedicated account whose status the instructor can change. You need its username, password and user ID, plus an API client. Set `User-Agent: Postman` on API requests so the inspected server returns plaintext JSON. Keep tokens private. The steps below are derived from source and have not been piloted.
 
 ## Guided walkthrough
 
 **Tools:** Bash, `curl`, a local JWT inspection tool and an API client. After the baseline login, set the returned values locally:
 
 ```bash
-BASE='http://127.0.0.1:8443'
+BASE='https://127.0.0.1:8080'
 USER_ID='LAB_USER_ID'
 TOKEN='LAB_SESSION_TOKEN'
-curl -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$USER_ID"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$USER_ID"
 ```
 
 Replace the placeholders with the assigned account's values. Use a local JWT tool so lab tokens are not sent to an external website. These commands are not yet runtime-tested.

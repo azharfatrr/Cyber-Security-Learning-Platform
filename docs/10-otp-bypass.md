@@ -1,13 +1,13 @@
 # 10 — OTP authentication logic
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md) using the disposable mobile account.
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md) using the disposable mobile account.
 
 ## Objective and challenge
 Follow the login and OTP flow. Can you reach a protected endpoint before completing OTP verification? Compare a normal login, an invalid OTP attempt, and a protected request using the session issued at login. Then check whether verification accepts a predictable or disclosed value. Do not brute-force the code.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). Use the assigned disposable account and an API client configured with `User-Agent: Postman`. The sequence below is based on source and has not been run.
+Use the assigned disposable account and an API client configured with `User-Agent: Postman`. The sequence below is based on source and has not been run.
 
 ## Guided walkthrough
 
@@ -16,17 +16,18 @@ Follow [common setup](00-common-setup.md). Use the assigned disposable account a
 1. Send a login request. Replace the sample values with lab credentials that contain no JSON-special characters, or use an API client to enter credentials safely. The response may contain a session token and OTP, so do not share the output.
 
     ```bash
-    BASE='http://127.0.0.1:8443'
-    curl -i -A 'Postman' -H 'Content-Type: application/json' \
+    BASE='https://127.0.0.1:8080'
+    curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
       --data '{"username":"LAB_USERNAME","password":"LAB_PASSWORD"}' "$BASE/login"
     ```
 
     Copy the returned `user_id` and `session_token` into the next variables.
 
     ```bash
+    BASE='https://127.0.0.1:8080'
     USER_ID='LAB_USER_ID'
     TOKEN='LAB_SESSION_TOKEN'
-    curl -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$USER_ID"
+    curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$USER_ID"
     ```
 
     Record whether the protected profile is accessible before OTP verification. The source suggests it may be; a pilot must confirm the actual response.

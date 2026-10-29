@@ -1,13 +1,13 @@
 # 28 — Broken object-level authorization
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md). Use two disposable accounts assigned by the instructor.
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use two disposable accounts assigned by the instructor.
 
 ## Objective and challenge
 Sign in as account A and request its profile. Then use the same session to request lab account B's profile. Compare the response and returned fields with the expected access rules. Access only the two assigned accounts.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). Obtain two instructor-assigned synthetic users, A and B, and their IDs. Use only those accounts. The steps and expected behavior are based on source, not a completed pilot.
+Obtain two instructor-assigned synthetic users, A and B, and their IDs. Use only those accounts. The steps and expected behavior are based on source, not a completed pilot.
 
 ## Guided walkthrough
 
@@ -16,12 +16,12 @@ Follow [common setup](00-common-setup.md). Obtain two instructor-assigned synthe
 After logging in as A, set these variables from the lab response and the instructor's account list. Replace every placeholder; never use an ID belonging to an unapproved account.
 
 ```bash
-BASE='http://127.0.0.1:8443'
+BASE='https://127.0.0.1:8080'
 A_ID='ACCOUNT_A_ID'
 B_ID='ACCOUNT_B_ID'
 TOKEN='ACCOUNT_A_SESSION_TOKEN'
-curl -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$A_ID"
-curl -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$B_ID"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$A_ID"
+curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" "$BASE/profile/$B_ID"
 ```
 
 The first request establishes A's baseline; the second changes only the path ID. A response containing B's synthetic profile would support the finding. Redact sensitive fields before storing either response.

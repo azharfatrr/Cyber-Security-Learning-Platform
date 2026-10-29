@@ -4,6 +4,8 @@ Complete [Common prerequisites](00-common-setup.md) first. This page prepares th
 
 **Status:** The official APK hash and Module 29 workflow were verified in the documented Android 14 / API 34 pilot. Other environments and labs still require instructor validation.
 
+The offline procedure below prepares the local exercises (Labs 29 and 30). Lab 27 remains blocked unless an instructor separately provisions and authorizes an isolated cloud environment; do not use the upstream Firebase project. If Lab 27 is approved later, the instructor must define its restricted network path instead of using this offline-only state.
+
 ## Pinned release and artifacts
 
 - Official target APK: [BugBazaar v1.2.1](https://github.com/payatu/BugBazaar/releases/download/v1.2.1/BugBazaar_v1.2.1.apk).
@@ -97,6 +99,8 @@ adb -s "$SERIAL" shell 'run-as com.BugBazaar cat shared_prefs/MyAppPreferences.x
 ## 4. Install the prebuilt Module 29 caller APK
 
 The caller is a separate ordinary app with its own package and UID. The instructor distributes this prebuilt artifact separately; it is not hosted with the documentation. Install and verify it during setup, but do not launch it until Lab 29 has created or confirmed its synthetic marker record.
+
+Save the instructor-supplied `module-29-caller.apk` in the current host working directory before running the command block. Keep the emulator offline; download/copy the artifact on the host.
 
 ```bash title="04 · Verify and install the caller APK"
 set -euo pipefail

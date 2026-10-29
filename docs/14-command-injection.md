@@ -1,13 +1,13 @@
 # 14 — Command injection through file input
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md). Use a disposable container and a harmless text file only.
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use a disposable container and a harmless text file only.
 
 ## Objective and challenge
 Follow a profile picture upload from the app or API through server-side processing. Check whether characters in the filename affect the processing command. Use a harmless output marker, with no external callbacks, and compare the debug output with a normal upload.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). Obtain an assigned disposable user ID and a small harmless file. The instructor must confirm that the container and its mounts are isolated. Source-based expectations below are unverified.
+Obtain an assigned disposable user ID and a small harmless file. The instructor must confirm that the container and its mounts are isolated. Source-based expectations below are unverified.
 
 ## Guided walkthrough
 

@@ -1,21 +1,21 @@
 # 25 — Server-side file retrieval traversal
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md). Instructor must place an innocuous, uniquely marked text file inside the disposable container outside its uploads directory and provide its path.
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Instructor must place an innocuous, uniquely marked text file inside the disposable container outside its uploads directory and provide its path.
 
 ## Objective and challenge
 Retrieve an uploaded file or contract normally, then test whether the same endpoint can reach the instructor's marker outside the uploads directory. Access only that marker; do not retrieve secrets or system files. Record the exact request and compare it with the normal retrieval.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). Get the marker's approved path and contents from the instructor. The marker must be inside the isolated container but outside its uploads directory. This exercise has not been piloted.
+Get the marker's approved path and contents from the instructor. The marker must be inside the isolated container but outside its uploads directory. This exercise has not been piloted.
 
 ## Guided walkthrough
 
 **Tools:** Bash and `curl`. A normal request can be inspected with the following command after replacing the filename with a known lab upload:
 
 ```bash
-BASE='http://127.0.0.1:8443'
-curl -i --path-as-is "$BASE/view_upload/LAB_FILENAME"
+BASE='https://127.0.0.1:8080'
+curl --insecure -i --path-as-is "$BASE/view_upload/LAB_FILENAME"
 ```
 
 `--path-as-is` asks curl not to normalize path segments; other intermediaries may still alter them. Only attempt traversal to the instructor's approved marker. The exact marker path depends on the provisioned environment.

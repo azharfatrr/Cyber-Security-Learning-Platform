@@ -66,6 +66,16 @@ Never reuse these credentials outside the disposable lab. Do not treat the ad-ho
 
 For API exercises, the server returns encrypted JSON responses unless the request's `User-Agent` contains `Postman`. An instructor-approved local API client can use `User-Agent: Postman` to select plaintext responses in the inspected version. Keep any captured tokens and synthetic data private.
 
+## URL for the Devom lab examples
+
+The lab examples use the manual backend by default. If you chose the optional Compose path, replace port `8080` with `8443` in the `BASE` value. The server's ad-hoc certificate is not trusted by default, so the examples use `curl --insecure` on each individual loopback request only. Never use that option for a remote endpoint or disable certificate validation globally.
+
+```bash title="Manual backend · default for lab examples"
+BASE='https://127.0.0.1:8080'
+```
+
+For an instructor-approved API client or proxy, configure trust only for the local lab certificate. If it rejects the generated certificate and cannot be configured safely, stop and ask the instructor.
+
 ## Optional alternative: Docker Compose
 
 Docker is optional; the manual Python path above is the primary setup. The pinned Compose file maps container port `8080` to host port `8443` on all host interfaces by default. In the disposable checkout, change the mapping to loopback before starting:

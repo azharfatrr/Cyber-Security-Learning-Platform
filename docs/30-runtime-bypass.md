@@ -1,13 +1,13 @@
 # 30 — Client-side login bypass through runtime manipulation
 
-**Target:** BugBazaar. The local passcode comparison is present in source; runtime behavior and tool compatibility are unverified. Complete [common setup](00-common-setup.md) with an instructor-provided instrumentable emulator and matching Frida client/server.
+**Target:** BugBazaar. The local passcode comparison is present in source; runtime behavior and tool compatibility are unverified. Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md), and use an instructor-provided instrumentable emulator with matching Frida client/server.
 
 ## Objective and challenge
 Set a disposable app PIN and confirm that an incorrect PIN is rejected. Inspect the client-side validation and find a point where you can observe it at runtime. Test whether changing the local decision lets the app proceed without the correct PIN. Verify the PIN-validation branch itself, since other navigation paths may also reach the dashboard. A local UI bypass alone does not prove server-side authorization bypass.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). The instructor must provide a working BugBazaar build, an instrumentable disposable emulator and compatible Frida tooling. Set a synthetic PIN. Runtime behavior has not been tested.
+The instructor must provide an instrumentable disposable emulator and compatible Frida tooling. Set a synthetic PIN. Runtime behavior has not been tested.
 
 ## Guided walkthrough
 

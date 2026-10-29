@@ -1,13 +1,13 @@
 # 26 — Insufficient transaction validation
 
-**Target:** Devom. Source-inspected; not runtime-tested. Complete [common setup](00-common-setup.md). Use only two instructor-approved disposable lab accounts.
+**Target:** Devom. Source-inspected; not runtime-tested. Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use only two instructor-approved disposable lab accounts.
 
 ## Objective and challenge
 Record both starting balances. Make a small transfer and check the resulting balances and transaction record. Then try a controlled invalid amount, such as a small negative value. Check whether the server rejects it or changes either balance unexpectedly. Stop after one clear demonstration and tell the instructor so they can restore the test data.
 
 ## Before you begin
 
-Follow [common setup](00-common-setup.md). Obtain two dedicated test user IDs, an authenticated session for the sender, and permission to alter their balances. Do not use real financial data. Source-based outcomes are unverified.
+Obtain two dedicated test user IDs, an authenticated session for the sender, and permission to alter their balances. Do not use real financial data. Source-based outcomes are unverified.
 
 ## Guided walkthrough
 
@@ -27,7 +27,7 @@ Send once for the positive baseline. For the controlled negative-value test, cha
 
 ## Troubleshooting
 
-If the request is rejected, check the token, JSON fields and account IDs. If the response is unreadable, use the User-Agent described in common setup. Record unexpected behavior rather than repeating transactions indefinitely.
+If the request is rejected, check the token, JSON fields and account IDs. If the response is unreadable, use the User-Agent described in [Devom setup](01-devom-setup.md). Record unexpected behavior rather than repeating transactions indefinitely.
 
 <details markdown="1">
 <summary>Hints</summary>

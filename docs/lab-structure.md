@@ -1,6 +1,6 @@
 # Lab guide structure
 
-Each lab uses the following sections. Shared installation steps belong in [common setup](00-common-setup.md).
+Each lab uses the following sections. First complete [Common prerequisites](00-common-setup.md) and the relevant [target setup module](00-common-setup.md#choose-a-target-setup). App installation belongs in those setup modules; lab guides link to them and keep only exercise-specific preparation.
 
 1. **Overview:** target, scenario, learning objective, completion criteria and verification status.
 2. **Before you begin:** lab-specific accounts, tools, starting state and safety limits.

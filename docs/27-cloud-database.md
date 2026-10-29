@@ -1,13 +1,13 @@
 # 27 — Cloud database misconfiguration
 
-**Target:** BugBazaar, conditional. Its README lists misconfigured Firebase Firestore, but the existence, ownership, accessibility and behavior of a suitable isolated instance have **not** been verified. Complete [common setup](00-common-setup.md).
+**Target:** BugBazaar, conditional. Its README lists misconfigured Firebase Firestore, but the existence, ownership, accessibility and behavior of a suitable isolated instance have **not** been verified. Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md).
 
 ## Blocking prerequisite
 Do not contact any Firebase project or cloud resource embedded in the upstream application. The instructor must provide an organization-owned disposable Firebase project or local emulator, explicit authorization, synthetic records, connection details, and deliberately insecure rules. Until then this is **not a runnable lab**.
 
 ## Before you begin
 
-Complete [common setup](00-common-setup.md). Before proceeding, obtain written scope, the approved project or emulator identifier, test identities, a synthetic record and the intended access rules. The instructor must confirm that the app actually connects to the approved environment. Stop if any of these are missing.
+Before proceeding, obtain written scope, the approved project or emulator identifier, test identities, a synthetic record and the intended access rules. The instructor must confirm that the app actually connects to the approved environment. Stop if any of these are missing.
 
 ## Guided walkthrough (blocked pending environment)
 
