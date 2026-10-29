@@ -151,6 +151,12 @@ Submit these three items:
 
 The images in this guide are examples. Capture your own screenshots, and do not include real contact information.
 
+## Vulnerability and Impact
+
+BugBazaar's address provider is exported without a read permission. In the Android 14 / API 34 pilot, a separate caller with a different UID read the marked synthetic address.
+
+This confirms access to that one synthetic record. It does not show access to other rows, real addresses, or every component in BugBazaar.
+
 ## Cleanup and review
 
 The app has no address-delete control, and the provider's `delete()` method returns `0`. No safe way to remove the row has been verified.

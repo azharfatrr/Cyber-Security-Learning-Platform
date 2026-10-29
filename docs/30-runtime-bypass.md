@@ -16,20 +16,61 @@ The local passcode comparison is present in the source, but runtime behavior and
 
 ## Guided walkthrough
 
-**Tools:** ADB, a static analysis tool such as JADX, and instructor-provided compatible Frida client/server tooling. Check the device and local client before attaching:
+Use ADB, JADX, and the instructor-provided Frida setup. Do not attach until the instructor confirms that the emulator architecture and Frida client/server versions are compatible. The runtime procedure and hook have not been verified for this target.
+
+### 1. Check the emulator and record the baseline
+
+Run these checks in the host terminal. Replace `emulator-5554` with the serial shown by `adb devices -l`.
 
 ```bash
-adb devices
+set -euo pipefail
+SERIAL=emulator-5554
+adb devices -l
+adb -s "$SERIAL" shell getprop ro.build.version.release
+adb -s "$SERIAL" shell getprop ro.build.version.sdk
 frida --version
 ```
 
-The instructor must verify that the server version and architecture match the emulator. Exact hooks depend on the installed build and have not been validated; do not treat the examples as a working bypass script.
+Check that ADB lists the emulator with state `device`. Record the Android release, API level, and Frida client version. Ask the instructor for the server version and confirmation that it matches the emulator architecture. Stop if the target or versions cannot be confirmed.
 
-1. **Record the baseline.** In a logged-in lab session, enter an incorrect PIN and confirm BugBazaar rejects it. Enter the correct PIN and confirm it reaches the intended screen. Return to the PIN screen.
-2. **Find the local check.** In the pinned source, follow `PasscodeActivity`'s validation button through `UserAuthSave.getpasscode()` to the PIN comparison and navigation decision.
-3. **Observe the check.** Attach the instructor-approved Frida setup to the BugBazaar process without changing its behavior. Retry the incorrect PIN and confirm the baseline rejection.
-4. **Test the local change.** Change only the local validation decision in the BugBazaar process, then retry the same incorrect PIN. Record which method or branch you observed and whether the app proceeds. Do not instrument other apps or devices.
-5. **Confirm the result.** Check that the transition came through the PIN-validation branch. Another navigation path may reach the same dashboard, so seeing the dashboard alone is not proof. State whether you tested a protected server action.
+In BugBazaar, use the synthetic PIN set for the lab. Enter an incorrect PIN and confirm it is rejected. Then enter the correct PIN and confirm it reaches the intended screen.
+
+!!! warning "Expected baseline, verify on your device"
+    The incorrect PIN should be rejected and the correct PIN should be accepted before instrumentation. Confirm both results during your run. Treat them as unverified until then.
+
+![BugBazaar home screen on the Android 14 / API 34 emulator.](images/lab-30/bugbazaar-home-screen.png)
+
+This is the destination shown by the pinned APK's successful passcode branch. The screenshot shows the screen only; it does not record a PIN attempt.
+
+Return to the PIN screen before continuing.
+
+### 2. Find the local PIN check
+
+Open the pinned BugBazaar APK or source in JADX. In `PasscodeActivity`, follow the validation button through `UserAuthSave.getpasscode()` to the comparison and the navigation decision.
+
+Check that you can identify the exact method or branch that handles a matching PIN and a mismatch. If the installed APK does not match the pinned release, stop and ask the instructor.
+
+![Pinned PasscodeActivity.java source showing the PIN comparison and the success and mismatch branches.](images/lab-30/passcode-activity-source.png)
+
+This screenshot is from the pinned GitHub source. It illustrates the local decision point; it does not demonstrate runtime behavior or a bypass.
+
+### 3. Observe the check without changing it
+
+Attach only with an instructor-approved, compatible Frida setup and an observation procedure verified for this target. Do not guess at method names, hooks, or scripts. If no verified procedure is available, stop here and report that the runtime step is blocked.
+
+Retry the same incorrect PIN while observing the app process. Confirm that the normal rejection still occurs and record the method or branch observed.
+
+### 4. Test the local decision
+
+Continue only if the instructor has supplied a verified procedure for changing the local PIN decision on this build. Change only that decision in the BugBazaar process, then retry the same incorrect PIN. Record what the app does and which method or branch you observed.
+
+Do not instrument other apps or devices. If the procedure or result differs from the instructor's expected behavior, stop and report the actual result; do not describe an unverified bypass as successful.
+
+### 5. Confirm the result and its limits
+
+Check that any screen transition came through the PIN-validation branch. Another navigation path may reach the same dashboard, so seeing the dashboard alone is not proof.
+
+State whether you tested a protected server action. Without that separate test, report only what happened at BugBazaar's local PIN screen.
 
 ## Troubleshooting
 
