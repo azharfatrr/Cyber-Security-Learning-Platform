@@ -1,6 +1,6 @@
 # Lab 27 local emulator fixture
 
-This directory builds and runs the Lab 27 variant of BugBazaar against a local Firebase Storage emulator. It is maintainer tooling; learners use the published APK and the commands on [Lab 27](../docs/27-cloud-database.md).
+This directory builds and runs the Lab 27 variant of BugBazaar against a local Firebase Storage emulator. It is maintainer tooling; the verified APK input lives in `labkit/input/apk/`, and learners use the [LabKit setup](../../docs/27-cloud-database.md).
 
 ## Pinned inputs
 
@@ -19,7 +19,7 @@ This directory builds and runs the Lab 27 variant of BugBazaar against a local F
 ## Layout
 
 - `prepare.py` applies the Lab 27 changes to a fresh checkout of the pinned source.
-- `build.sh` downloads the pinned source into `.work/`, applies `prepare.py`, builds, and copies the APK to `docs/assets/apk/bugbazaar-lab27-emulator.apk`.
+- `build.sh` downloads the pinned source into `.work/`, applies `prepare.py`, builds, and copies the APK to `labkit/input/apk/bugbazaar-lab27-emulator.apk`.
 - `google-services.json` is the local-only Firebase configuration. Its project number and API key are placeholders, not credentials for a cloud project.
 - `firebase.json`, `storage.rules`, and `package.json` configure the emulator.
 - `start.sh`, `stop.sh`, `reset.sh`, and `seed.sh` manage the emulator lifecycle.
@@ -46,7 +46,7 @@ Requirements: Android SDK with build-tools and NDK 26.1.10909125, JDK 17 or newe
 
 ```bash
 ./build.sh
-sha256sum ../../docs/assets/apk/bugbazaar-lab27-emulator.apk
+  sha256sum ../../labkit/input/apk/bugbazaar-lab27-emulator.apk
 ```
 
 The verified artifact for this revision is:
@@ -62,7 +62,7 @@ Delete `.work/BugBazaar` before rebuilding if you change `prepare.py`.
 Install the pinned CLI once:
 
 ```bash
-npm install --no-audit --no-fund
+npm ci --no-audit --no-fund
 ```
 
 From the repository root:

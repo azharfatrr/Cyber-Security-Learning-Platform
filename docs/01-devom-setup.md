@@ -1,34 +1,25 @@
 # Devom setup
 
-Complete [Common prerequisites](00-common-setup.md) first. This page prepares the Devom Android app and its backend; the app is supplied as a prebuilt APK. Learners do not build it from source.
+Complete [Common prerequisites](00-common-setup.md) first and run the LabKit bootstrap once. The LabKit prepares the pinned Devom checkout and isolated Python environment; the Android app is supplied as a verified prebuilt APK.
 
 **Status:** The backend and API workflow in this page were re-executed on 2 November 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
 
 ## Pinned version and safety
 
-Use the reviewed [Devom revision](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161): `af4290ce8d2178765bfc2bd96cf233f6d3d03161`. This checkout contains `server.py`, `requirements.txt`, and the prebuilt `Dvom.apk` at its root. Python dependencies in `requirements.txt` are not version-pinned. Python 3.12 matches the pinned Dockerfile; the tested loopback run used Python 3.14 with Flask 3.1.3.
+Use the reviewed [Devom revision](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161): `af4290ce8d2178765bfc2bd96cf233f6d3d03161`. The LabKit checks out this exact commit into `.labkit/Devom` and installs the dependencies from its bundled, fully pinned lock file rather than the upstream unpinned `requirements.txt`. Python 3.12 matches the pinned Dockerfile; the tested loopback run used Python 3.14 with Flask 3.1.3.
 
 !!! danger "Run only in an isolated disposable lab"
     The pinned server starts Flask with `debug=True`, binds to `0.0.0.0`, and enables an ad-hoc TLS certificate. The debug server can expose sensitive server internals and is reachable on every host interface unless the host firewall restricts it. Use a disposable VM with an approved firewall. Restrict network egress, block public and corporate access, and allow only the local host/emulator path required by the selected lab. Do not run this service on a personal workstation with sensitive files.
 
 The server uses HTTPS with a generated, ad-hoc certificate. Certificate trust and the prebuilt Android app's behavior with that certificate depend on your environment. Do not switch to HTTP or disable certificate checks globally just to make a connection work; if the client rejects the certificate, use the API workflow in the labs or stop.
 
-## Primary path: manual Python backend
+## Primary path: Python backend
 
-Clone and pin the checkout in the disposable VM:
+After completing the LabKit bootstrap, start the backend from the LabKit directory:
 
-```bash title="01 · Clone and pin the reviewed checkout"
-git clone https://github.com/memohk/Devom.git
-cd Devom
-git checkout af4290ce8d2178765bfc2bd96cf233f6d3d03161
-```
-
-Create an isolated Python environment, install the pinned checkout's requirements, and start the server from the repository root:
-
-```bash title="02 · Create the Python environment and start the backend"
-python3.12 -m venv .venv
+```bash title="Start the pinned Devom backend"
+cd .labkit/Devom
 source .venv/bin/activate
-python -m pip install -r requirements.txt
 python server.py
 ```
 
@@ -45,19 +36,14 @@ curl --insecure -i https://127.0.0.1:8080/
 
 ## Install and configure the prebuilt Android app
 
-The app is hosted in this repository at [Dvom.apk](assets/apk/Dvom.apk); see [Lab downloads](downloads.md) for its provenance and hash. With the emulator connected, run this on the host from the repository root:
+The verified `Dvom.apk` is included in the LabKit; see [Lab downloads](downloads.md) for its provenance and hash. From the LabKit directory, install it on the selected disposable emulator:
 
 ```bash title="04 · Verify and install the supplied Android APK"
-set -euo pipefail
-DVOM_APK=docs/assets/apk/Dvom.apk
-DVOM_EXPECTED_SHA=afec11d202a4069880469274200bb377a9f1cb2205bad52c3f0f906c705cf409
-printf '%s  %s\n' "$DVOM_EXPECTED_SHA" "$DVOM_APK" | sha256sum --check -
-adb devices
-adb install "$DVOM_APK"
+./install-apk.sh Dvom.apk
 ```
 
 !!! success "Expected"
-    The hash check reports `OK` and ADB reports `Success`. If installation fails because another app version is present, stop; do not uninstall or clear app data to force it through.
+    The installer verifies the bundled hash before using ADB. It installs only when the package is absent, or reports that the identical verified APK is already installed. If another version is present, stop and use a fresh disposable emulator; the installer will not replace it or clear app data.
 
 The project README describes long-pressing the login logo to set the backend URL. For an Android Studio emulator running on the same host, `https://10.0.2.2:8080` commonly routes to the host service; for another emulator, use only the approved address and firewall path. If the app cannot connect, use the API workflow in the labs rather than weakening network or certificate protections.
 

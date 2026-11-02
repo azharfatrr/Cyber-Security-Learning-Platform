@@ -1,11 +1,13 @@
 site_name: Cyber Security Learning Platform
 site_description: Hands-on Android security lab guides
+site_url: https://azharfatrr.github.io/Cyber-Security-Learning-Platform/
 docs_dir: docs
 site_dir: site
 exclude_docs: |
   /superpowers/
 theme:
   name: material
+  custom_dir: overrides
   font:
     text: Inter
     code: JetBrains Mono
@@ -32,14 +34,14 @@ extra_css:
 extra_javascript:
   - javascripts/header-home.js
   - javascripts/text-size.js
+  - javascripts/accessibility-labels.js
 nav:
   - Home: index.md
-  - Lab structure: lab-structure.md
   - Setup:
       - Common prerequisites: 00-common-setup.md
+      - Lab downloads: downloads.md
       - Devom setup: 01-devom-setup.md
       - BugBazaar setup: 02-bugbazaar-setup.md
-      - Lab downloads: downloads.md
   - Labs:
       - 09 — JWT account state: 09-jwt-account-state.md
       - 10 — OTP bypass: 10-otp-bypass.md

@@ -8,7 +8,7 @@ You will upload the same harmless text file twice. The first upload uses a norma
 
 If `server_debug` in the second response contains `LAB14_MARKER_7f3a` on its own line, the filename reached a shell and the extra command ran. The payload only prints a marker: it makes no network request and reads no files.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
 ## Before you begin
 

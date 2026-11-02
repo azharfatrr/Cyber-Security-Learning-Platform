@@ -8,7 +8,7 @@ You will upload a harmless text file as a profile picture, retrieve it by the fi
 
 A text file and an HTML file are not executable code. Storing them shows missing validation and missing access control; it does not show code execution.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
 ## Before you begin
 
@@ -146,7 +146,7 @@ Submit a sanitized record with these items. Each maps to the step that produces 
 
 Devom stores any file a client sends and serves it back from `/view_upload` without authentication. In the inspected revision there is no extension allowlist, no content inspection, and no ownership check on retrieval. The naming scheme uses the user ID to avoid collisions but does not decide who may read the result.
 
-The practical impact is that an unauthenticated visitor can read uploaded identity documents and profile pictures if the filename is known, and the server will serve learner-supplied HTML from its own origin. The filename is predictable enough that a user ID plus a guessed name narrows the search. This lab does not demonstrate code execution or a path traversal; Lab 25 covers reading outside the uploads directory.
+Anyone who can guess a filename can read uploaded identity documents or profile pictures without signing in. The server also serves HTML you upload from its own origin. A user ID and a guessed filename narrow the search. This lab does not demonstrate code execution or path traversal; Lab 25 tests file reads outside the uploads directory.
 
 ## Cleanup and review
 

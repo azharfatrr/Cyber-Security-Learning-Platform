@@ -5,3 +5,7 @@ __pycache__/
 engineering/lab27/.work/
 engineering/lab27/.runtime/
 engineering/lab27/node_modules/
+docs/assets/labkit/
+.labkit/
+engineering/qa/node_modules/
+engineering/qa/accessibility-report.json

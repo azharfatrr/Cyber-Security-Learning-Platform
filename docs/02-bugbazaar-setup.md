@@ -1,6 +1,6 @@
 # BugBazaar setup
 
-Complete [Common prerequisites](00-common-setup.md) first. This page prepares the prebuilt BugBazaar app for Labs 27, 29, and 30; learners do not build the app from source. Lab 27 uses the separate repository-built variant and the local Firebase emulator, and Lab 30 also requires an instrumentable emulator with Frida.
+Complete [Common prerequisites](00-common-setup.md) first and run the LabKit bootstrap once. This page prepares the bundled BugBazaar APKs for Labs 27, 29, and 30; you do not build the apps from source. Lab 27 uses the included repository-built variant and local Firebase emulator. Lab 30 also requires an instrumentable emulator with Frida.
 
 **Status:** The official APK hash and the Module 29 and 30 workflows were verified on 2 November 2026 on Android 14 / API 34. The Lab 27 variant and its local emulator workflow were also tested on 2 November 2026 on Android 14 / API 34. Other emulator images may behave differently.
 
@@ -8,16 +8,16 @@ The official APK includes configuration for an upstream Firebase project, a Fire
 
 ## Pinned release and artifacts
 
-All files are hosted in this repository; see [Lab downloads](downloads.md) for hashes and attribution.
+All four verified APKs are included in the LabKit; see [Lab downloads](downloads.md) for the single archive, hashes, and attribution.
 
-- Official target APK: [BugBazaar_v1.2.1.apk](assets/apk/BugBazaar_v1.2.1.apk).
+- Official target APK: `BugBazaar_v1.2.1.apk`.
 - Pinned source revision: [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9).
 - Target APK SHA-256: `c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c`.
 - The release APK embeds app version `1.0` (version code `1`), not `1.2.1`.
-- Lab 27 variant: [bugbazaar-lab27-emulator.apk](assets/apk/bugbazaar-lab27-emulator.apk), package `com.BugBazaar.lab27`, SHA-256 `b3f0249634f7bc401fb79c43eb7f6093a030501b4d36a7e0c05864cbb8041604`.
-- Lab 29 also requires the prebuilt ordinary-caller APK, published here as [module-29-caller.apk](assets/apk/module-29-caller.apk). Its SHA-256 is `5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc`. Do not build or substitute another caller.
+- Lab 27 variant: `bugbazaar-lab27-emulator.apk`, package `com.BugBazaar.lab27`, SHA-256 `b3f0249634f7bc401fb79c43eb7f6093a030501b4d36a7e0c05864cbb8041604`.
+- Lab 29 also requires the prebuilt ordinary-caller APK, `module-29-caller.apk`. Its SHA-256 is `5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc`. Do not build or substitute another caller.
 
-Use an approved disposable emulator with ADB access on the restricted lab network described in [Common prerequisites](00-common-setup.md). Do not use a personal phone, real contacts, or personal addresses. Copy the APKs from a repository checkout to the host before installing them. If the network egress policy, package identity, or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
+Use the supported disposable emulator with ADB access on the restricted lab network described in [Common prerequisites](00-common-setup.md). Do not use a personal phone, real contacts, or personal addresses. Install an APK from the LabKit directory with `./install-apk.sh <apk-filename>`; do not copy APKs from a repository checkout. If the network egress policy, package identity, or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
 
 ## Network policy for local labs
 
@@ -25,36 +25,14 @@ Before launching BugBazaar for Labs 29 or 30, confirm that the disposable emulat
 
 ## 1. Verify and install the target APK
 
-Run on the host, from the repository root:
+Run on the host, from the extracted LabKit directory:
 
 ```bash title="01 · Verify and install BugBazaar"
-set -euo pipefail
-SERIAL=emulator-5554
-APK=docs/assets/apk/BugBazaar_v1.2.1.apk
-EXPECTED_SHA=c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c
-printf '%s  %s\n' "$EXPECTED_SHA" "$APK" | sha256sum --check -
-
-INSTALLED_APK=$(adb -s "$SERIAL" shell pm path com.BugBazaar \
-  | sed -n 's/^package://p' | sed -n '1p')
-if [ -z "$INSTALLED_APK" ]; then
-  adb -s "$SERIAL" install "$APK"
-  INSTALLED_APK=$(adb -s "$SERIAL" shell pm path com.BugBazaar \
-    | sed -n 's/^package://p' | sed -n '1p')
-fi
-if [ -z "$INSTALLED_APK" ]; then
-  echo 'Could not identify the installed BugBazaar APK; stopping.' >&2
-  exit 1
-fi
-INSTALLED_SHA=$(adb -s "$SERIAL" shell sha256sum "$INSTALLED_APK" | awk '{print $1}')
-if [ "$INSTALLED_SHA" != "$EXPECTED_SHA" ]; then
-  echo 'Installed BugBazaar APK does not match the verified v1.2.1 release; stopping without replacing it.' >&2
-  exit 1
-fi
-adb -s "$SERIAL" shell dumpsys package com.BugBazaar | grep -E 'versionCode=|versionName='
+./install-apk.sh BugBazaar_v1.2.1.apk
 ```
 
 !!! success "Expected"
-    The downloaded APK hash matches, the installed APK hash is identical, and package metadata reports version name `1.0` / version code `1`. A checksum, ADB, or installation error stops this procedure. If a pre-existing installation does not match, do not replace, uninstall, or clear it; use a fresh disposable emulator. Package metadata alone cannot distinguish this release from older versions.
+    The LabKit hash and installed APK hash match; package metadata reports version name `1.0` / version code `1`. A checksum, ADB, or installation error stops this procedure. If a pre-existing installation does not match, do not replace, uninstall, or clear it; use a fresh disposable emulator. Package metadata alone cannot distinguish this release from older versions.
 
 ## 2. Disable the first-run downloader before launch
 
@@ -73,33 +51,12 @@ adb -s "$SERIAL" shell 'run-as com.BugBazaar cat shared_prefs/MyAppPreferences.x
 
 ## 3. Install the prebuilt Module 29 caller APK
 
-The caller is a separate ordinary app with its own package and UID. Copy the published [module-29-caller.apk](assets/apk/module-29-caller.apk) from the repository checkout on the host during setup. Install and verify it now, but do not launch it until Lab 29 has created or confirmed its synthetic marker record.
+The caller is a separate ordinary app with its own package and UID. Install the bundled `module-29-caller.apk`, but do not launch it until Lab 29 has created or confirmed its synthetic marker record.
 
-Run the block from the repository root; it uses the published path.
+Run from the extracted LabKit directory:
 
 ```bash title="03 · Verify and install the caller APK"
-set -euo pipefail
-SERIAL=emulator-5554
-CALLER_APK=docs/assets/apk/module-29-caller.apk
-CALLER_EXPECTED_SHA=5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc
-printf '%s  %s\n' "$CALLER_EXPECTED_SHA" "$CALLER_APK" | sha256sum --check -
-
-CALLER_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path org.lab.module29caller \
-  | sed -n 's/^package://p' | sed -n '1p')
-if [ -z "$CALLER_INSTALLED_APK" ]; then
-  adb -s "$SERIAL" install "$CALLER_APK"
-  CALLER_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path org.lab.module29caller \
-    | sed -n 's/^package://p' | sed -n '1p')
-fi
-if [ -z "$CALLER_INSTALLED_APK" ]; then
-  echo 'Could not identify the installed caller APK; stopping.' >&2
-  exit 1
-fi
-CALLER_INSTALLED_SHA=$(adb -s "$SERIAL" shell sha256sum "$CALLER_INSTALLED_APK" | awk '{print $1}')
-if [ "$CALLER_INSTALLED_SHA" != "$CALLER_EXPECTED_SHA" ]; then
-  echo 'Installed caller does not match the verified fixture; stopping without replacing it.' >&2
-  exit 1
-fi
+./install-apk.sh module-29-caller.apk
 ```
 
 !!! success "Expected"
@@ -112,29 +69,7 @@ If a different caller is already installed, do not replace or uninstall it; use 
 The Lab 27 app is a separate package (`com.BugBazaar.lab27`) built from the same pinned source. It can be installed alongside the official app without uninstalling or clearing either one. Install it only when you are doing Lab 27.
 
 ```bash title="04 · Verify and install the Lab 27 variant"
-set -euo pipefail
-SERIAL=emulator-5554
-LAB27_APK=docs/assets/apk/bugbazaar-lab27-emulator.apk
-LAB27_EXPECTED_SHA=b3f0249634f7bc401fb79c43eb7f6093a030501b4d36a7e0c05864cbb8041604
-printf '%s  %s\n' "$LAB27_EXPECTED_SHA" "$LAB27_APK" | sha256sum --check -
-
-LAB27_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path com.BugBazaar.lab27 \
-  | sed -n 's/^package://p' | sed -n '1p')
-if [ -z "$LAB27_INSTALLED_APK" ]; then
-  adb -s "$SERIAL" install "$LAB27_APK"
-  LAB27_INSTALLED_APK=$(adb -s "$SERIAL" shell pm path com.BugBazaar.lab27 \
-    | sed -n 's/^package://p' | sed -n '1p')
-fi
-if [ -z "$LAB27_INSTALLED_APK" ]; then
-  echo 'Could not identify the installed Lab 27 APK; stopping.' >&2
-  exit 1
-fi
-LAB27_INSTALLED_SHA=$(adb -s "$SERIAL" shell sha256sum "$LAB27_INSTALLED_APK" | awk '{print $1}')
-if [ "$LAB27_INSTALLED_SHA" != "$LAB27_EXPECTED_SHA" ]; then
-  echo 'Installed Lab 27 APK does not match the verified build; stopping without replacing it.' >&2
-  exit 1
-fi
-adb -s "$SERIAL" shell dumpsys package com.BugBazaar.lab27 | grep -E 'versionCode=|versionName='
+./install-apk.sh bugbazaar-lab27-emulator.apk
 ```
 
 !!! success "Expected"

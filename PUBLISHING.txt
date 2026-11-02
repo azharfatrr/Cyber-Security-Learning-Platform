@@ -3,13 +3,34 @@ Run from this folder:
     python3 -m pip install -r requirements.txt
     python3 -m mkdocs serve
 
-Visit the URL printed by MkDocs. For a production build, run:
+Visit the URL printed by MkDocs. For a production build, generate the LabKit
+archive before building the site:
 
+    python3 labkit/build.py
     python3 -m mkdocs build --strict
 
-The site is published automatically whenever a commit is pushed to the `main`
-branch. GitHub Actions runs the site tests, builds with strict mode, and deploys
-the generated site to GitHub Pages. Pull requests and other branches do not deploy.
+The generated LabKit archive lives under `docs/assets/labkit/` only as a
+build input and is ignored by Git. Do not commit it or the generated `site/`
+directory. The strict build copies the archive into the published site.
+
+The local equivalent of the validation workflow is:
+
+    python3 labkit/build.py
+    python3 -m unittest -v test_site
+    python3 -m mkdocs build --strict
+    python3 scripts/check_site_links.py site
+    npm ci --prefix engineering/qa
+    engineering/qa/node_modules/.bin/playwright install chromium
+    node engineering/qa/accessibility_audit.mjs site
+
+The `validate` job is the required PR check. It reports local references and
+audits each rendered page with axe-core in dark desktop mode; serious and
+critical accessibility findings fail validation. External URLs are listed as
+not fetched. The audit report is written to the ignored
+`engineering/qa/accessibility-report.json`.
+
+Pull requests run validation without deploying. A successful push to `main`
+deploys the generated site to GitHub Pages after the same validation gates pass.
 
 The live site is:
 

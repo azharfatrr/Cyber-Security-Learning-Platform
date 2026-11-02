@@ -2,8 +2,8 @@
 
 **Date:** 2 November 2026
 **Branch:** `production-ready-lab-site`
-**Scope:** `docs/lab-structure.md`, the ten lab pages, and the three setup pages.
-**Method:** each page was read in full against the structure contract in `docs/lab-structure.md`, then edited where it differed. All ten labs were re-executed on 2 November 2026 and their observed outcomes and screenshots were refreshed. This is a learner-material structure and internal-consistency review; it does not claim the website governance or release-QA gates were run.
+**Scope:** `engineering/qa/lab-structure.md`, the ten lab pages, and the three setup pages.
+**Method:** each page was read in full against the internal structure contract in `engineering/qa/lab-structure.md`, then edited where it differed. All ten labs were re-executed on 2 November 2026 and their observed outcomes and screenshots were refreshed. This is a learner-material structure and internal-consistency review; it does not claim the website governance or release-QA gates were run.
 
 ## Contract checks applied
 

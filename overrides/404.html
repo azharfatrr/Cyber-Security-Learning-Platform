@@ -1,0 +1,9 @@
+{% extends "main.html" %}
+{% block content %}
+  <h1>Page not found</h1>
+  <p>The page may have moved or the address may be incorrect.</p>
+  <p>
+    <a href="{{ config.site_url }}">Return to the home page</a>
+    or visit <a href="{{ config.site_url }}downloads/">Lab downloads</a>.
+  </p>
+{% endblock %}

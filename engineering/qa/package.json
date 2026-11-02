@@ -1,0 +1,9 @@
+{
+  "name": "labkit-site-qa",
+  "private": true,
+  "description": "Accessibility and browser QA for the rendered LabKit site",
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "playwright": "1.64.1"
+  }
+}
