@@ -8,7 +8,7 @@ You will place one harmless marker file next to `server.py`, outside Devom's `up
 
 If the second request returns the marker, the endpoint joined the requested path onto the uploads directory without checking that the result stayed inside it. Only the marker file is in scope.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -16,14 +16,20 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 Request only `lab25-marker.txt`. Do not request the SQLite database, the JWT key files, the server source, or anything outside the checkout. Those files exist beside the marker, and reading them is out of scope for this lab.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend and a terminal in the Devom checkout.
 - Bash and `curl`. The `--path-as-is` option matters: without it, curl collapses `..` before sending the request.
 
+## Understand the scenario
+
+`/view_upload/<path:filename>` accepts a path segment and joins it onto the uploads directory. `os.path.join` does not enforce containment, and `send_file` serves whatever path results. The boundary is the canonical resolved path: it must stay inside `uploads/`. This lab puts one marker beside that directory and requests it through both retrieval routes.
+
 ## Guided walkthrough
 
 ### 1. Create the marker outside the uploads directory
+
+**Where:** host shell, Devom checkout.
 
 Run this in the Devom checkout, the same directory that contains `server.py` and `uploads/`:
 
@@ -39,6 +45,8 @@ ls -d uploads
 
 ### 2. Retrieve a normal file (baseline)
 
+**Where:** host shell, same terminal.
+
 Devom generates a contract file for each seeded user at first start. Retrieve `cala`'s contract:
 
 ```bash title="Normal retrieval inside uploads"
@@ -53,6 +61,8 @@ If the contract is missing, upload a small file from Lab 24 first and use its re
 
 ### 3. Request the marker through the same endpoint
 
+**Where:** host shell, same terminal.
+
 ```bash title="Traversal one level up"
 curl --insecure -i --path-as-is "$BASE/view_upload/../lab25-marker.txt"
 ```
@@ -64,6 +74,8 @@ The path segment `../` moved the resolved path from `uploads/` to its parent, wh
 
 ### 4. Try the second endpoint
 
+**Where:** host shell, same terminal.
+
 `/download_pdf` uses the same `os.path.join` pattern:
 
 ```bash title="The same traversal through download_pdf"
@@ -73,11 +85,13 @@ curl --insecure -i --path-as-is "$BASE/download_pdf/../lab25-marker.txt"
 !!! success "Expected"
     `HTTP/1.1 200 OK` with the same marker. Two endpoints share the flaw.
 
-![The two retrievals: the contract loads as a baseline, the raw request line keeps ../, and both view_upload and download_pdf return the marker with 200.](images/lab-25/traversal-marker.png)
+![Host-terminal output showing both raw traversal paths, each endpoint's HTTP 200 response, and the LAB25_TRAVERSAL_MARKER_7f3a body.](images/lab-25/traversal-marker.png)
 
-Both endpoints returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The same request without `--path-as-is` returned `404`, because curl removed `../` before sending it.
+The captured QTerminal output shows `view_upload/../lab25-marker.txt` and `download_pdf/../lab25-marker.txt` each returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The walkthrough's baseline contract request also returned `200` during this run.
 
 ### 5. Confirm the request that reached the server
+
+**Where:** host shell, same terminal.
 
 If either request returned `404` or the contract instead of the marker, look at what curl actually sent:
 
@@ -91,6 +105,8 @@ The `> GET` line must still contain `/view_upload/../lab25-marker.txt`. If it sh
     Confirm both parts of the evidence: the raw request still contains `../`, and the response returns the marker from beside `uploads/`. Together, these show that the server served this out-of-directory marker; they do not establish that you tested or can read any other file.
 
 ### 6. Decide what the result proves
+
+**Where:** your notes.
 
 - A `200` with the marker shows that the requested path escaped `uploads/`.
 - The endpoint has no containment check: it builds `os.path.join(UPLOAD_FOLDER, filename)` and passes the result to `send_file`.
@@ -106,12 +122,12 @@ The `> GET` line must still contain `/view_upload/../lab25-marker.txt`. If it sh
 
 ## Evidence
 
-Submit these four items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Baseline:** the request path and status for the normal contract or upload retrieval.
-- **Traversal:** the exact request path, status, and the marker body for both endpoints.
-- **Raw request:** the `> GET` line from Step 5, showing that `../` reached the server.
-- **Limits:** state that only `lab25-marker.txt` was requested, and that no database, key, or source file was read.
+- [ ] **Baseline:** the request path and status for the normal contract or upload retrieval (Step 2).
+- [ ] **Traversal:** the exact request path, status, and marker body for both endpoints (Steps 3 and 4).
+- [ ] **Raw request:** the `> GET` line from Step 5, showing that `../` reached the server.
+- [ ] **Limits:** one sentence stating that only `lab25-marker.txt` was requested and that no database, key, or source file was read (Step 6).
 
 <details markdown="1">
 <summary>Hints</summary>

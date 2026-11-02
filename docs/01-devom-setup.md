@@ -2,7 +2,7 @@
 
 Complete [Common prerequisites](00-common-setup.md) first. This page prepares the Devom Android app and its backend; the app is supplied as a prebuilt APK. Learners do not build it from source.
 
-**Status:** The backend and API workflow in this page were tested on 29 October 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
+**Status:** The backend and API workflow in this page were re-executed on 2 November 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
 
 ## Pinned version and safety
 
@@ -45,15 +45,19 @@ curl --insecure -i https://127.0.0.1:8080/
 
 ## Install and configure the prebuilt Android app
 
-With the emulator connected, install the APK from the pinned checkout in that second terminal:
+The app is hosted in this repository at [Dvom.apk](assets/apk/Dvom.apk); see [Lab downloads](downloads.md) for its provenance and hash. With the emulator connected, run this on the host from the repository root:
 
-```bash title="04 · Install the supplied Android APK"
+```bash title="04 · Verify and install the supplied Android APK"
+set -euo pipefail
+DVOM_APK=docs/assets/apk/Dvom.apk
+DVOM_EXPECTED_SHA=afec11d202a4069880469274200bb377a9f1cb2205bad52c3f0f906c705cf409
+printf '%s  %s\n' "$DVOM_EXPECTED_SHA" "$DVOM_APK" | sha256sum --check -
 adb devices
-adb install Dvom.apk
+adb install "$DVOM_APK"
 ```
 
 !!! success "Expected"
-    ADB reports `Success`. If installation fails because another app version is present, stop; do not uninstall or clear app data to force it through.
+    The hash check reports `OK` and ADB reports `Success`. If installation fails because another app version is present, stop; do not uninstall or clear app data to force it through.
 
 The project README describes long-pressing the login logo to set the backend URL. For an Android Studio emulator running on the same host, `https://10.0.2.2:8080` commonly routes to the host service; for another emulator, use only the approved address and firewall path. If the app cannot connect, use the API workflow in the labs rather than weakening network or certificate protections.
 

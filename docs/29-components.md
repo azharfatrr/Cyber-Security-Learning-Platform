@@ -12,13 +12,13 @@ You will:
 
 If the caller displays the address and the UIDs differ, BugBazaar returned that record to a separate app. The lab tests one fake record only. It does not test real contacts or BugBazaar's other records.
 
-**Tested target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Tested on:** Android 14 / API 34. The caller received the uniquely marked record.
+**Tested target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Re-executed on:** 2 November 2026, Android 14 / API 34 on x86_64. BugBazaar UID `10197` and caller UID `10198` were distinct; the caller received the uniquely marked record.
 
 ## Before you begin
 
 Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Install and verify BugBazaar and the prebuilt caller app before starting. Use an approved disposable emulator on the egress-restricted lab network. Do not build either app or use a personal phone, real contacts, or personal addresses.
 
-## Tools needed
+### Tools needed
 
 - An Android emulator with ADB access.
 - Android SDK Platform Tools (`adb`) and a terminal on the host computer.
@@ -28,11 +28,17 @@ The caller is a small prebuilt APK, published with this guide as [module-29-call
 
 Run ADB commands in the host terminal. Do the login, address search, and caller-screen check in the emulator. This walkthrough does not install or build apps.
 
+## Understand the scenario
+
+Android apps can share data through content providers. A provider declares whether other apps may reach it with `android:exported`, and may require a permission. BugBazaar exposes an address provider with no read permission, so the boundary it relies on is the caller's identity: any app with a different UID should have been denied. This lab uses a fixed, read-only caller that asks for one synthetic nickname, so the result is attributable to a separate app rather than to an ADB shell or to your own app.
+
 ## Guided walkthrough
 
 ### 1. Check the emulator and installed apps
 
-In the host terminal, run the commands below. Replace `emulator-5554` with the serial shown for your emulator by `adb devices -l`.
+**Where:** host shell on the lab VM.
+
+Run the commands below. Replace `emulator-5554` with the serial shown for your emulator by `adb devices -l`.
 
 ```bash title="Check the emulator and installed apps"
 set -euo pipefail
@@ -58,6 +64,8 @@ If the emulator is missing, unauthorized, or either package has no `package:` pa
 
 ### 2. Find or create the synthetic address
 
+**Where:** the Android emulator.
+
 On the emulator:
 
 - Open BugBazaar and sign in with the local demo account, `admin` / `BugBazaarSeccool`.
@@ -82,6 +90,8 @@ The address list may contain fictional seed records. Keep those records out of s
 ![BugBazaar's address screen showing the uniquely marked synthetic lab record.](images/lab-29/bugbazaar-synthetic-address.png)
 
 ### 3. Run the query from the ordinary caller app
+
+**Where:** host shell to launch the caller, then the Android emulator to read its screen.
 
 Return to the host terminal and run this command to open **Module 29 Provider Caller** on the emulator. The caller runs its fixed, read-only query as soon as it opens; you do not need to type anything into the app.
 
@@ -122,6 +132,8 @@ If the screen says `No matching row returned` or `Query failed`, stop and use Tr
 
 ### 4. Decide what the result proves
 
+**Where:** your notes, using the UIDs recorded in Step 1 and the caller screen from Step 3.
+
 Use these checks to write your finding:
 
 - Confirm the caller UID differs from BugBazaar's UID from Step 1. On the tested emulator, BugBazaar's UID was `10197` and the caller's was `10198`; your numbers will vary.
@@ -137,11 +149,13 @@ Use these checks to write your finding:
 
 ## Evidence
 
-Submit these three items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **BugBazaar screenshot:** Show the marked fake address in BugBazaar. Keep any other address rows out of the image.
-- **Caller screenshot:** Show the caller's package and UID, provider URI, exact nickname filter, and returned fake address.
-- **Short note:** Record the Android version/API and the BugBazaar UID from Step 1 and caller UID from the caller screen. State whether the UIDs differ and that the caller returned only the marked fake address.
+- [ ] **BugBazaar screenshot:** the marked fake address in BugBazaar, with any other address rows kept out of the image (Step 2).
+- [ ] **Caller screenshot:** the caller's package and UID, provider URI, exact nickname filter, and returned fake address (Step 3).
+- [ ] **UID comparison:** BugBazaar's UID from `pm list packages -U` and the caller UID from the caller screen (Steps 1 and 3).
+- [ ] **Context:** the Android version and API level (Step 1).
+- [ ] **Limits:** one sentence stating whether the UIDs differ and that the caller returned only the marked fake address (Step 4).
 
 The images in this guide are examples. Capture your own screenshots, and do not include real contact information.
 

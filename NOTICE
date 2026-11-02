@@ -1,0 +1,28 @@
+# Third-party notices
+
+This repository contains project-owned material and third-party or third-party-derived binaries. Any license for this repository's own material applies only to project-owned material and does not relicense the artifacts listed here.
+
+## BugBazaar
+
+- Upstream: Payatu, <https://github.com/payatu/BugBazaar>
+- Mirrored file: `docs/assets/apk/BugBazaar_v1.2.1.apk`
+- Identity: official v1.2.1 release, byte-for-byte unchanged; package `com.BugBazaar`, version name `1.0`, version code `1`
+- Source revision: `fef6a899a684245eb70b2ab4be926f62be849ed9`
+- SHA-256: `c307c7856b270da40357006eaa763c06bcdc2913d0d0b0bab7e0b2ed564f5f4c`
+- License status verified 2 November 2026: no license file at the pinned revision, no license statement in the pinned README, and no license declared in the repository metadata. Redistribution permission is not established by the upstream repository. All rights remain with the upstream author. The file is included only for the authorized, isolated training use described on this site.
+
+## Devom
+
+- Upstream: `memohk`, <https://github.com/memohk/Devom>
+- Mirrored file: `docs/assets/apk/Dvom.apk`
+- Identity: prebuilt `Dvom.apk` at the pinned revision; package `com.example.vulnappowasp`, version name `1.0`, version code `1`
+- Source revision: `af4290ce8d2178765bfc2bd96cf233f6d3d03161`
+- SHA-256: `afec11d202a4069880469274200bb377a9f1cb2205bad52c3f0f906c705cf409`
+- License status verified 2 November 2026: the pinned README states that DVOM is provided under a custom "Educational Use License" for personal learning, internal training, academic labs, authorized workshops, and ethical security research, and prohibits commercial redistribution, resale, and unauthorized use. The README refers to a `LICENSE` file that is absent at the pinned revision. The full terms could not be read. All rights remain with the upstream author. The file is included unchanged only for that educational use.
+
+## Project-built artifacts
+
+- `docs/assets/apk/module-29-caller.apk` is built by this project for the Lab 29 exercise.
+- `docs/assets/apk/bugbazaar-lab27-emulator.apk` is built by this project from the pinned BugBazaar source revision `fef6a899a684245eb70b2ab4be926f62be849ed9`. It is a derivative of BugBazaar; the BugBazaar notice above also applies.
+
+Neither project-built APK is an official upstream release. The Lab 27 APK is configured for the local Firebase Storage emulator described in `engineering/lab27/`.

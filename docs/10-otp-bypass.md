@@ -13,7 +13,7 @@ You will:
 
 The exercise separates three different problems: the code is disclosed at login, the session is not bound to a completed verification, and one value is accepted regardless of the real code. A successful verification message alone does not prove that protected endpoints enforce the second factor.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -21,14 +21,20 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 Every request below sends `User-Agent: Postman`. Without it, Devom encrypts JSON responses.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend from [Devom setup](01-devom-setup.md).
 - Bash and `curl`, or an API client that can set headers and a JSON body.
 
+## Understand the scenario
+
+Devom's login has two stages: `/login` returns a session token plus a one-time code, and `/verify_login_2fa` is meant to complete the second factor. The boundary is whether protected routes require that second step and whether the code is secret. This lab checks the order in which the token is issued, what `/verify_login_2fa` compares, and whether a fixed value bypasses the comparison.
+
 ## Guided walkthrough
 
 ### 1. Sign in and capture the login response
+
+**Where:** host shell on the lab VM.
 
 ```bash title="Sign in as cala"
 BASE='https://127.0.0.1:8080'
@@ -43,6 +49,8 @@ The four-digit `debug_token` is the same code the server stores for this login. 
 
 ### 2. Use the session before verifying the code
 
+**Where:** host shell, same terminal.
+
 ```bash title="Read the profile with no OTP submitted"
 TOKEN='PASTE_SESSION_TOKEN_HERE'
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
@@ -56,6 +64,8 @@ That result is the first finding: the session token is issued and accepted befor
 
 ### 3. Submit one wrong code
 
+**Where:** host shell, same terminal.
+
 ```bash title="Wrong OTP"
 curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
   --data '{"user_id":"100500","token":"0000"}' "$BASE/verify_login_2fa"
@@ -65,6 +75,8 @@ curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
     `HTTP/1.1 401 UNAUTHORIZED` with `{"status": "error"}`. `0000` is only a wrong code if it differs from the `debug_token` you recorded; check before sending.
 
 ### 4. Submit the disclosed code
+
+**Where:** host shell, same terminal.
 
 ```bash title="The code from the login response"
 curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
@@ -78,6 +90,8 @@ This confirms that the value printed in the login response is the verification c
 
 ### 5. Submit the fixed value for an unrelated user
 
+**Where:** host shell, same terminal.
+
 The pinned `verify_2fa` handler accepts a hardcoded value, `1293`, before it looks at `pending_2fa`. Send it with a user ID that has no pending login:
 
 ```bash title="Fixed accepted value"
@@ -90,14 +104,16 @@ curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
 
 This is a fixed bypass value, not a guess. Send it once, record the result, and stop; do not loop over other codes.
 
-![The four OTP checks: profile access before verification, a wrong code, the disclosed code, and the fixed value. The code shown is a one-time value from the disposable lab instance.](images/lab-10/otp-checks.png)
+![Host-terminal output showing profile access before OTP verification, the rejected wrong code, and successful disclosed-code and fixed-value checks. The live code is redacted.](images/lab-10/otp-checks.png)
 
-The profile returned `200` with no code submitted, `0000` returned `401`, the code from `debug_token` returned `200`, and `1293` returned `200` for user `999999`.
+The captured QTerminal output shows the profile returned `200` before code verification, `0000` returned `401`, the redacted `debug_token` returned `200`, and `1293` returned `200` for user `999999`.
 
 !!! important "Key observation"
     Keep the three findings distinct: `debug_token` disclosed the live code, `/profile` accepted the session before OTP verification, and the fixed value `1293` succeeded for a user with no pending login. A successful verification response does not undo the pre-verification profile access.
 
 ### 6. Decide what the result proves
+
+**Where:** your notes, after the host-shell commands.
 
 Write down each finding separately, because each has a different fix:
 
@@ -117,12 +133,12 @@ If Step 2 returned `401`, the session is being bound to verification in your bui
 
 ## Evidence
 
-Submit these four items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Login response:** the redacted `status`, `user_id`, and `debug_token`, with the token itself omitted.
-- **Pre-verification access:** the status code and a few non-sensitive fields from the profile request in Step 2.
-- **Code tests:** the status code for the wrong code, the disclosed code, and `1293`, with the user ID used in each request.
-- **Limits:** state that the test covers the API only, and which of the three findings your own run reproduced.
+- [ ] **Login response:** the redacted `status`, `user_id`, and `debug_token` from Step 1, with the full token omitted.
+- [ ] **Pre-verification access:** the status code and a few non-sensitive fields from the profile request in Step 2.
+- [ ] **Code tests:** the status code for the wrong code (Step 3), the disclosed code (Step 4), and `1293` (Step 5), with the user ID used in each request.
+- [ ] **Limits:** one sentence stating that the test covers the API only and which of the three findings your own run reproduced (Steps 2–5).
 
 Do not submit a live `session_token` or real personal data.
 

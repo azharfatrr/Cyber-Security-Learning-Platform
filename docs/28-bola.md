@@ -8,7 +8,7 @@ You will sign in as `cala`, read `cala`'s profile as a baseline, and then change
 
 If the second request returns the other account's record, the endpoint authorizes the token but never checks that the token's user owns the requested object.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -16,16 +16,22 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 This lab is read-only. Do not call an endpoint that edits or deletes the other account.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend from [Devom setup](01-devom-setup.md).
 - Bash and `curl`, or an API client.
 
 Requests send `User-Agent: Postman`; without it the JSON responses are encrypted.
 
+## Understand the scenario
+
+Devom's profile route takes a user ID from the URL and a token from the `Authorization` header. Authentication checks that the token is valid; object-level authorization would check that the token's `sub` claim matches the ID in the path. The handler reads the token's `sub` but queries only the URL value. The security boundary is that comparison. This lab reads the caller's own record first, then changes only the path.
+
 ## Guided walkthrough
 
 ### 1. Sign in as cala and record the IDs
+
+**Where:** host shell on the lab VM.
 
 ```bash title="Sign in as cala"
 BASE='https://127.0.0.1:8080'
@@ -36,6 +42,8 @@ curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
 Copy `session_token` into `TOKEN`. The response also gives `user_id` `100500`; the other lab account is `133700`.
 
 ### 2. Read your own profile (baseline)
+
+**Where:** host shell, same terminal.
 
 ```bash title="Authorized read"
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
@@ -52,6 +60,8 @@ Record the non-sensitive fields you will compare: `id`, `username`, `name`, `ema
 
 ### 3. Change only the ID in the URL
 
+**Where:** host shell, same terminal.
+
 ```bash title="Same token, different user ID"
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
   "$BASE/profile/133700"
@@ -62,14 +72,16 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 
 Nothing else in the request changed except the path. The token still belongs to `cala`; the server used the ID from the URL. That response is the finding.
 
-![Two profile reads with cala's token: the baseline for 100500 and the cross-account read for 133700. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
+![Host-terminal output showing the same cala token reading profiles 100500 and 133700, followed by successful read-only account and transaction requests. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
 
-The screenshot shows the two reads side by side. The token is hidden and only `id`, `username`, `email`, and `balance` are displayed.
+The captured QTerminal output shows both profile reads returned `200`, as did `/get_accounts/133700` and `/transactions/133700`. The token is omitted; only selected profile fields are displayed.
 
 !!! important "Key observation"
     The token stayed the same and only the profile ID in the URL changed; the response then contained admin's profile. That demonstrates a missing ownership check on this profile route. It does not establish that every route is affected.
 
 ### 4. Check the other object routes
+
+**Where:** host shell, same terminal.
 
 The same revision passes the URL ID straight into the query on two more routes. With the same token, run one read for each:
 
@@ -87,6 +99,8 @@ Do not call `edit_account`, `delete_account`, or any other write route for `1337
 
 ### 5. Read the handler
 
+**Where:** an editor, `server.py` in the Devom checkout.
+
 Open `server.py` and find the `profile` route:
 
 ```python
@@ -99,6 +113,8 @@ def profile(decoded_token, user_id):
 `@token_required` confirms that the token is valid and gives the handler `decoded_token`, whose `sub` is the caller's ID. The query then uses `user_id` from the URL and never compares it with `decoded_token['sub']`.
 
 ### 6. Decide what the result proves
+
+**Where:** your notes.
 
 - A `200` with the other account's identity fields shows a horizontal authorization failure: a valid token for one user read another user's object.
 - A `200` with an empty list on the other two routes is weaker evidence; record it as the same pattern, not as data disclosure.
@@ -114,11 +130,12 @@ def profile(decoded_token, user_id):
 
 ## Evidence
 
-Submit these three items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Baseline:** the redacted `200` response for `100500` with cala's token.
-- **Cross-account read:** the redacted `200` response for `133700` with the same token, and the one path segment that differs.
-- **Limits:** the two account IDs used, the endpoints tested, and a statement that no account was modified.
+- [ ] **Baseline:** the redacted `200` response for `100500` with cala's token (Step 2).
+- [ ] **Cross-account read:** the redacted `200` response for `133700` with the same token, plus the one path segment that differs (Step 3).
+- [ ] **Related routes:** the two status codes from Step 4, labelled as the same pattern rather than as data disclosure.
+- [ ] **Limits:** the two account IDs used, the endpoints tested, and a statement that no account was modified (Steps 3 and 4).
 
 Redact `password`, `recovery_pin`, `security_answer`, and the full token.
 

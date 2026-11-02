@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // Deliberately permissive for Lab 27. Learners inspect this rule
+      // and compare it with an unauthenticated read.
+      allow read, write: if true;
+    }
+  }
+}

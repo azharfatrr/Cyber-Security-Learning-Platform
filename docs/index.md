@@ -21,7 +21,7 @@ Guides for testing Android applications and APIs in an isolated lab.
 </div>
 
 <div class="catalog-notice" markdown="1">
-**Before you start:** All ten walkthroughs are complete. Nine were tested end to end on 29 October 2026 and include observed output and screenshots. Lab 27 requires an authorized Firebase environment; its page states what that environment must provide. Use only an isolated, authorized environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup module for the target used by your lab.
+**Before you start:** All ten walkthroughs are complete and were tested end to end; every page includes observed output and states what its run covered. Use only an isolated, disposable environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup module for the target used by your lab.
 </div>
 
 ## Lab catalog
@@ -89,7 +89,7 @@ Investigate upload processing and file retrieval.
 
 ### API security
 
-Examine transactions, object access, and database permissions.
+Examine transactions, object access, and storage permissions.
 
 </div>
 
@@ -99,9 +99,9 @@ Examine transactions, object access, and database permissions.
   <span class="card-meta">Devom</span><br>
   Compare the results of valid and invalid transfers.
 
-- **27 · [Cloud database](27-cloud-database.md)**  
-  <span class="card-meta">BugBazaar · Requires Firebase environment</span><br>
-  Requires an authorized, disposable cloud environment.
+- **27 · [Cloud storage](27-cloud-database.md)**  
+  <span class="card-meta">BugBazaar · Local emulator</span><br>
+  Test an unauthenticated read from a local Storage emulator.
 
 - **28 · [Object authorization](28-bola.md)**  
   <span class="card-meta">Devom</span><br>

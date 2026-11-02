@@ -2,3 +2,6 @@ site/
 __pycache__/
 *.py[cod]
 .venv/
+engineering/lab27/.work/
+engineering/lab27/.runtime/
+engineering/lab27/node_modules/
