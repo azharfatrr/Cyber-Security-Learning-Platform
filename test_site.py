@@ -590,17 +590,28 @@ class SiteTest(unittest.TestCase):
             self.assertEqual(missing_archive.returncode, 1)
             self.assertIn("labkit", missing_archive.stdout.lower())
 
-    def test_workflow_builds_and_deploys_on_main_only(self):
+    def test_workflow_validates_pull_requests_and_only_deploys_main(self):
         root = Path(__file__).parent
         workflow = (root / ".github/workflows/deploy.yml").read_text()
 
-        self.assertNotRegex(workflow, r"(?m)^\s+pull_request:\s*$")
+        self.assertRegex(workflow, r"(?m)^\s+pull_request:\s*$")
         self.assertRegex(workflow, r"(?ms)^\s+push:\s*\n\s+branches:\s*\n\s+-\s+main\s*$")
-        self.assertIn("  build:", workflow)
-        self.assertNotIn("  validate:", workflow)
-        self.assertIn("python -m unittest -v test_site", workflow)
-        self.assertIn("python -m mkdocs build --strict", workflow)
-        self.assertIn("    needs: build", workflow)
+        self.assertIn("  validate:", workflow)
+        ordered_steps = (
+            "python3 labkit/build.py",
+            "python -m unittest -v test_site",
+            "python -m mkdocs build --strict",
+            "python3 scripts/check_site_links.py site",
+            "node engineering/qa/accessibility_audit.mjs site",
+        )
+        positions = [workflow.find(step) for step in ordered_steps]
+        self.assertTrue(all(position >= 0 for position in positions), positions)
+        self.assertEqual(positions, sorted(positions))
+        self.assertRegex(
+            workflow,
+            r"(?ms)^\s+deploy:\s*\n(?:(?!^\s+\w+:).)*?\s+needs: validate\s*\n"
+            r"\s+if:.*github\.event_name\s*==\s*'push'.*github\.ref\s*==\s*'refs/heads/main'",
+        )
 
     def test_labkit_validator_rejects_unsafe_and_duplicate_members(self):
         root = Path(__file__).parent
