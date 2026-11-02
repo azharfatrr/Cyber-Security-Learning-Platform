@@ -32,7 +32,7 @@ Every API request below sends `User-Agent: Postman`. Without it, Devom encrypts 
 
 ## Understand the scenario
 
-Devom issues a signed JWT at login. The token copies the account's current blocked state into a `locked` claim. Protected endpoints verify the signature and read that claim, but they do not re-read the user row. The security boundary is therefore the token's contents and the server's signing key, not the live account status. This lab compares a token issued before a block, one issued after it, and a re-signed token whose claim was changed with the lab key.
+Devom issues a signed JWT at login and copies the account's blocked state into a `locked` claim. Protected endpoints verify the signature and read that claim without checking the user row again. Access therefore depends on the token's contents and the server's signing key, even if the account status has changed. Compare a token issued before the block with one issued after it, then test a token whose claim you changed and re-signed with the lab key.
 
 ## Guided walkthrough
 

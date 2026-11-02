@@ -23,7 +23,7 @@ Request only `lab25-marker.txt`. Do not request the SQLite database, the JWT key
 
 ## Understand the scenario
 
-`/view_upload/<path:filename>` accepts a path segment and joins it onto the uploads directory. `os.path.join` does not enforce containment, and `send_file` serves whatever path results. The boundary is the canonical resolved path: it must stay inside `uploads/`. This lab puts one marker beside that directory and requests it through both retrieval routes.
+`/view_upload/<path:filename>` accepts a path segment and joins it onto the uploads directory. `os.path.join` does not check that the resolved path stays inside the directory, and `send_file` serves the resulting path. A safe retrieval handler must keep the canonical path inside `uploads/`. Place one marker beside that directory, then request it through both retrieval routes to test this restriction.
 
 ## Guided walkthrough
 

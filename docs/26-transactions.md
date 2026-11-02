@@ -29,7 +29,7 @@ Every request sends `User-Agent: Postman` so the JSON responses are readable.
 
 ## Understand the scenario
 
-A transfer is a request to move value from one account to another. The server has three separate decisions to make: is the caller authenticated, does the caller own the source account, and is the amount a valid positive value the sender can cover. Devom's `@token_required` decorator answers only the first. The handler takes `from_id`, `to_id`, and `amount` from the request body and applies them to the database directly. This lab varies one input at a time and watches the two balances, so the missing checks appear as balance changes rather than as status codes.
+Before moving money, the server must authenticate the caller, confirm ownership of the source account, and check that the amount is positive and within the sender's balance. Devom's `@token_required` decorator only authenticates the caller. The handler takes `from_id`, `to_id`, and `amount` directly from the request body and applies them to the database. Change one input at a time and compare both balances after each request. The balance changes show what happened to the money; a status code alone does not.
 
 ## Guided walkthrough
 

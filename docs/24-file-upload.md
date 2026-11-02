@@ -25,7 +25,7 @@ The upload and retrieval endpoints are exempt from Devom's response encryption, 
 
 ## Understand the scenario
 
-An upload endpoint has two separate decisions: whether to accept stored content, and who may read it back. Devom saves whatever multipart `file` it receives and later serves it from a filename-based route. The boundary is the validation in `upload_profile_pic` and the authentication in `view_upload`. This lab checks a text file and an HTML file, then reads both back without a session.
+An upload endpoint needs to check which files it accepts and who may read them. Devom saves whatever multipart `file` it receives and serves it through a filename-based route. Test type validation in `upload_profile_pic` and authentication in `view_upload` by uploading a text file and an HTML file, then retrieving both without a session.
 
 ## Guided walkthrough
 

@@ -27,7 +27,7 @@ Your Android emulator image must already be installed. The LabKit does not root 
 
 ## Understand the scenario
 
-BugBazaar stores its local passcode in shared preferences and compares the keypad entry with the value returned by `UserAuthSave.getpasscode()`. Both the comparison and the stored value live inside the app process, so the boundary is the process itself. Frida can replace the return value of that method while the app runs. This lab records the check's normal behavior first, then repeats the same wrong entry with the method hooked, so the difference is attributable to the hook rather than to a changed PIN.
+BugBazaar stores its local passcode in shared preferences and compares the keypad entry with the value returned by `UserAuthSave.getpasscode()`. The app controls both the stored value and the comparison. If you can instrument the app process, Frida can replace that method's return value while the app runs. Record the normal result first, then repeat the same incorrect entry with the hook active. Keeping the stored PIN and entered digits unchanged lets you attribute the different result to the hook.
 
 ## Guided walkthrough
 

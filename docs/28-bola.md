@@ -25,7 +25,7 @@ Requests send `User-Agent: Postman`; without it the JSON responses are encrypted
 
 ## Understand the scenario
 
-Devom's profile route takes a user ID from the URL and a token from the `Authorization` header. Authentication checks that the token is valid; object-level authorization would check that the token's `sub` claim matches the ID in the path. The handler reads the token's `sub` but queries only the URL value. The security boundary is that comparison. This lab reads the caller's own record first, then changes only the path.
+Devom's profile route takes a user ID from the URL and a token from the `Authorization` header. Authentication confirms that the token is valid. To enforce ownership, the route would also need to compare the token's `sub` claim with the ID in the path. The handler reads the token's `sub` but uses only the URL value in its query. Read your own record first, then change only the path to test whether the route enforces ownership.
 
 ## Guided walkthrough
 

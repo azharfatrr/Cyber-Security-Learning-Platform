@@ -28,7 +28,7 @@ Every request below sends `User-Agent: Postman`. Without it, Devom encrypts JSON
 
 ## Understand the scenario
 
-Devom's login has two stages: `/login` returns a session token plus a one-time code, and `/verify_login_2fa` is meant to complete the second factor. The boundary is whether protected routes require that second step and whether the code is secret. This lab checks the order in which the token is issued, what `/verify_login_2fa` compares, and whether a fixed value bypasses the comparison.
+Devom's login has two stages: `/login` returns a session token and a one-time code, then `/verify_login_2fa` is meant to complete the second factor. For this to protect an account, the code must remain secret and protected routes must require completed verification. Check when the token becomes usable, what `/verify_login_2fa` compares, and whether it accepts a fixed value in place of the code.
 
 ## Guided walkthrough
 

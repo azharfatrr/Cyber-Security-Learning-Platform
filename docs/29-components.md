@@ -30,7 +30,7 @@ Run ADB commands in the host terminal. Do the login, address search, and caller-
 
 ## Understand the scenario
 
-Android apps can share data through content providers. A provider declares whether other apps may reach it with `android:exported`, and may require a permission. BugBazaar exposes an address provider with no read permission, so the boundary it relies on is the caller's identity: any app with a different UID should have been denied. This lab uses a fixed, read-only caller that asks for one synthetic nickname, so the result is attributable to a separate app rather than to an ADB shell or to your own app.
+Android apps can share data through content providers. A provider uses `android:exported` to declare whether other apps may reach it and can require a permission for access. BugBazaar exposes its address provider without a read permission, allowing an app with a different UID to request records that should be private. The supplied read-only caller requests one fixed synthetic nickname. Its separate UID establishes that the request came from another app, not from an ADB shell or BugBazaar itself.
 
 ## Guided walkthrough
 

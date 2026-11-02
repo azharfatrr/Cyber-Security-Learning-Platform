@@ -25,7 +25,7 @@ Send the payload **once** and only against your own Devom instance on `127.0.0.1
 
 ## Understand the scenario
 
-A multipart upload separates the file content from metadata such as the filename. Devom takes that metadata and builds a shell command string, then runs it with `shell=True`. The boundary is crossed when the filename is treated as shell syntax instead of data. This lab compares a normal filename with one that appends a harmless `echo` command.
+A multipart upload sends the file content and its filename separately. Devom inserts the filename into a shell command string and runs it with `shell=True`, allowing filename characters to become shell syntax. Compare a normal filename with one that appends a harmless `echo` command.
 
 ## Guided walkthrough
 
