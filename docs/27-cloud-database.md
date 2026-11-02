@@ -191,6 +191,10 @@ Complete [BugBazaar setup](02-bugbazaar-setup.md#4-install-the-lab-27-variant) f
 
 **Check:** the screen returns to the read-only view and shows the values you entered. The app also writes `userinfo.txt` to its configured bucket; the next step confirms that write.
 
+![BugBazaar Lab 27 My Profile after saving the synthetic values, with the success message visible.](images/lab-27/profile-saved.png)
+
+The captured app screen shows the synthetic profile and `Profile has been updated successfully.` The next step verifies the device-named object in the local Storage emulator.
+
 Use only these synthetic values. Do not enter a real address, phone number, or email.
 
 ### 6. Confirm the app-written object

@@ -2,7 +2,7 @@
 
 Complete [Common prerequisites](00-common-setup.md) first. This page prepares the prebuilt BugBazaar app for Labs 27, 29, and 30; learners do not build the app from source. Lab 27 uses the separate repository-built variant and the local Firebase emulator, and Lab 30 also requires an instrumentable emulator with Frida.
 
-**Status:** The official APK hash and the Module 29 workflow were tested on 29 October 2026 on Android 14 / API 34. The Lab 27 variant and its local emulator workflow were tested on 2 November 2026 on Android 14 / API 34. Other emulator images may behave differently.
+**Status:** The official APK hash and the Module 29 and 30 workflows were verified on 2 November 2026 on Android 14 / API 34. The Lab 27 variant and its local emulator workflow were also tested on 2 November 2026 on Android 14 / API 34. Other emulator images may behave differently.
 
 The official APK includes configuration for an upstream Firebase project, a Firebase Storage flow, and a first-run path that downloads another APK. Labs 29 and 30 use local app functionality and need no external network access. Keep the emulator on the approved egress-restricted lab network; do not allow public or corporate access or contact the upstream Firebase project or downloader. Lab 27 uses the separate `bugbazaar-lab27-emulator.apk`, which points only at the local emulator on the host loopback path.
 

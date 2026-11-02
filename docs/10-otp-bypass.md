@@ -13,7 +13,7 @@ You will:
 
 The exercise separates three different problems: the code is disclosed at login, the session is not bound to a completed verification, and one value is accepted regardless of the real code. A successful verification message alone does not prove that protected endpoints enforce the second factor.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -104,9 +104,9 @@ curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
 
 This is a fixed bypass value, not a guess. Send it once, record the result, and stop; do not loop over other codes.
 
-![The four OTP checks: profile access before verification, a wrong code, the disclosed code, and the fixed value. The code shown is a one-time value from the disposable lab instance.](images/lab-10/otp-checks.png)
+![Host-terminal output showing profile access before OTP verification, the rejected wrong code, and successful disclosed-code and fixed-value checks. The live code is redacted.](images/lab-10/otp-checks.png)
 
-The profile returned `200` with no code submitted, `0000` returned `401`, the code from `debug_token` returned `200`, and `1293` returned `200` for user `999999`.
+The captured QTerminal output shows the profile returned `200` before code verification, `0000` returned `401`, the redacted `debug_token` returned `200`, and `1293` returned `200` for user `999999`.
 
 !!! important "Key observation"
     Keep the three findings distinct: `debug_token` disclosed the live code, `/profile` accepted the session before OTP verification, and the fixed value `1293` succeeded for a user with no pending login. A successful verification response does not undo the pre-verification profile access.

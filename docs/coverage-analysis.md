@@ -8,7 +8,7 @@
 
 Devom is the stronger foundation for the selected backend and API scenarios: its server source contains direct candidates for seven modules. BugBazaar is the stronger candidate for Android components and local runtime manipulation. The cloud module is now served by a repository-built BugBazaar variant and a committed local Firebase Storage emulator with synthetic fixtures, verified end to end on 2 November 2026.
 
-**Verification status (2 November 2026):** All ten labs were run end to end in isolated environments, and their guides include observed output and screenshots. Labs 09, 10, 14, 24–26, and 28–30 were run on 29 October 2026; Lab 27 was run on 2 November 2026 against the local Firebase Storage emulator. The assessment below records the original static review and is kept for traceability; each lab page states what its test run observed.
+**Verification status (2 November 2026):** All ten labs were re-executed end to end in isolated environments, and their guides include observed output and fresh screenshots. Lab 27 used the local Firebase Storage emulator; the other nine used the pinned Devom or BugBazaar targets described on their pages. The assessment below records the original static review and is kept for traceability; each lab page states what its test run observed.
 
 **At the time of this static review, the ten guides were challenge briefs rather than tested walkthroughs.** They lacked verified device setup, expected outputs, lab preparations, time estimates, reproducible reset procedures and answer keys. The guides have since been expanded and tested as recorded above. Module 27 now has a committed local emulator and a verified app connection; Modules 29 and 30 have tested build and runtime steps.
 

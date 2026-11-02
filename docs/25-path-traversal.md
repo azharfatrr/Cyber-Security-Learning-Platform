@@ -8,7 +8,7 @@ You will place one harmless marker file next to `server.py`, outside Devom's `up
 
 If the second request returns the marker, the endpoint joined the requested path onto the uploads directory without checking that the result stayed inside it. Only the marker file is in scope.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -85,9 +85,9 @@ curl --insecure -i --path-as-is "$BASE/download_pdf/../lab25-marker.txt"
 !!! success "Expected"
     `HTTP/1.1 200 OK` with the same marker. Two endpoints share the flaw.
 
-![The two retrievals: the contract loads as a baseline, the raw request line keeps ../, and both view_upload and download_pdf return the marker with 200.](images/lab-25/traversal-marker.png)
+![Host-terminal output showing both raw traversal paths, each endpoint's HTTP 200 response, and the LAB25_TRAVERSAL_MARKER_7f3a body.](images/lab-25/traversal-marker.png)
 
-Both endpoints returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The same request without `--path-as-is` returned `404`, because curl removed `../` before sending it.
+The captured QTerminal output shows `view_upload/../lab25-marker.txt` and `download_pdf/../lab25-marker.txt` each returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The walkthrough's baseline contract request also returned `200` during this run.
 
 ### 5. Confirm the request that reached the server
 

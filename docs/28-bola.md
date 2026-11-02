@@ -8,7 +8,7 @@ You will sign in as `cala`, read `cala`'s profile as a baseline, and then change
 
 If the second request returns the other account's record, the endpoint authorizes the token but never checks that the token's user owns the requested object.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -72,9 +72,9 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 
 Nothing else in the request changed except the path. The token still belongs to `cala`; the server used the ID from the URL. That response is the finding.
 
-![Two profile reads with cala's token: the baseline for 100500 and the cross-account read for 133700. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
+![Host-terminal output showing the same cala token reading profiles 100500 and 133700, followed by successful read-only account and transaction requests. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
 
-The screenshot shows the two reads side by side. The token is hidden and only `id`, `username`, `email`, and `balance` are displayed.
+The captured QTerminal output shows both profile reads returned `200`, as did `/get_accounts/133700` and `/transactions/133700`. The token is omitted; only selected profile fields are displayed.
 
 !!! important "Key observation"
     The token stayed the same and only the profile ID in the URL changed; the response then contained admin's profile. That demonstrates a missing ownership check on this profile route. It does not establish that every route is affected.

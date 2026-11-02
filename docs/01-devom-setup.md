@@ -2,7 +2,7 @@
 
 Complete [Common prerequisites](00-common-setup.md) first. This page prepares the Devom Android app and its backend; the app is supplied as a prebuilt APK. Learners do not build it from source.
 
-**Status:** The backend and API workflow in this page were tested on 29 October 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
+**Status:** The backend and API workflow in this page were re-executed on 2 November 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
 
 ## Pinned version and safety
 

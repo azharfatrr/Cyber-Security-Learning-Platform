@@ -27,7 +27,7 @@ python3 -m mkdocs build --strict
 
 ## Lab readiness and safety
 
-All ten walkthroughs are complete and were tested end to end. Labs 09, 10, 14, 24–26, and 28–30 were tested on 29 October 2026; Lab 27 was tested on 2 November 2026 against the repository's local Firebase Storage emulator. Every page includes observed output, and each one states what its run covered. Use only an isolated, disposable environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services.
+All ten walkthroughs were re-executed end to end on 2 November 2026. Lab 27 ran against the repository's local Firebase Storage emulator; the other nine used the pinned Devom or BugBazaar targets described on their pages. Every page includes observed output and states what its run covered. Use only an isolated, disposable environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services.
 
 ## Lab guides
 

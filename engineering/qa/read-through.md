@@ -3,7 +3,7 @@
 **Date:** 2 November 2026
 **Branch:** `production-ready-lab-site`
 **Scope:** `docs/lab-structure.md`, the ten lab pages, and the three setup pages.
-**Method:** each page was read in full against the structure contract in `docs/lab-structure.md`, then edited where it differed. This is a structural and internal-consistency review. Labs 09, 10, 14, 24–26, and 28–30 were **not re-executed** in this pass; their recorded outputs remain from the 29 October 2026 runs stated on each page. Lab 27 was re-executed end to end during this pass.
+**Method:** each page was read in full against the structure contract in `docs/lab-structure.md`, then edited where it differed. All ten labs were re-executed on 2 November 2026 and their observed outcomes and screenshots were refreshed. This is a learner-material structure and internal-consistency review; it does not claim the website governance or release-QA gates were run.
 
 ## Contract checks applied
 
@@ -39,22 +39,29 @@ For every lab page:
 | `README.md` | Said nine labs were tested and Lab 27 needed an authorized Firebase environment. | States that all ten were tested, with the two run dates, and links Lab 27 as local-emulator material. |
 | `docs/coverage-analysis.md` | Said the cloud module still needed an authorized environment and left the cloud gate open. | Records the verified local-emulator design, the Storage-not-Firestore correction, and the closed cloud gate, while keeping the original static review for traceability. |
 
-## Lab 27 re-run evidence
+## Lab re-execution evidence
 
-Run on the test host with the AVD `RootAVD34` (Android 14 / API 34, `sdk_gphone64_x86_64`), Frida not required:
+All outcomes below were observed on 2 November 2026. Devom ran from the pinned revision on loopback with Python 3.14 and Flask 3.1.3. The BugBazaar tests used an Android 14 / API 34 x86_64 emulator; Lab 30 used Frida 17.4.2. Terminal evidence was captured in QTerminal on the real X display because `xfce4-terminal` was not installed.
 
-1. `./engineering/lab27/reset.sh` stopped any instance, cleared `.runtime/`, started the emulator, and seeded `alice-lab27/userinfo.txt` and `bob-lab27/userinfo.txt`.
-2. The object list returned bucket `lab27-local.appspot.com` with exactly those two objects.
-3. An unauthenticated read of `alice-lab27/userinfo.txt` returned the five synthetic lines documented on the page.
-4. The installed `com.BugBazaar.lab27` app signed in, created a passcode, and saved a synthetic profile.
-5. A third object, `Google sdk_gphone64_x86_64/userinfo.txt`, appeared in the same bucket.
-6. An unauthenticated read of that object returned the values entered in the app.
+| Lab | Re-execution result |
+| --- | --- |
+| 09 | The pre-block profile request returned `200`; while `cala` was blocked, the old token returned `200`, the newly issued blocked token returned `403`, and the lab-key re-signed token returned `200`. The account was restored to `ACTIVE`. |
+| 10 | Profile access before OTP returned `200`; wrong code `0000` returned `401`; the disclosed code was redacted and verified with `200`; fixed value `1293` for user `999999` returned `200`. |
+| 14 | Baseline and harmless injected uploads returned `200`; the injected response contained `LAB14_MARKER_7f3a` on its own line. |
+| 24 | Synthetic text and HTML uploads succeeded; both reads returned `200` without an `Authorization` header, as `text/plain` and `text/html`. |
+| 25 | The contract baseline returned `200`; both `/view_upload/../lab25-marker.txt` and `/download_pdf/../lab25-marker.txt` returned `200` with the synthetic marker. |
+| 26 | Starting balances were `1000/999999`; normal, negative, cross-account, and restoring transfers returned `200`, with final balances restored to `1000/999999`. |
+| 27 | Reset seeded the two synthetic records; the app saved a synthetic profile and wrote `Google sdk_gphone64_x86_64/userinfo.txt`; an unauthenticated read returned the saved fields. The Lab 27 APK hash and local project/package identifiers also matched. |
+| 28 | The same `cala` token read profiles `100500` and `133700` with `200`; the read-only account and transaction routes for `133700` also returned `200`. |
+| 29 | On Android 14 / API 34, BugBazaar UID `10197` and caller UID `10198` were distinct; the ordinary caller read only the uniquely marked synthetic address. |
+| 30 | The stored PIN was `2468`; wrong PIN `0000` was rejected, `2468` opened the dashboard, and the Frida hook made `0000` open the dashboard. Frida showed the hook install and method call; the server was stopped afterward. |
 
-One obstacle is now recorded in the page's troubleshooting: the Android emulator needed a live route to `10.0.2.2` for the upload to succeed. With its Wi-Fi interface down, logcat showed `StorageUtil: no auth token for request` and `ExponentialBackoff: network unavailable`, and no object appeared. The page tells learners to confirm the route and the loopback port before retrying.
+Fresh evidence is stored under `docs/images/lab-09/` through `docs/images/lab-30/`, including the Lab 27 profile-save screen and Lab 30's source, Frida output, baseline, and hooked result. One Lab 27 obstacle remains documented in its troubleshooting: the emulator needs a live route to `10.0.2.2` for the upload to succeed. With its Wi-Fi interface down, logcat showed `StorageUtil: no auth token for request` and `ExponentialBackoff: network unavailable`, and no object appeared.
+
+The repository checks completed after the documentation and image updates: `python3 -m unittest -v test_site` passed all six tests, and `.venv/bin/python -m mkdocs build --strict` completed successfully. The build emitted the Material for MkDocs upstream MkDocs 2.0 advisory, but no strict-build documentation warnings.
 
 ## Residual risks not resolved here
 
-- Labs 09, 10, 14, 24–26, and 28–30 were not re-executed in this pass. Their recorded output and screenshots are from the 29 October 2026 runs and were not revalidated by this review.
 - The Lab 27 emulator bind and the `10.0.2.2` path were verified on this host and emulator image only. A different host or emulator may need different port or firewall handling.
 - The published BugBazaar and Devom binaries have no established upstream redistribution permission. They are hosted under the explicit `NOTICE` recorded in the repository; obtaining permission from the upstream authors remains an open action for any broader distribution.
-- `mkdocs build --strict` must run from the pinned environment in `requirements.txt`; the system Python lacks `mkdocs-material`.
+- Site CI and governance, and release QA, remain out of scope for this read-through.

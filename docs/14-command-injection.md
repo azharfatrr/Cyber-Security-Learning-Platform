@@ -8,7 +8,7 @@ You will upload the same harmless text file twice. The first upload uses a norma
 
 If `server_debug` in the second response contains `LAB14_MARKER_7f3a` on its own line, the filename reached a shell and the extra command ran. The payload only prints a marker: it makes no network request and reads no files.
 
-**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Tested** on 29 October 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produces on that setup.
+**Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3). The results below show what this walkthrough produced on that run.
 
 ## Before you begin
 
@@ -113,9 +113,9 @@ python lab14-inject.py
 
 The first line ends where the `;` begins. The second line is not part of the echoed filename; it is the output of the separate `echo` command that the server ran.
 
-![The two responses: the baseline upload prints one server_debug line, and the injected filename prints the marker on a second line.](images/lab-14/command-injection-server-debug.png)
+![Host-terminal output showing the normal upload's processing line and the injected filename's separate LAB14_MARKER_7f3a line.](images/lab-14/command-injection-server-debug.png)
 
-The baseline response printed only `Processing file: user_100500_lab14-base.txt`; the injected filename printed that same line followed by `LAB14_MARKER_7f3a` on its own line.
+The captured QTerminal output shows both uploads returned `200`; the baseline printed only `Processing file: user_100500_lab14-base.txt`, while the injected filename printed `LAB14_MARKER_7f3a` on its own line.
 
 !!! important "Key observation"
     Look for `LAB14_MARKER_7f3a` on a separate line in `server_debug`: the baseline has one processing line, while the injected request has the extra command's output. An HTTP `200` or a marker appearing only inside the echoed filename is not enough to show command execution.

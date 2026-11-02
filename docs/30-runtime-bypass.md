@@ -8,7 +8,7 @@ Set a synthetic PIN in BugBazaar, confirm that an incorrect PIN is rejected, the
 
 This tests BugBazaar's local check only. Reaching another screen does not prove that a server accepted an unauthorized request.
 
-**Tested target:** BugBazaar release `v1.2.1` from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Tested on:** Android 14 / API 34 with Frida 17.4.2 on an x86_64 emulator.
+**Tested target:** BugBazaar release `v1.2.1` from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Re-executed on:** 2 November 2026, Android 14 / API 34 on x86_64 with Frida 17.4.2.
 
 ## Before you begin
 
@@ -177,13 +177,17 @@ Watch the Frida terminal. It should print:
 
 That line confirms the app reached the modified method. Then check the emulator screen and record which screen is shown.
 
+![Host QTerminal showing Frida 17.4.2, the installed PIN hook, and the hooked getpasscode call.](images/lab-30/frida-hook-output.png)
+
+The capture shows `[lab30] hook installed` and `[lab30] getpasscode called; substituting lab value` from the attached BugBazaar process.
+
 If the app still reports `Incorrect passcode. Try again.`, the hook did not take effect. Stop the Frida session with `exit`, recheck the class and method names in JADX, and attach again.
 
 To undo the hook, type `exit` at the Frida prompt and restart BugBazaar from the app launcher.
 
-![BugBazaar dashboard opened with the same wrong PIN after the hook, with the Passcode correct message.](images/lab-30/passcode-hook-success.png)
+![BugBazaar dashboard after the hooked 0000 attempt, with the Passcode correct! message visible.](images/lab-30/passcode-hook-success.png)
 
-With the hook active, the same `0000` entry that was rejected in Step 2 opened `NavigationDrawer_Dashboard` and showed `Passcode correct!`.
+With the hook active, the same `0000` entry that was rejected in Step 2 opened `NavigationDrawer_Dashboard`. This fresh device capture shows the dashboard with the `Passcode correct!` message.
 
 !!! important "Key observation"
     The stored PIN was `2468`. Entering `0000` was rejected before the hook, and `2468` opened the dashboard. With the hook active, the same `0000` opened the dashboard, and Frida printed `hook installed` followed by the `getpasscode` line. That controlled before-and-after comparison is the bypass: the local check compared the entry against the value returned by the hooked method, not against the stored PIN.
