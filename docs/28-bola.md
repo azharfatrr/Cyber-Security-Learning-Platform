@@ -70,7 +70,7 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 !!! success "Expected"
     `HTTP/1.1 200 OK`, `"id": 133700`, `"username": "admin"`, and a `balance` of `999999`. The seeded admin row has no email, so that field is `null`.
 
-Nothing else in the request changed except the path. The token still belongs to `cala`; the server used the ID from the URL. That response is the finding.
+Only the path changed. The token still belongs to `cala`, but the server returned the profile for the ID in the URL. Keep this response as evidence of the cross-account read.
 
 ![Host-terminal output showing the same cala token reading profiles 100500 and 133700, followed by successful read-only account and transaction requests. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
 
@@ -130,7 +130,7 @@ def profile(decoded_token, user_id):
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Baseline:** the redacted `200` response for `100500` with cala's token (Step 2).
 - [ ] **Cross-account read:** the redacted `200` response for `133700` with the same token, plus the one path segment that differs (Step 3).

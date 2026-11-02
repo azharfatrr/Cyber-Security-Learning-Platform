@@ -4,7 +4,7 @@
 
 ## What this lab does
 
-You will place one harmless marker file next to `server.py`, outside Devom's `uploads/` directory. Then you will retrieve a normal upload first and the marker second, using the same endpoint, and compare the two responses.
+Place one harmless marker file next to `server.py`, outside Devom's `uploads/` directory. Retrieve a normal upload, then request the marker through the same endpoint and compare the responses.
 
 If the second request returns the marker, the endpoint joined the requested path onto the uploads directory without checking that the result stayed inside it. Only the marker file is in scope.
 
@@ -122,7 +122,7 @@ The `> GET` line must still contain `/view_upload/../lab25-marker.txt`. If it sh
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Baseline:** the request path and status for the normal contract or upload retrieval (Step 2).
 - [ ] **Traversal:** the exact request path, status, and marker body for both endpoints (Steps 3 and 4).
@@ -140,7 +140,7 @@ Submit a sanitized record with these items. Each maps to the step that produces 
 
 ## Vulnerability and Impact
 
-`/view_upload/<path:filename>` and `/download_pdf/<path:filename>` join the client-supplied path onto the uploads directory and pass the result to `send_file`. `os.path.join` happily walks upward, and `send_file` serves whatever file the joined path names, without authentication.
+`/view_upload/<path:filename>` and `/download_pdf/<path:filename>` join the client-supplied path onto the uploads directory and pass the result to `send_file`. `os.path.join` allows parent-directory traversal, and `send_file` serves the resulting path without authentication.
 
 The impact is arbitrary file disclosure from any path the web server can read. Next to `uploads/` in this checkout are `usersdb/usuarios.db` with every account and `jwt_keys/prod.key` with the token-signing key, so a real deployment of this code could leak its entire user database and the key that mints sessions. This lab confirms only that the boundary was crossed.
 

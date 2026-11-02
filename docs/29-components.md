@@ -149,7 +149,7 @@ Use these checks to write your finding:
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **BugBazaar screenshot:** the marked fake address in BugBazaar, with any other address rows kept out of the image (Step 2).
 - [ ] **Caller screenshot:** the caller's package and UID, provider URI, exact nickname filter, and returned fake address (Step 3).
@@ -176,10 +176,10 @@ This confirms access to that one synthetic record. It does not show access to ot
 
 ## Cleanup and review
 
-The app has no address-delete control, and the provider's `delete()` method returns `0`. No safe way to remove the row has been verified.
+The app has no control for deleting an address, and the provider's `delete()` method returns `0`. No safe method for removing the row has been verified.
 
 - Leave the synthetic record on the disposable emulator. Its nickname is `LAB29-20261028-7F3A`.
 - Do not clear BugBazaar data, uninstall apps, or call provider delete.
-- Dispose of the disposable emulator according to your lab policy when finished.
+- When finished, dispose of the emulator according to your lab policy.
 
 Which access control would prevent an unrelated app from reading these addresses? What negative test would confirm that the same caller is denied after the provider is protected?

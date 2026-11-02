@@ -11,7 +11,7 @@ You will:
 3. Submit one wrong code, then the code from the login response.
 4. Submit the fixed value `1293` that the pinned source accepts for any user.
 
-The exercise separates three different problems: the code is disclosed at login, the session is not bound to a completed verification, and one value is accepted regardless of the real code. A successful verification message alone does not prove that protected endpoints enforce the second factor.
+You will check three separate problems: the login response discloses the code, the session works before verification is complete, and a fixed value is accepted in place of the real code. A successful verification message alone does not prove that protected endpoints enforce the second factor.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -133,7 +133,7 @@ If Step 2 returned `401`, the session is being bound to verification in your bui
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Login response:** the redacted `status`, `user_id`, and `debug_token` from Step 1, with the full token omitted.
 - [ ] **Pre-verification access:** the status code and a few non-sensitive fields from the profile request in Step 2.
@@ -155,7 +155,7 @@ Do not submit a live `session_token` or real personal data.
 
 Three defects combine in the inspected revision. `/login` returns the OTP as `debug_token`, so anyone who can read the login response already has the code. The JWT is issued at the same moment and is accepted by every `@token_required` route, so completing 2FA changes nothing about what the token can reach. And `/verify_login_2fa` accepts the fixed string `1293` for any user ID, which makes the second factor optional even if the code were secret.
 
-Together they mean a password alone is enough to use the API, and a correct-looking verification response does not demonstrate that the second factor was enforced. The client app is unaffected in this lab: the finding is server-side.
+These defects allow API access with a password alone. A successful verification response does not demonstrate that the API enforced the second factor. This lab tests the server-side behavior; it does not change the client app.
 
 ## Cleanup and review
 

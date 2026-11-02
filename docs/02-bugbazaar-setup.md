@@ -1,6 +1,6 @@
 # BugBazaar setup
 
-Complete [Common prerequisites](00-common-setup.md) first and run the LabKit bootstrap once. This page prepares the bundled BugBazaar APKs for Labs 27, 29, and 30; you do not build the apps from source. Lab 27 uses the included repository-built variant and local Firebase emulator. Lab 30 also requires an instrumentable emulator with Frida.
+Complete [Common prerequisites](00-common-setup.md) and run the LabKit bootstrap once. Then follow this page to prepare the bundled BugBazaar APKs for Labs 27, 29, and 30. You do not build the apps from source. Lab 27 uses a separately built variant and a local Firebase emulator. For Lab 30, your Android emulator must support runtime instrumentation with Frida.
 
 **Status:** The official APK hash and the Module 29 and 30 workflows were verified on 2 November 2026 on Android 14 / API 34. The Lab 27 variant and its local emulator workflow were also tested on 2 November 2026 on Android 14 / API 34. Other emulator images may behave differently.
 
@@ -60,7 +60,7 @@ Run from the extracted LabKit directory:
 ```
 
 !!! success "Expected"
-    The block exits successfully only after the installed caller's APK hash matches the published fixture.
+    The installer succeeds only if the installed caller's APK hash matches the published hash.
 
 If a different caller is already installed, do not replace or uninstall it; use a fresh disposable emulator. The caller is read-only and has no declared permissions. Lab 29 uses its distinct UID to demonstrate ordinary-app access; an `adb shell content query` is not an equivalent check.
 
@@ -73,7 +73,7 @@ The Lab 27 app is a separate package (`com.BugBazaar.lab27`) built from the same
 ```
 
 !!! success "Expected"
-    The block exits successfully only after the installed Lab 27 APK hash matches. Package metadata reports version name `1.0` / version code `1` for `com.BugBazaar.lab27`. If a different package with this ID is already installed, stop and use a fresh disposable emulator.
+    The installer succeeds only if the installed Lab 27 APK hash matches the published hash. Package metadata reports version name `1.0` / version code `1` for `com.BugBazaar.lab27`. If a different package with this ID is already installed, stop and use a fresh disposable emulator.
 
 ## Ready for a lab
 

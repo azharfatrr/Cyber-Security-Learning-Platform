@@ -68,7 +68,7 @@ curl --insecure -i "$BASE/view_upload/user_100500_lab24-marker.txt"
 !!! success "Expected"
     `HTTP/1.1 200 OK`, `Content-Type: text/plain`, and the body `LAB24_TEXT_MARKER_7f3a`.
 
-Notice what the request did **not** include: an `Authorization` header, a token, or any claim to be `cala`. The file is served to anyone who knows the URL.
+The request has no `Authorization` header, token, or other claim to be `cala`. Anyone who knows the URL can retrieve the file.
 
 ### 4. Upload the HTML file and retrieve it
 
@@ -96,7 +96,7 @@ The captured QTerminal output shows both uploads succeeded and both reads return
 !!! important "Key observation"
     The text and HTML files were both accepted, and both were retrievable without an authorization header. This demonstrates missing type validation and unauthenticated retrieval for these test files; it does not demonstrate code execution or access to another user's file.
 
-The server chooses the content type from the file extension, so the same origin will render this file as a page. That is why the lab uses a heading and no script: the point is that the type was not checked, not that anything executes.
+The server chooses the content type from the file extension, allowing a browser to render the uploaded HTML as a page on the server's origin. The lab uses only a heading, with no script, to demonstrate the missing type check without executing code.
 
 ### 5. Compare the checks in the handler
 
@@ -126,7 +126,7 @@ Open `server.py` and read `upload_profile_pic` and `view_upload`. In this revisi
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Upload responses:** the status and returned `filename` for the text file (Step 2) and the HTML file (Step 4).
 - [ ] **Retrieval responses:** the status, `Content-Type`, and body for both files (Steps 3 and 4), with the requests shown to have no `Authorization` header.

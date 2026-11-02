@@ -2,7 +2,7 @@
 
 Complete [Common prerequisites](00-common-setup.md) first and run the LabKit bootstrap once. The LabKit prepares the pinned Devom checkout and isolated Python environment; the Android app is supplied as a verified prebuilt APK.
 
-**Status:** The backend and API workflow in this page were re-executed on 2 November 2026 on loopback with Python 3.14 and Flask 3.1.3. The optional Android app path depends on your emulator and certificate setup.
+**Verification:** The backend and API steps on this page were tested again on 2 November 2026 over loopback, using Python 3.14 and Flask 3.1.3. The optional Android app steps depend on your emulator and certificate setup.
 
 ## Pinned version and safety
 
@@ -25,14 +25,14 @@ python server.py
 
 The server listens on port `8080` and creates its SQLite database and runtime directories under this checkout on first launch. Keep the checkout and all generated data inside the disposable lab. Stop the server with `Ctrl+C`; do not delete or reset generated data unless your lab policy approves the cleanup procedure.
 
-The command occupies this terminal; leave it running. Open a second terminal at the checkout root for the local diagnostic and APK installation. The source defines `DVOM SERVER LIVE` at `/`. A loopback-only diagnostic can check that the local server responds:
+Leave the server running in this terminal. Open a second terminal at the checkout root to check the local server. Return to the LabKit directory for APK installation. The source defines the response `DVOM SERVER LIVE` at `/`; check it with this loopback-only request:
 
 ```bash title="03 · Check the local HTTPS endpoint"
 curl --insecure -i https://127.0.0.1:8080/
 ```
 
 !!! info "Expected"
-    The source-defined response is `DVOM SERVER LIVE`. `--insecure` applies only to this one request to the local ad-hoc certificate; it does not validate certificate trust and is not a recommended general client setting.
+    The source-defined response is `DVOM SERVER LIVE`. `--insecure` skips certificate validation for this one local request. It does not establish trust in the ad-hoc certificate; do not use it as a general client setting.
 
 ## Install and configure the prebuilt Android app
 

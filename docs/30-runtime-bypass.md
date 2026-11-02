@@ -23,7 +23,7 @@ The local passcode comparison is present in the source. The hook below was run o
 - The LabKit's JADX 1.5.1 desktop app, prepared by `./setup.sh`.
 - The verified `BugBazaar_v1.2.1.apk` included in the LabKit and installed on the emulator.
 
-The Android emulator image is a preinstalled prerequisite. The LabKit does not root an emulator or install the server automatically; for this lab only, the walkthrough explicitly copies the verified server file to the selected emulator.
+Your Android emulator image must already be installed. The LabKit does not root the emulator or install the server automatically. For this lab only, you will copy the verified server file to the selected emulator by following the steps below.
 
 ## Understand the scenario
 
@@ -100,7 +100,7 @@ Read both sides of the `if` statement:
 - If the entered PIN matches, the source starts `NavigationDrawer_Dashboard`.
 - If it does not match, the source displays `Incorrect passcode. Try again.` and clears the entered value.
 
-These are source-code results that match the tested app. If JADX shows a different class or comparison, check the installed APK before continuing.
+The tested app behaved as these source-code branches describe. If JADX shows a different class or comparison, check the installed APK before continuing.
 
 ![Pinned PasscodeActivity.java source showing the PIN comparison and the success and mismatch branches.](images/lab-30/passcode-activity-source.png)
 
@@ -209,7 +209,7 @@ This test covers BugBazaar's local PIN screen. Only claim a server-side impact i
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Environment:** the Android release, API level, device ABI, and Frida client version from Step 1.
 - [ ] **Baseline:** the four digits you entered and the message shown before instrumentation, confirming that the incorrect PIN was rejected and the correct PIN was accepted (Step 2). If you could not reach the passcode screen, say so instead.

@@ -50,7 +50,7 @@ match /{allPaths=**} {
 }
 ```
 
-That rule makes the object effectively public to anyone who can reach the emulator. The UI still asks for an app login and a device passcode, but those are local app controls and do not protect the Storage object. This lab separates the two: the app login gets you to the profile screen; the unauthenticated `curl` request shows what the storage boundary actually enforces.
+Anyone who can reach the emulator can read or write the object under this rule. The app still asks for a login and a device passcode, but those local controls do not protect the Storage object. Signing in gets you to the profile screen. The unauthenticated `curl` request tests whether the storage service itself restricts access.
 
 ## Guided walkthrough
 
@@ -258,7 +258,7 @@ sed -n '1,20p' lab27/storage.rules
 
 Expected: the `match /{allPaths=**}` block contains `allow read, write: if true;`.
 
-**Check:** the rule that permits your unauthenticated read is the same rule committed in the repository. Without that rule text, the read alone would be an unexpected response, not a complete configuration finding.
+**Check:** the rule that permits your unauthenticated read matches the rule committed in the repository. Include both the response and the rule text in your finding to show the exposure and the configuration that explains it.
 
 !!! important "Key observation"
     The app's login and passcode are local UI controls. The Storage rule is the actual boundary, and here it allows any client that can reach the emulator to read and write every object. The finding needs both parts: the unauthenticated read and the permissive rule that explains it. This lab demonstrates the configuration on a synthetic local emulator; it does not test an upstream project.
@@ -274,7 +274,7 @@ Expected: the `match /{allPaths=**}` block contains `allow read, write: if true;
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Emulator baseline:** the `reset.sh` output showing `127.0.0.1:9199` and both seeded object names (Step 1).
 - [ ] **Baseline object list:** the JSON list showing bucket `lab27-local.appspot.com` and the two seeded objects (Step 1).
