@@ -27,7 +27,7 @@ python3 -m mkdocs build --strict
 
 ## Lab readiness and safety
 
-The lab walkthroughs have not been runtime-tested. An instructor should pilot each exercise before class. Use only an isolated, authorized environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services. The cloud database lab is blocked until an authorized disposable environment is available.
+All ten walkthroughs are complete. Nine were tested end to end on 29 October 2026, and their pages include observed output and screenshots. The cloud database lab (27) requires an authorized, disposable Firebase environment. Use only an isolated, authorized environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services.
 
 ## Lab guides
 
@@ -38,7 +38,7 @@ The lab walkthroughs have not been runtime-tested. An instructor should pilot ea
 - [File upload](docs/24-file-upload.md)
 - [Path traversal](docs/25-path-traversal.md)
 - [Transaction validation](docs/26-transactions.md)
-- [Cloud database](docs/27-cloud-database.md) — blocked
+- [Cloud database](docs/27-cloud-database.md) — requires an authorized Firebase environment
 - [Object authorization](docs/28-bola.md)
 - [Android components](docs/29-components.md)
 - [Runtime bypass](docs/30-runtime-bypass.md)

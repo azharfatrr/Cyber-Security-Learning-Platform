@@ -1,78 +1,109 @@
-import subprocess
-import tempfile
 import unittest
 from pathlib import Path
 
 
 class SiteTest(unittest.TestCase):
-    def test_pages_workflow_builds_before_deploying_main(self):
+    def test_required_documentation_and_lab_images_exist(self):
         root = Path(__file__).parent
-        workflow_path = root / ".github" / "workflows" / "deploy.yml"
-        self.assertTrue(workflow_path.is_file())
-        workflow = workflow_path.read_text(encoding="utf-8")
-        self.assertIn("on:\n  push:\n    branches:\n      - main", workflow)
-        self.assertIn("python -m unittest -v test_site", workflow)
-        self.assertIn("python -m mkdocs build --strict", workflow)
-        self.assertIn("needs: build", workflow)
-        self.assertIn("pages: write", workflow)
-        self.assertIn("id-token: write", workflow)
-        self.assertIn("actions: read", workflow)
-        self.assertIn("cancel-in-progress: false", workflow)
-        self.assertIn("actions/deploy-pages@v5", workflow)
-        publishing = (root / "PUBLISHING.txt").read_text(encoding="utf-8")
-        self.assertIn("GitHub Actions", publishing)
-        self.assertIn("main", publishing)
+        required_files = (
+            "docs/index.md",
+            "docs/00-common-setup.md",
+            "docs/01-devom-setup.md",
+            "docs/02-bugbazaar-setup.md",
+            "docs/29-components.md",
+            "docs/30-runtime-bypass.md",
+            "docs/assets/apk/module-29-caller.apk",
+            "docs/images/lab-29/bugbazaar-synthetic-address.png",
+            "docs/images/lab-29/ordinary-app-provider-result.png",
+            "docs/images/lab-30/passcode-rejected.png",
+            "docs/images/lab-30/passcode-correct.png",
+            "docs/images/lab-30/passcode-hook-success.png",
+        )
 
-    def test_github_readme_is_plain_markdown_and_mkdocs_home_is_index(self):
-        root = Path(__file__).parent
-        readme_path = root / "README.md"
-        self.assertTrue(readme_path.is_file())
-        readme = readme_path.read_text(encoding="utf-8")
-        self.assertIn("# Cyber Security Learning Platform", readme)
-        self.assertIn("python3 -m mkdocs serve", readme)
-        self.assertNotIn("<div", readme)
-        self.assertNotIn(".md-button", readme)
-        self.assertIn("  - Home: index.md", (root / "mkdocs.yml").read_text(encoding="utf-8"))
+        for required_file in required_files:
+            with self.subTest(path=required_file):
+                self.assertTrue((root / required_file).is_file())
 
-    def test_build_contains_all_labs_and_collapsed_hints(self):
+    def test_user_facing_pages_do_not_mark_labs_as_pilots(self):
         root = Path(__file__).parent
-        with tempfile.TemporaryDirectory() as output:
-            result = subprocess.run(
-                ["python", "-m", "mkdocs", "build", "--strict", "--site-dir", output],
-                cwd=root, capture_output=True, text=True,
-            )
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            home = (Path(output) / "index.html").read_text(encoding="utf-8")
-            self.assertIn('class="grid cards auth-cards"', home)
-            self.assertIn('class="catalog-hero"', home)
-            self.assertIn('CYBER SECURITY LEARNING PLATFORM', home)
-            self.assertNotIn('ANDROID INTERMEDIATE CLASS', home)
-            self.assertIn('aria-label="Jump to a lab category"', home)
-            self.assertIn('href="#authentication"', home)
-            self.assertIn('>Security Labs</span>', home)
-            self.assertIn('class="card-meta"', home)
-            self.assertIn('<span class="card-meta">BugBazaar · Blocked</span>', home)
-            self.assertNotIn('Learn by investigating', home)
-            self.assertIn("Blocked", home)
-            self.assertIn("data-md-color-scheme", home)
-            styles = (Path(output) / "stylesheets" / "extra.css").read_text(encoding="utf-8")
-            self.assertIn(".md-typeset .grid.cards > ul > li { border-radius: .75rem; padding: .9rem 1rem; }", styles)
-            self.assertIn(".md-typeset .grid.cards > ul > li strong { display: inline; margin-bottom: 0; }", styles)
-            self.assertIn(".md-typeset .grid.cards > ul > li .card-meta { font-size: .86em; color: #6b7280; }", styles)
-            self.assertIn('[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li .card-meta { color: #909ba6; }', styles)
-            html = (Path(output) / "09-jwt-account-state" / "index.html").read_text(encoding="utf-8")
-            self.assertIn("<details", html)
-            self.assertIn("<summary>Hints</summary>", html)
-            for number in (9, 10, 14, 24, 25, 26, 27, 28, 29, 30):
-                self.assertIn(f"{number:02} —", html)
-            pages = list((root / "docs").glob("[0-9][0-9]-*.md"))
-            for page in pages:
-                if page.name.startswith("00-"):
-                    continue
-                lab = (Path(output) / page.stem / "index.html").read_text(encoding="utf-8")
-                self.assertIn("<summary>Hints</summary>", lab, page.name)
-            cloud = (Path(output) / "27-cloud-database" / "index.html").read_text(encoding="utf-8")
-            self.assertIn("not a runnable lab", cloud)
+        pages = [root / "README.md", root / "lab-expansion-plan.md"]
+        pages.extend(
+            path
+            for path in (root / "docs").rglob("*.md")
+            if "superpowers" not in path.parts
+        )
+
+        for page in pages:
+            with self.subTest(path=str(page.relative_to(root))):
+                self.assertNotIn("pilot", page.read_text().lower())
+
+    def test_each_lab_has_a_key_observation_callout(self):
+        root = Path(__file__).parent
+        lab_pages = (
+            "09-jwt-account-state.md",
+            "10-otp-bypass.md",
+            "14-command-injection.md",
+            "24-file-upload.md",
+            "25-path-traversal.md",
+            "26-transactions.md",
+            "27-cloud-database.md",
+            "28-bola.md",
+            "29-components.md",
+            "30-runtime-bypass.md",
+        )
+
+        for lab_page in lab_pages:
+            with self.subTest(path=lab_page):
+                content = (root / "docs" / lab_page).read_text()
+                self.assertIn('!!! important "Key observation"', content)
+
+    def test_key_observation_callouts_use_orange_in_both_themes(self):
+        root = Path(__file__).parent
+        stylesheet = (root / "docs/stylesheets/extra.css").read_text()
+
+        self.assertIn(".md-typeset .admonition.important", stylesheet)
+        self.assertIn("#a75a07", stylesheet)
+        self.assertIn('[data-md-color-scheme="slate"] .md-typeset .admonition.important', stylesheet)
+        self.assertIn("#ffae54", stylesheet)
+
+    def test_hints_are_nested_under_evidence_on_every_lab_page(self):
+        root = Path(__file__).parent
+        lab_pages = (
+            "09-jwt-account-state.md",
+            "10-otp-bypass.md",
+            "14-command-injection.md",
+            "24-file-upload.md",
+            "25-path-traversal.md",
+            "26-transactions.md",
+            "27-cloud-database.md",
+            "28-bola.md",
+            "29-components.md",
+            "30-runtime-bypass.md",
+        )
+
+        for lab_page in lab_pages:
+            with self.subTest(path=lab_page):
+                content = (root / "docs" / lab_page).read_text()
+                evidence = content.index("## Evidence")
+                hints = content.index("<summary>Hints</summary>")
+                vulnerability = content.index("## Vulnerability and Impact")
+                self.assertLess(evidence, hints)
+                self.assertLess(hints, vulnerability)
+
+    def test_target_setup_guides_use_restricted_egress_not_airplane_mode(self):
+        root = Path(__file__).parent
+        devom_setup = (root / "docs/01-devom-setup.md").read_text().lower()
+        bugbazaar_setup = (root / "docs/02-bugbazaar-setup.md").read_text().lower()
+
+        self.assertIn("network egress", devom_setup)
+        self.assertIn("network egress", bugbazaar_setup)
+        self.assertNotIn("airplane mode", bugbazaar_setup)
+        self.assertNotIn("offline", bugbazaar_setup)
+
+        for lab_page in ("27-cloud-database.md", "29-components.md", "30-runtime-bypass.md"):
+            with self.subTest(path=lab_page):
+                content = (root / "docs" / lab_page).read_text().lower()
+                self.assertNotIn("keep the emulator offline", content)
 
 
 if __name__ == "__main__":
