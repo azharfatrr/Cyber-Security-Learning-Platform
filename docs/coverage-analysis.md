@@ -6,11 +6,11 @@
 
 ## Executive assessment
 
-Devom is the stronger foundation for the selected backend and API scenarios: its server source contains direct candidates for seven modules. BugBazaar is the stronger candidate for Android components and local runtime manipulation. The remaining cloud database module needs a separately authorized, isolated cloud database or emulator, with the application integration verified.
+Devom is the stronger foundation for the selected backend and API scenarios: its server source contains direct candidates for seven modules. BugBazaar is the stronger candidate for Android components and local runtime manipulation. The cloud module is now served by a repository-built BugBazaar variant and a committed local Firebase Storage emulator with synthetic fixtures, verified end to end on 2 November 2026.
 
-**Verification status (29 October 2026):** Labs 09, 10, 14, 24, 25, 26, 28, 29, and 30 were run end to end in isolated environments, and their guides include observed output and screenshots. Lab 27 requires an authorized Firebase environment. The assessment below records the original static review and is kept for traceability; each lab page states what its test run observed.
+**Verification status (2 November 2026):** All ten labs were run end to end in isolated environments, and their guides include observed output and screenshots. Labs 09, 10, 14, 24–26, and 28–30 were run on 29 October 2026; Lab 27 was run on 2 November 2026 against the local Firebase Storage emulator. The assessment below records the original static review and is kept for traceability; each lab page states what its test run observed.
 
-**At the time of this static review, the ten guides were challenge briefs rather than tested walkthroughs.** They lacked verified device setup, expected outputs, lab preparations, time estimates, reproducible reset procedures and answer keys. The guides have since been expanded and tested as recorded above. Module 27 still needs an authorized environment; Modules 29 and 30 now have tested build and runtime steps.
+**At the time of this static review, the ten guides were challenge briefs rather than tested walkthroughs.** They lacked verified device setup, expected outputs, lab preparations, time estimates, reproducible reset procedures and answer keys. The guides have since been expanded and tested as recorded above. Module 27 now has a committed local emulator and a verified app connection; Modules 29 and 30 have tested build and runtime steps.
 
 ## Sources and versions
 
@@ -21,7 +21,7 @@ Devom is the stronger foundation for the selected backend and API scenarios: its
 
 ## Module-by-module assessment
 
-The “Verification points” and “Guide gap” lines below record the checks the static review identified. The lab pages record the tested results and how each gap was addressed; Lab 27's environment dependency is the exception.
+The “Verification points” and “Guide gap” lines below record the checks the static review identified. The lab pages record the tested results and how each gap was addressed.
 
 ### 9 — JWT-based account state bypass: Devom, source-backed
 
@@ -62,11 +62,12 @@ The “Verification points” and “Guide gap” lines below record the checks 
 - **Verification points:** two known test users with measured initial balances, one normal transaction, then one controlled invalid-value test. Verify the two balances and stored transaction, not just the response. Prefer a fresh dataset per participant.
 - **Guide gap:** define account provisioning and isolation; note that the two seed accounts include an administrative demo user and should not be assumed suitable for multi-user training without lab preparation.
 
-### 27 — Cloud database misconfiguration: BugBazaar, requires an authorized environment
+### 27 — Cloud storage misconfiguration: BugBazaar local emulator, source-backed and verified
 
-- BugBazaar's README lists misconfigured Firebase Firestore, and the repository contains `app/google-services.json` and Firebase dependencies. This is not evidence that an upstream cloud service is owned by the training organization, reachable, intentionally open today, or authorized for testing. The examined app build file does not itself establish the Firestore exercise's implementation or emulator compatibility.
-- **Environment requirements:** an organization-owned disposable project or local emulator, an explicit authorization boundary, synthetic data and intentionally weak rules, plus proof that the app actually targets that environment. Configuration changes or a dedicated fixture may be necessary; none has been designed or approved.
-- **Guide status:** requires an authorized Firebase environment. Never use the upstream Firebase configuration as a target merely because it appears in source.
+- BugBazaar's README lists misconfigured Firebase Firestore, and the repository contains `app/google-services.json` and Firebase dependencies. The pinned source, however, implements Firebase **Storage**, not Firestore: `MyProfile` uploads `<device-name>/userinfo.txt` through `FirebaseStorage`. The exercise was therefore designed around the Storage flow, not the README wording.
+- The upstream configuration points at a project the training organization does not own. It is never used as a target.
+- **Environment built:** a separate `com.BugBazaar.lab27` variant from the same pinned source, configured for the local Firebase Storage emulator at `127.0.0.1:9199` through the Android host alias `10.0.2.2`. The committed fixture contains a project ID, bucket, deliberately permissive Storage rule, and synthetic seed objects; `engineering/lab27/` rebuilds and runs it.
+- **Guide status:** verified end to end on 2 November 2026. The app wrote `Google sdk_gphone64_x86_64/userinfo.txt`, and an unauthenticated read returned the saved synthetic profile. Never use the upstream Firebase configuration as a target merely because it appears in source.
 
 ### 28 — Broken object-level authorization: Devom, source-backed
 
@@ -93,7 +94,7 @@ The “Verification points” and “Guide gap” lines below record the checks 
 1. **Network exposure:** Devom's `server.py` binds to `0.0.0.0:8080`, runs in debug mode, and enables ad-hoc TLS. Compose publishes container port 8080 on host port 8443 on all host interfaces by default. Bind Compose to loopback and verify host firewall rules; emulator networking differs by emulator and operating system.
 2. **Persistence and separation:** Compose bind-mounts database, uploaded files, keys and templates and names the container `dvom-lab-v1`. Shared instances can collide or leak changes across participants. Provide separate disposable environments or controlled unique copies and cleanup; do not delete existing user data.
 3. **Encryption affects observation:** Devom's middleware accepts JSON and normally encrypts JSON responses, except when the User-Agent contains `Postman` or the path is exempt. App traffic may need separate handling. API-only exercises do not, by themselves, prove an Android client was tested.
-4. **Prebuilt APK and network risk:** use the hash-verified BugBazaar release APK instead of building from source for learner setup. The app requests sensitive permissions and includes Firebase/external SDKs; use a disposable emulator with synthetic data and keep it offline where the lab requires.
+4. **Prebuilt APK and network risk:** use the hash-verified BugBazaar release APK instead of building from source for learner setup. The app requests sensitive permissions and includes Firebase/external SDKs; use a disposable emulator with synthetic data and restrict egress to the paths the selected lab requires.
 5. **Tooling here:** at the time of the static review, `git` and `java` were detected, while Docker and ADB were not found. Python 3.14 is installed but Flask and `Crypto` were not detected; Devom's Dockerfile instead specifies Python 3.12. The later test runs used a loopback Python 3.14/Flask 3.1.3 backend and ADB against an Android 14 emulator, without Docker. These observations do not establish the state of a future training host.
 6. **Dependency and license risk:** Devom's Python dependencies are unpinned. The README describes a custom educational license but points to a LICENSE file not visible in the root listing; BugBazaar's repository tree did not show an obvious LICENSE file in the inspected tree. Confirm usage and redistribution rights with the owners before training or packaging; absence of a file is not permission.
 
@@ -102,9 +103,9 @@ The “Verification points” and “Guide gap” lines below record the checks 
 1. **Environment gate:** an organization-owned disposable isolated environment, documented permitted endpoints, synthetic accounts, restricted egress, and tested restoration. Record host, emulator, Android version, image, tools and revision hashes.
 2. **Setup gate:** test Devom's manual Python backend and install the hash-verified BugBazaar release APK in the selected environment. Confirm the backend/certificate and first-launch behavior. Learners do not build either Android app from source.
 3. **Scenario gate:** run each source-backed exercise from a clean state and record prerequisites, exact benign success evidence and cleanup. Validate both positive and negative controls. Treat failure to reproduce as a finding, not an invitation to invent results.
-4. **Cloud gate:** independently provision and authorize a disposable cloud environment or emulator and validate the app connection. If unavailable, omit module 27 from delivery and record it as an unmet requirement.
+4. **Cloud gate:** the lab must target an environment the training organization controls. Lab 27 meets this with a committed local Firebase Storage emulator, a separate application ID, and synthetic fixtures; the app connection was validated end to end. The upstream Firebase configuration is never a target.
 5. **Materials gate:** update the guides based on test evidence. Create separately controlled solution notes only if requested; the present deliverable is learner-facing. Add expected duration, starting state and clear completion criteria.
 
 ## What remains unknown
 
-Devom manual-backend compatibility and app trust of its ad-hoc certificate; BugBazaar behavior outside the tested Android 14 / API 34 environment; availability of an approved instrumentable emulator; ownership and configuration of a cloud database; exact participant count, lab isolation model, training duration, and lab infrastructure. These require actual deployment or stakeholder decisions and are not resolved by static source review.
+Devom manual-backend compatibility and app trust of its ad-hoc certificate; BugBazaar behavior outside the tested Android 14 / API 34 environment; availability of an approved instrumentable emulator; exact participant count, lab isolation model, training duration, and lab infrastructure. The Lab 27 emulator is verified on the tested host and emulator image only; other hosts may need different port or firewall handling. These require actual deployment or stakeholder decisions and are not resolved by static source review.

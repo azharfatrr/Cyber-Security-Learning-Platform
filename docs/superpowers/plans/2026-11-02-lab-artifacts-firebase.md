@@ -53,23 +53,23 @@
 - Inspect/modify: `engineering/references.md`, `docs/01-devom-setup.md`, `docs/02-bugbazaar-setup.md`
 - Create later: `docs/downloads.md`, `NOTICE`
 
-- [ ] **Step 1: Record current repository artifact identity**
+- [x] **Step 1: Record current repository artifact identity**
 
 Run `sha256sum docs/assets/apk/module-29-caller.apk` and inspect its package/version/signature metadata with the available Android SDK tools. Record observed values in the working provenance notes; do not yet edit learner-facing hashes.
 
-- [ ] **Step 2: Verify upstream source and version for each requested artifact**
+- [x] **Step 2: Verify upstream source and version for each requested artifact**
 
 For BugBazaar official v1.2.1 and Devom `Dvom.apk`, identify the canonical upstream release/source URL, version/revision and applicable license/redistribution statement. For the caller APK, trace the checked-in fixture source and build provenance. Save source URLs and source revision/release evidence.
 
-- [ ] **Step 3: Compare local and upstream artifact checksums**
+- [x] **Step 3: Compare local and upstream artifact checksums**
 
 Download only from verified upstream sources in a temporary location, compute SHA-256, inspect package/version, and compare. Confirm official BugBazaar v1.2.1 is byte-for-byte identical to its official release. If any source or license cannot be verified, do not mirror that file and stop this task for a precise report.
 
-- [ ] **Step 4: Stage verified files under `docs/assets/apk/`**
+- [x] **Step 4: Stage verified files under `docs/assets/apk/`**
 
 Use stable descriptive filenames; keep the official BugBazaar file unchanged. Recompute every staged hash and compare against the verified source hash.
 
-- [ ] **Step 5: Verify staged artifacts**
+- [x] **Step 5: Verify staged artifacts**
 
 Run `sha256sum docs/assets/apk/*.apk` and inspect package/version metadata for all four. Expected: exactly the four intended APKs, with each file matching its recorded source identity and checksum.
 
@@ -82,31 +82,31 @@ Run `sha256sum docs/assets/apk/*.apk` and inspect package/version metadata for a
 
 **Interfaces:** Consumes the pinned BugBazaar source revision and emulator configuration. Produces one installable app whose Firebase endpoint is the documented local emulator and whose synthetic fixture starts from a known baseline.
 
-- [ ] **Step 1: Inspect the pinned app's Firebase integration and build requirements**
+- [x] **Step 1: Inspect the pinned app's Firebase integration and build requirements**
 
 Record the source revision, Firebase product(s), initialization/configuration path, security rules/queries used by the Lab 27 scenario, Android SDK/Gradle/JDK requirements, and any hard-coded upstream project identifiers. Confirm no source is modified yet.
 
-- [ ] **Step 2: Create a deterministic Firebase Emulator Suite configuration**
+- [x] **Step 2: Create a deterministic Firebase Emulator Suite configuration**
 
 Add the minimum `engineering/lab27/` config, local-only rules and synthetic fixture. Pin Firebase CLI/tool versions using the repository's chosen reproducible mechanism. Use stable local identifiers and explicit port bindings that are not exposed beyond the disposable lab environment.
 
-- [ ] **Step 3: Start the emulator and verify the synthetic baseline**
+- [x] **Step 3: Start the emulator and verify the synthetic baseline**
 
 Run the committed start procedure. Verify the emulator reports ready, the configured synthetic documents/rules are present, and no cloud project is contacted. Record actual output. Run the reset procedure and repeat the baseline check.
 
-- [ ] **Step 4: Configure the Lab 27 build for the emulator**
+- [x] **Step 4: Configure the Lab 27 build for the emulator**
 
 Make the smallest isolated build-variant/configuration change needed to point the app at the local emulator. Preserve the pinned source behavior and lab scenario. Search the resulting build configuration and APK for upstream project endpoints; any remaining endpoint that can receive Firebase traffic must be removed or cause a stop/report.
 
-- [ ] **Step 5: Build and verify the Lab 27 APK**
+- [x] **Step 5: Build and verify the Lab 27 APK**
 
 Run the recorded build command from a clean build state. Install on a disposable Android emulator, verify package/version, and verify app-to-Firebase traffic reaches only the local emulator. Run the Lab 27 baseline and lower-privilege scenario, capture observed output, then stop and reset the suite and confirm baseline restoration.
 
-- [ ] **Step 6: Record the APK hash and build provenance**
+- [x] **Step 6: Record the APK hash and build provenance**
 
 Copy the verified APK to `docs/assets/apk/bugbazaar-lab27-emulator.apk`, run `sha256sum`, and record the exact source revision, build command/tool versions, and artifact hash. Do not use a prior or generated hash before the final APK is in place.
 
-- [ ] **Step 7: Verify documented emulator lifecycle procedures**
+- [x] **Step 7: Verify documented emulator lifecycle procedures**
 
 Run the final start, stop, and reset commands from a clean state and capture their actual output. Verify reset restores the known synthetic baseline and stop leaves no emulator process/listener running.
 
@@ -121,19 +121,19 @@ After documented attempts, if the pinned Android build cannot work, Firebase Emu
 - Create/update: `NOTICE`
 - Modify: `docs/01-devom-setup.md`, `docs/02-bugbazaar-setup.md`
 
-- [ ] **Step 1: Write the downloads table from verified artifact records**
+- [x] **Step 1: Write the downloads table from verified artifact records**
 
 List each file, repository-relative download link, SHA-256, upstream source/version/revision and verified attribution/license facts. Do not include any external download CTA.
 
-- [ ] **Step 2: Switch setup guides to repo-local artifacts**
+- [x] **Step 2: Switch setup guides to repo-local artifacts**
 
 Replace learner download locations with links to the files under `docs/assets/apk/`. Preserve or add complete SHA-256 verification commands using the exact verified hashes. Keep target setup responsibilities in setup pages and link to the downloads page.
 
-- [ ] **Step 3: Add third-party NOTICE entries**
+- [x] **Step 3: Add third-party NOTICE entries**
 
 Identify upstream owners and verified terms for each mirrored APK, distinguish project-built artifact from upstream binaries, and state that the repository MIT license does not relicense third-party binaries.
 
-- [ ] **Step 4: Verify all download references and hashes**
+- [x] **Step 4: Verify all download references and hashes**
 
 Run the repo's existing content tests and `sha256sum -c` against a manifest or explicit recorded values. Expected: all four links resolve to committed APKs and every computed digest matches the downloads page and provenance record.
 

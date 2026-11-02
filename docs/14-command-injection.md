@@ -16,16 +16,22 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 Send the payload **once** and only against your own Devom instance on `127.0.0.1`. Do not add callbacks, `curl`/`wget`, file reads, or destructive commands to the filename.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend and its Python environment, which includes `requests`.
 - A terminal in the Devom checkout, so the venv is active.
 
 `curl` cannot reliably send a filename containing `;` because `-F` treats the semicolon as its own separator, so this lab builds the multipart request with Python instead. Burp Suite or Postman work too, if you can edit the multipart `filename=` field directly.
 
+## Understand the scenario
+
+A multipart upload separates the file content from metadata such as the filename. Devom takes that metadata and builds a shell command string, then runs it with `shell=True`. The boundary is crossed when the filename is treated as shell syntax instead of data. This lab compares a normal filename with one that appends a harmless `echo` command.
+
 ## Guided walkthrough
 
 ### 1. Create the harmless test file
+
+**Where:** host shell, Devom checkout with the venv active.
 
 ```bash title="Create the test file"
 printf 'harmless lab file for module 14\n' > lab14-marker.txt
@@ -36,6 +42,8 @@ ls -l lab14-marker.txt
     `ls` prints one regular file named `lab14-marker.txt`, a few dozen bytes.
 
 ### 2. Upload it with a normal filename (baseline)
+
+**Where:** host shell, Devom checkout.
 
 Create `lab14-baseline.py` with this content:
 
@@ -67,6 +75,8 @@ python lab14-baseline.py
 That `server_debug` output is the control. It shows the command the server runs for every upload.
 
 ### 3. Send the filename with the extra command
+
+**Where:** host shell, Devom checkout.
 
 Create `lab14-inject.py`:
 
@@ -112,6 +122,8 @@ The baseline response printed only `Processing file: user_100500_lab14-base.txt`
 
 ### 4. Confirm what the marker proves
 
+**Where:** your notes, comparing the two responses from Steps 2 and 3.
+
 Compare the two responses:
 
 - In the baseline, `server_debug` echoes the whole filename once.
@@ -121,6 +133,8 @@ Compare the two responses:
 If the marker appears only inside the echoed filename text and not on a second line, the shell did not split the command. Record the exact `server_debug` text instead of claiming injection.
 
 ### 5. Read the handler
+
+**Where:** an editor, `server.py` in the Devom checkout.
 
 Open `server.py` in the Devom checkout and find `upload_profile_pic`. In this revision it builds:
 
@@ -133,6 +147,8 @@ debug_output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT
 The submitted filename is pasted into a string that is handed to a shell. That single line is where the boundary is crossed: the filename is data, but `shell=True` treats it as syntax.
 
 ### 6. Record the limit of the finding
+
+**Where:** your notes.
 
 - The lab proves that arbitrary text in the filename is interpreted by `/bin/sh` with the server's privileges.
 - It does not prove what those privileges are beyond your own disposable container, and you must not test that with destructive commands.
@@ -148,12 +164,12 @@ The submitted filename is pasted into a string that is handed to a shell. That s
 
 ## Evidence
 
-Submit these four items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Baseline:** the redacted response from Step 2, including the full `server_debug` value.
-- **Injected request:** the exact multipart filename you sent, and the response from Step 3.
-- **Comparison:** quote the two `server_debug` values and point out the line produced by the second command.
-- **Limits:** state that the marker only printed text, that the test ran inside your disposable container, and what the server's user privileges turned out to be only if you checked them with a harmless command such as `id`.
+- [ ] **Baseline:** the redacted response from Step 2, including the full `server_debug` value.
+- [ ] **Injected request:** the exact multipart filename you sent and the response from Step 3.
+- [ ] **Comparison:** both `server_debug` values quoted, with the line produced by the second command identified (Steps 2–4).
+- [ ] **Limits:** one sentence stating that the marker only printed text and that the test ran inside your disposable container. Include the server user's privileges only if you checked them with a harmless command such as `id` (Step 6).
 
 Redact `user_id` if your lab policy requires it, and do not include the response's full user row.
 

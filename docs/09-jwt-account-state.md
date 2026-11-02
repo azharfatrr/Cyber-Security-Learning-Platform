@@ -21,7 +21,7 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 Keep the Devom server terminal and the checkout open. All commands below run in a second terminal on the lab VM.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend from [Devom setup](01-devom-setup.md), with its Python environment.
 - Bash and `curl` on the lab VM.
@@ -30,9 +30,15 @@ Keep the Devom server terminal and the checkout open. All commands below run in 
 
 Every API request below sends `User-Agent: Postman`. Without it, Devom encrypts JSON responses and the output is unreadable.
 
+## Understand the scenario
+
+Devom issues a signed JWT at login. The token copies the account's current blocked state into a `locked` claim. Protected endpoints verify the signature and read that claim, but they do not re-read the user row. The security boundary is therefore the token's contents and the server's signing key, not the live account status. This lab compares a token issued before a block, one issued after it, and a re-signed token whose claim was changed with the lab key.
+
 ## Guided walkthrough
 
 ### 1. Sign in and record the first token
+
+**Where:** host shell, second terminal on the lab VM.
 
 Open a second terminal and send the seeded lab credentials:
 
@@ -56,6 +62,8 @@ The login succeeds even though this account has a second factor. That is expecte
 
 ### 2. Read the profile as the baseline
 
+**Where:** host shell, same terminal.
+
 ```bash title="Read cala's profile"
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
   "$BASE/profile/100500"
@@ -68,6 +76,8 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
     In this revision `/profile/<user_id>` returns the whole user row, including `password`, `recovery_pin`, and `security_answer`. Keep only the fields you need in your notes and screenshots.
 
 ### 3. Block the account in the admin console
+
+**Where:** browser on the lab VM.
 
 In the browser on the lab VM:
 
@@ -82,6 +92,8 @@ In the browser on the lab VM:
 ![The admin console filtered to cala after blocking: the row shows the red BLOCKED badge and an UNBLOCK button.](images/lab-09/admin-console-blocked.png)
 
 ### 4. Compare the old token with a new one
+
+**Where:** host shell, same terminal.
 
 First repeat the exact request from Step 2 with the token you saved before the block:
 
@@ -116,6 +128,8 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $BLOCKED" \
     `HTTP/1.1 403 FORBIDDEN` with `{"message": "USER_LOCKED: Your account is suspended (JWT check)"}`. This token carries `"locked": true`, so the server rejects it.
 
 ### 5. Re-sign the blocked token with the active claim
+
+**Where:** host shell, Devom checkout with its Python environment active.
 
 The server reads a file named by the token's `kid` header. In the disposable checkout, that key is `jwt_keys/prod.key`, so you can re-sign the same claims with `"locked": false`. Run this from the Devom checkout with its Python environment active:
 
@@ -155,6 +169,8 @@ The pre-block token returned `200` after the admin console showed `BLOCKED`; the
 
 ### 6. Decide what the result proves
 
+**Where:** host shell and the admin console.
+
 Use these checks when you write the finding:
 
 - If the pre-block token still worked after the block, the server accepts a stale claim. Account status is read from the token, not from the database, on every protected request.
@@ -177,12 +193,12 @@ Restore the account before you finish:
 
 ## Evidence
 
-Submit these four items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Baseline:** the redacted `200` profile response taken before the block, plus the `user_id` and token claims (`sub`, `locked`, `iat`, `exp`).
-- **Blocked state:** a screenshot of the admin console row showing `cala` as `BLOCKED`.
-- **Comparison:** the status code and first line of the response for the pre-block token, the post-block token, and the re-signed token. Say which requests your own run actually made.
-- **Limits:** state that the test covers the API's account-state check only, and that the re-signed token required the lab's signing key.
+- [ ] **Baseline:** the redacted `200` profile response from Step 2, plus the `user_id` and token claims (`sub`, `locked`, `iat`, `exp`) from Step 1.
+- [ ] **Blocked state:** the admin-console screenshot showing `cala` as `BLOCKED` (Step 3).
+- [ ] **Comparison:** the status code and first response line for the pre-block token (Step 4), the post-block token (Step 4), and the re-signed token (Step 5). Say which requests your own run actually made.
+- [ ] **Limits:** one sentence stating that the test covers the API's account-state check only and that the re-signed token required the lab's signing key (Step 5).
 
 Redact the full token, `password`, `recovery_pin`, and `security_answer` from everything you submit.
 

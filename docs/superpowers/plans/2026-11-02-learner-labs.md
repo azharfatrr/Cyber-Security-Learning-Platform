@@ -48,11 +48,11 @@
 
 ### Task 1: Audit all pages against the shared structure contract
 
-- [ ] **Step 1: Create a temporary structure-and-evidence matrix**
+- [x] **Step 1: Create a temporary structure-and-evidence matrix**
 
 For all ten pages, record section presence/order, each step's location/action/check, first-use terms/placeholders, each Evidence item and producer, setup dependencies, redaction rules, and status claims. Keep the audit artifact outside published docs until it becomes the final read-through report.
 
-- [ ] **Step 2: Compare the guide and actual page contracts**
+- [x] **Step 2: Compare the guide and actual page contracts**
 
 Run the existing structural tests and compare every lab outline with `docs/lab-structure.md`. Record only concrete mismatches; do not turn editorial preferences into code assertions.
 
@@ -62,15 +62,15 @@ Run the existing structural tests and compare every lab outline with `docs/lab-s
 - Modify: `docs/lab-structure.md`
 - Modify if required: `docs/00-common-setup.md`
 
-- [ ] **Step 1: Clarify the shared page outline**
+- [x] **Step 1: Clarify the shared page outline**
 
 Make section names/order, variable/placeholder conventions, Evidence checklist mapping, and expected-result rules explicit and consistent with the approved spec. Include first-time learner guidance without specifying prose style tests.
 
-- [ ] **Step 2: Verify common setup is sufficient**
+- [x] **Step 2: Verify common setup is sufficient**
 
 Cross-check every tool required by lab pages against common and target setup pages. Add only shared prerequisites genuinely required; keep app installation in target setup and retain isolation/egress/synthetic-data limits.
 
-- [ ] **Step 3: Run structural checks**
+- [x] **Step 3: Run structural checks**
 
 Run `python3 -m unittest -v test_site`. Expected: current structural checks pass; no new prose/spelling tests were added.
 
@@ -79,19 +79,19 @@ Run `python3 -m unittest -v test_site`. Expected: current structural checks pass
 **Files:**
 - Modify: labs 09, 10, 14, 24, 25, 26, 28, 29, and 30 listed in the file map.
 
-- [ ] **Step 1: Revise steps from fresh run records**
+- [x] **Step 1: Revise steps from fresh run records**
 
 For each of the nine labs, give each numbered step its work location, action, and observable check. Define commands, flags, variables, and placeholders before use. Use observed outputs from the validation plan; where a statement is source-derived rather than runtime-observed, label it as such.
 
-- [ ] **Step 2: Rebuild each Evidence section as a mapped fill-in checklist**
+- [x] **Step 2: Rebuild each Evidence section as a mapped fill-in checklist**
 
 For every requested item, cite its producer step/command and the evidence the learner should capture. Ensure the documented setup supplies all required tooling/values and keep the existing redaction warnings.
 
-- [ ] **Step 3: Reconcile terminology, troubleshooting, and cleanup**
+- [x] **Step 3: Reconcile terminology, troubleshooting, and cleanup**
 
 Ensure troubleshooting and cleanup use the same exact paths/identities/state introduced earlier and do not ask for out-of-scope activity.
 
-- [ ] **Step 4: Run the structural checks**
+- [x] **Step 4: Run the structural checks**
 
 Run `python3 -m unittest -v test_site`. Expected: existing section, hint, safety, and callout checks pass without new wording assertions.
 
@@ -101,19 +101,19 @@ Run `python3 -m unittest -v test_site`. Expected: existing section, hint, safety
 - Modify: `docs/27-cloud-database.md`
 - Consume: `engineering/lab27/` and APK/download details from the artifact plan.
 
-- [ ] **Step 1: Replace external-environment assumptions with verified local setup**
+- [x] **Step 1: Replace external-environment assumptions with verified local setup**
 
 Document only the exact committed emulator start/stop/reset commands, stable identifiers/ports, synthetic fixture, APK path/hash, and actual observed output produced by the artifact plan. Remove instructions that require externally supplied Firebase credentials, projects, or cloud services.
 
-- [ ] **Step 2: Make each Lab 27 step complete and safe**
+- [x] **Step 2: Make each Lab 27 step complete and safe**
 
 For each action, state whether it occurs in the shell, emulator console, or app; include exact command/action and output/check. Confirm endpoint identity before exercising data and keep traffic local.
 
-- [ ] **Step 3: Map the Lab 27 Evidence checklist**
+- [x] **Step 3: Map the Lab 27 Evidence checklist**
 
 Map every checklist item to a concrete step/command and ensure it is satisfiable with only committed repo setup and synthetic fixture. Preserve redaction rules.
 
-- [ ] **Step 4: Verify lab page structure and tests**
+- [x] **Step 4: Verify lab page structure and tests**
 
 Run `python3 -m unittest -v test_site` and compare Lab 27 headings to the guide. Expected: all existing structural/safety checks pass.
 
@@ -126,11 +126,11 @@ Run `python3 -m unittest -v test_site` and compare Lab 27 headings to the guide.
 
 Follow every instruction in order using only linked setup. Record unclear terms/placeholders, missing locations/actions/checks, missing Evidence producers, unsafe ambiguity, and repair disposition for each lab. Do not score prose mechanically.
 
-- [ ] **Step 2: Resolve findings and repeat affected read-throughs**
+- [x] **Step 2: Resolve findings and repeat affected read-throughs**
 
 Fix identified learner blockers, rerun the relevant lab/gate where behavior changed, and re-read affected steps. Record no unsupported claims.
 
-- [ ] **Step 3: Verify read-through report completeness**
+- [x] **Step 3: Verify read-through report completeness**
 
 Confirm all ten labs have a recorded review outcome and each finding has a disposition. The report must describe a real read-through, not a planned one.
 

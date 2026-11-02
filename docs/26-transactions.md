@@ -20,16 +20,22 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 Keep every amount small. The lab uses `5` and `1` so the balances stay printable and easy to restore. Do not repeat the tests in a loop.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend from [Devom setup](01-devom-setup.md).
 - Bash and `curl`, or an API client that can send a JSON body and an `Authorization` header.
 
 Every request sends `User-Agent: Postman` so the JSON responses are readable.
 
+## Understand the scenario
+
+A transfer is a request to move value from one account to another. The server has three separate decisions to make: is the caller authenticated, does the caller own the source account, and is the amount a valid positive value the sender can cover. Devom's `@token_required` decorator answers only the first. The handler takes `from_id`, `to_id`, and `amount` from the request body and applies them to the database directly. This lab varies one input at a time and watches the two balances, so the missing checks appear as balance changes rather than as status codes.
+
 ## Guided walkthrough
 
 ### 1. Sign in and record both starting balances
+
+**Where:** host shell on the lab VM.
 
 ```bash title="Sign in as cala"
 BASE='https://127.0.0.1:8080'
@@ -54,6 +60,8 @@ The second request already shows that a token for one user can read another user
 
 ### 2. Send a normal transfer
 
+**Where:** host shell, same terminal.
+
 ```bash title="Transfer 5 from cala to admin"
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
@@ -69,6 +77,8 @@ Repeat the two balance reads from Step 1.
     `100500` is now `995` and `133700` is `1000004`. The amounts moved exactly as requested.
 
 ### 3. Send the same transfer with a negative amount
+
+**Where:** host shell, same terminal.
 
 ```bash title="Transfer -5 from cala to admin"
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
@@ -87,6 +97,8 @@ Read both balances again.
 That single request shows the missing amount check: a negative value reversed the direction of the transfer and was recorded as a success.
 
 ### 4. Send a transfer from the other user's account
+
+**Where:** host shell, same terminal.
 
 ```bash title="Spend admin's balance with cala's token"
 curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
@@ -119,6 +131,8 @@ The balances moved `1000/999999` → `995/1000004` → `1000/999999` → `1001/9
 
 ### 5. Read the handler
 
+**Where:** an editor, `server.py` in the Devom checkout.
+
 Open `server.py` and find `transfer`. In this revision it runs three statements and returns success:
 
 ```python
@@ -130,6 +144,8 @@ db.execute("INSERT INTO transactions (id, from_id, to_id, amount) VALUES (?,?,?,
 There is no amount check, no ownership check against `decoded_token['sub']`, and no check that the sender's balance covers the amount. The `@token_required` decorator proves a token is valid, nothing more.
 
 ### 6. Separate the findings
+
+**Where:** your notes, after the host-shell commands.
 
 - **Sign:** a negative amount moves money in the opposite direction.
 - **Ownership:** `from_id` is taken from the body, not from the token.
@@ -148,12 +164,14 @@ Each has its own fix. A response of `200` alone does not show a balance change, 
 
 ## Evidence
 
-Submit these four items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Baseline:** both account IDs and starting balances.
-- **Normal transfer:** request body, response, and the two balances after it.
-- **Invalid transfers:** the negative-amount request and the cross-account request, each with its response and the resulting balances.
-- **Limits:** state that only the two seeded accounts were used, the amounts were small, and the balances were restored.
+- [ ] **Baseline:** both account IDs and the starting balances from Step 1.
+- [ ] **Normal transfer:** the request body, the response, and the two balances after it (Step 2).
+- [ ] **Negative transfer:** the request body, the response, and the resulting balances (Step 3).
+- [ ] **Cross-account transfer:** the request body, the response, and the resulting balances (Step 4).
+- [ ] **Restoration:** the correcting transfer and the final balances (Step 4).
+- [ ] **Limits:** one sentence stating that only the two seeded accounts were used, the amounts were small, and the balances were restored (Steps 2–4).
 
 <details markdown="1">
 <summary>Hints</summary>

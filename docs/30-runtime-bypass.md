@@ -16,6 +16,17 @@ Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bug
 
 The local passcode comparison is present in the source. The hook below was run on the tested setup: an incorrect PIN was rejected first, the correct PIN opened the dashboard, and the same incorrect PIN opened the dashboard after the hook. Use a synthetic PIN of your own and confirm the same two outcomes on your emulator.
 
+### Tools needed
+
+- An instrumentable Android emulator with ADB access.
+- A Frida client on the host and a matching `frida-server` already installed on that emulator.
+- JADX, to read the decompiled APK.
+- The verified `BugBazaar_v1.2.1.apk` from [BugBazaar setup](02-bugbazaar-setup.md), installed on the emulator.
+
+## Understand the scenario
+
+BugBazaar stores its local passcode in shared preferences and compares the keypad entry with the value returned by `UserAuthSave.getpasscode()`. Both the comparison and the stored value live inside the app process, so the boundary is the process itself. Frida can replace the return value of that method while the app runs. This lab records the check's normal behavior first, then repeats the same wrong entry with the method hooked, so the difference is attributable to the hook rather than to a changed PIN.
+
 ## Guided walkthrough
 
 You will use the host terminal, the Android emulator, and JADX. ADB commands go in the host terminal, not in the emulator. Keep the emulator on the egress-restricted lab network described in [BugBazaar setup](02-bugbazaar-setup.md), and use only the synthetic PIN prepared for this lab.
@@ -25,7 +36,9 @@ You will use the host terminal, the Android emulator, and JADX. ADB commands go 
 
 ### 1. Check that ADB can see the emulator
 
-On the host, open a Bash terminal and run:
+**Where:** host shell on the lab VM.
+
+Open a Bash terminal and run:
 
 ```bash
 adb devices -l
@@ -50,7 +63,9 @@ Write down the Android release, API level, device ABI, and Frida client version.
 
 ### 2. Check how BugBazaar handles the PIN
 
-On the emulator, open BugBazaar from the app launcher.
+**Where:** the Android emulator.
+
+Open BugBazaar from the app launcher.
 
 1. If BugBazaar shows **Enter Passcode**, tap four digits different from your lab PIN. Confirm that four dots appear above the keypad, then tap **VALIDATE**.
 2. Confirm that BugBazaar shows `Incorrect passcode. Try again.` On the tested emulator the stored PIN was `2468` and the rejected entry was `0000`.
@@ -71,6 +86,8 @@ The correct PIN opens `NavigationDrawer_Dashboard` and shows `Passcode correct!`
 
 ### 3. Find the PIN comparison in JADX
 
+**Where:** host desktop, JADX.
+
 On the host, open JADX and use **File → Open** to select the verified `BugBazaar_v1.2.1.apk` from BugBazaar setup. After it loads, use JADX's class search to find `PasscodeActivity`, then open `com.BugBazaar.ui.PasscodeActivity`.
 
 In the displayed code, find `btnValidate.setOnClickListener`. Inside its `onClick` method, find the call to `UserAuthSave.getpasscode()` and the `enteredPasscode.equals(passcode)` comparison. The screenshot below shows these lines in the pinned source; JADX may display the code differently.
@@ -87,6 +104,8 @@ These are source-code results that match the tested app. If JADX shows a differe
 This pinned source screenshot shows the comparison and both branches.
 
 ### 4. Observe the check with Frida
+
+**Where:** host shell, same terminal, with the emulator running.
 
 First check whether a Frida server is already running on the emulator:
 
@@ -112,6 +131,8 @@ frida-ps -Uai | grep BugBazaar
 The output should list `BugBazaar` with the identifier `com.BugBazaar`. If the list is empty, or the command reports that it cannot connect, stop and fix the client/server match before continuing.
 
 ### 5. Attach the hook and retry the same PIN
+
+**Where:** host shell for Frida, then the Android emulator for the keypad entry.
 
 Create the hook script on the host in the directory where you will run Frida:
 
@@ -181,11 +202,14 @@ This test covers BugBazaar's local PIN screen. Only claim a server-side impact i
 
 ## Evidence
 
-Submit these three items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Baseline:** record the four digits you entered and the message shown before instrumentation. Confirm that the incorrect PIN was rejected and the correct PIN was accepted. If you could not reach the passcode screen, say so instead.
-- **Frida result:** include the sanitized Frida output showing `hook installed` and `getpasscode called`, the PIN you entered after attaching, and a capture of the screen the app showed. State that the same PIN was rejected before the hook.
-- **Context and limits:** Android version/API, Frida client/server versions, and whether you tested a protected server action. If you did not test one, say that the result covers only the app's local PIN check.
+- [ ] **Environment:** the Android release, API level, device ABI, and Frida client version from Step 1.
+- [ ] **Baseline:** the four digits you entered and the message shown before instrumentation, confirming that the incorrect PIN was rejected and the correct PIN was accepted (Step 2). If you could not reach the passcode screen, say so instead.
+- [ ] **Source comparison:** the `getpasscode()` call and the comparison in `PasscodeActivity` (Step 3).
+- [ ] **Frida output:** the sanitized output showing `hook installed` and `getpasscode called` (Steps 4 and 5).
+- [ ] **After-hook result:** the PIN you entered after attaching, the screen the app showed, and the statement that the same PIN was rejected before the hook (Step 5).
+- [ ] **Limits:** whether you tested a protected server action; if not, say that the result covers only the app's local PIN check (Step 5).
 
 <details markdown="1">
 <summary>Hints</summary>

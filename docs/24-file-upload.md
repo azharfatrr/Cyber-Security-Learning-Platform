@@ -16,16 +16,22 @@ Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-s
 
 Do not upload an executable, a script, a real photo, or personal data. Keep the test files under a few kilobytes and give them unique names so you do not overwrite anything.
 
-## Tools needed
+### Tools needed
 
 - The running Devom backend from [Devom setup](01-devom-setup.md).
 - Bash and `curl`.
 
 The upload and retrieval endpoints are exempt from Devom's response encryption, so `User-Agent` does not matter here.
 
+## Understand the scenario
+
+An upload endpoint has two separate decisions: whether to accept stored content, and who may read it back. Devom saves whatever multipart `file` it receives and later serves it from a filename-based route. The boundary is the validation in `upload_profile_pic` and the authentication in `view_upload`. This lab checks a text file and an HTML file, then reads both back without a session.
+
 ## Guided walkthrough
 
 ### 1. Create the test files
+
+**Where:** host shell on the lab VM.
 
 ```bash title="Create a text file and a small HTML file"
 BASE='https://127.0.0.1:8080'
@@ -39,6 +45,8 @@ ls -l lab24-marker.txt lab24-page.html
 
 ### 2. Upload the text file as a profile picture
 
+**Where:** host shell, same terminal.
+
 ```bash title="Upload the text file"
 curl --insecure -i -F 'user_id=100500' \
   -F 'file=@lab24-marker.txt;type=text/plain' "$BASE/upload_profile_pic"
@@ -51,6 +59,8 @@ The upload was accepted even though it is not an image. The server prefixes the 
 
 ### 3. Retrieve the file without a session
 
+**Where:** host shell, same terminal.
+
 ```bash title="Read the uploaded file back"
 curl --insecure -i "$BASE/view_upload/user_100500_lab24-marker.txt"
 ```
@@ -61,6 +71,8 @@ curl --insecure -i "$BASE/view_upload/user_100500_lab24-marker.txt"
 Notice what the request did **not** include: an `Authorization` header, a token, or any claim to be `cala`. The file is served to anyone who knows the URL.
 
 ### 4. Upload the HTML file and retrieve it
+
+**Where:** host shell, same terminal.
 
 ```bash title="Upload the HTML file"
 curl --insecure -i -F 'user_id=100500' \
@@ -88,6 +100,8 @@ The server chooses the content type from the file extension, so the same origin 
 
 ### 5. Compare the checks in the handler
 
+**Where:** an editor, `server.py` in the Devom checkout.
+
 Open `server.py` and read `upload_profile_pic` and `view_upload`. In this revision:
 
 - The handler checks only that a `file` part exists. It does not check the extension, the declared MIME type, the file's contents, or the size.
@@ -95,6 +109,8 @@ Open `server.py` and read `upload_profile_pic` and `view_upload`. In this revisi
 - `view_upload` calls `send_file(os.path.join(UPLOAD_FOLDER, filename))` with no authentication and no ownership check.
 
 ### 6. State what the result proves
+
+**Where:** your notes.
 
 - Uploading and retrieving a text or HTML file shows missing type validation and missing access control on retrieval.
 - It does not show code execution, a web shell, or access to another user's private file.
@@ -110,12 +126,12 @@ Open `server.py` and read `upload_profile_pic` and `view_upload`. In this revisi
 
 ## Evidence
 
-Submit these four items:
+Submit a sanitized record with these items. Each maps to the step that produces it.
 
-- **Upload responses:** the status and returned `filename` for both files.
-- **Retrieval responses:** the status, `Content-Type`, and body for both files, with the requests shown to have no `Authorization` header.
-- **Handler note:** one or two sentences quoting the missing checks in `upload_profile_pic` and `view_upload`.
-- **Limits:** state that the files were text and HTML, that nothing executed, and that no other user's file was accessed.
+- [ ] **Upload responses:** the status and returned `filename` for the text file (Step 2) and the HTML file (Step 4).
+- [ ] **Retrieval responses:** the status, `Content-Type`, and body for both files (Steps 3 and 4), with the requests shown to have no `Authorization` header.
+- [ ] **Handler note:** one or two sentences quoting the missing checks in `upload_profile_pic` and `view_upload` (Step 5).
+- [ ] **Limits:** one sentence stating that the files were text and HTML, that nothing executed, and that no other user's file was accessed (Step 6).
 
 <details markdown="1">
 <summary>Hints</summary>

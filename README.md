@@ -27,7 +27,7 @@ python3 -m mkdocs build --strict
 
 ## Lab readiness and safety
 
-All ten walkthroughs are complete. Nine were tested end to end on 29 October 2026, and their pages include observed output and screenshots. The cloud database lab (27) requires an authorized, disposable Firebase environment. Use only an isolated, authorized environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services.
+All ten walkthroughs are complete and were tested end to end. Labs 09, 10, 14, 24–26, and 28–30 were tested on 29 October 2026; Lab 27 was tested on 2 November 2026 against the repository's local Firebase Storage emulator. Every page includes observed output, and each one states what its run covered. Use only an isolated, disposable environment with synthetic data; do not use production systems, real accounts, personal data, or upstream cloud services.
 
 ## Lab guides
 
@@ -38,7 +38,7 @@ All ten walkthroughs are complete. Nine were tested end to end on 29 October 202
 - [File upload](docs/24-file-upload.md)
 - [Path traversal](docs/25-path-traversal.md)
 - [Transaction validation](docs/26-transactions.md)
-- [Cloud database](docs/27-cloud-database.md) — requires an authorized Firebase environment
+- [Cloud storage](docs/27-cloud-database.md) — local Firebase Storage emulator and synthetic data
 - [Object authorization](docs/28-bola.md)
 - [Android components](docs/29-components.md)
 - [Runtime bypass](docs/30-runtime-bypass.md)
