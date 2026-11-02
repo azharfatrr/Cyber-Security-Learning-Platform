@@ -20,10 +20,6 @@ Guides for testing Android applications and APIs in an isolated lab.
 
 </div>
 
-<div class="catalog-notice" markdown="1">
-**Before you start:** All ten walkthroughs were tested end to end. Each page includes observed output and explains the scope of its test run. Use only an isolated, disposable environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup guide for your lab's target app.
-</div>
-
 ## Lab catalog
 
 Choose a topic and open a lab. The numbers match the training curriculum.

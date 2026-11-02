@@ -38,8 +38,8 @@ extra_javascript:
 nav:
   - Home: index.md
   - Setup:
-      - Common prerequisites: 00-common-setup.md
       - Lab downloads: downloads.md
+      - Common prerequisites: 00-common-setup.md
       - Devom setup: 01-devom-setup.md
       - BugBazaar setup: 02-bugbazaar-setup.md
   - Labs:
