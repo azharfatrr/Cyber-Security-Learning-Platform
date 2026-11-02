@@ -1,0 +1,8 @@
+{
+  "name": "lab27-firebase-emulator",
+  "private": true,
+  "description": "Pinned Firebase Emulator Suite configuration for Lab 27",
+  "devDependencies": {
+    "firebase-tools": "15.34.2"
+  }
+}

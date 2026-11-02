@@ -12,16 +12,18 @@ This tests BugBazaar's local check only. Reaching another screen does not prove 
 
 ## Before you begin
 
-Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Use an instrumentable emulator with matching Frida client/server, and set a synthetic PIN.
+Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Run the LabKit bootstrap and install the verified BugBazaar APK. Use an instrumentable emulator with the bundled matching Frida client/server, and set a synthetic PIN.
 
 The local passcode comparison is present in the source. The hook below was run on the tested setup: an incorrect PIN was rejected first, the correct PIN opened the dashboard, and the same incorrect PIN opened the dashboard after the hook. Use a synthetic PIN of your own and confirm the same two outcomes on your emulator.
 
 ### Tools needed
 
 - An instrumentable Android emulator with ADB access.
-- A Frida client on the host and a matching `frida-server` already installed on that emulator.
-- JADX, to read the decompiled APK.
-- The verified `BugBazaar_v1.2.1.apk` from [BugBazaar setup](02-bugbazaar-setup.md), installed on the emulator.
+- The LabKit's Frida 17.4.2 client and matching Android x86_64 `frida-server` file, prepared by `./setup.sh`.
+- The LabKit's JADX 1.5.1 desktop app, prepared by `./setup.sh`.
+- The verified `BugBazaar_v1.2.1.apk` included in the LabKit and installed on the emulator.
+
+The Android emulator image is a preinstalled prerequisite. The LabKit does not root an emulator or install the server automatically; for this lab only, the walkthrough explicitly copies the verified server file to the selected emulator.
 
 ## Understand the scenario
 
@@ -29,7 +31,7 @@ BugBazaar stores its local passcode in shared preferences and compares the keypa
 
 ## Guided walkthrough
 
-You will use the host terminal, the Android emulator, and JADX. ADB commands go in the host terminal, not in the emulator. Keep the emulator on the egress-restricted lab network described in [BugBazaar setup](02-bugbazaar-setup.md), and use only the synthetic PIN prepared for this lab.
+You will use the host terminal, the Android emulator, and JADX. ADB commands go in the host terminal, not in the emulator. Run these commands from the extracted LabKit directory, add its pinned Frida commands to the shell path, and keep the emulator on the egress-restricted lab network described in [BugBazaar setup](02-bugbazaar-setup.md). Use only the synthetic PIN prepared for this lab.
 
 !!! warning "Check the versions before you attach"
     The tested setup used Frida 17.4.2 on an x86_64 Android 14 / API 34 emulator. Confirm that your Frida client and the emulator's Frida server report the same version before you start.
@@ -38,7 +40,7 @@ You will use the host terminal, the Android emulator, and JADX. ADB commands go 
 
 **Where:** host shell on the lab VM.
 
-Open a Bash terminal and run:
+Open a Bash terminal in the LabKit directory and run:
 
 ```bash
 adb devices -l
@@ -53,13 +55,14 @@ Copy the serial number from the first item. Use it in place of `emulator-5554` i
 ```bash
 set -euo pipefail
 SERIAL=emulator-5554  # Replace with the serial shown by adb devices -l
+export PATH="$PWD/.labkit/frida-venv/bin:$PATH"
 adb -s "$SERIAL" shell getprop ro.build.version.release
 adb -s "$SERIAL" shell getprop ro.build.version.sdk
 adb -s "$SERIAL" shell getprop ro.product.cpu.abi
 frida --version
 ```
 
-Write down the Android release, API level, device ABI, and Frida client version. The installed Frida server must match the client version and the device ABI. If `frida --version` fails, stop here. Do not install a different server or change the emulator yourself.
+Write down the Android release, API level, device ABI, and Frida client version. The server file must match the client version and device ABI. If the values differ from Android 14 / API 34, x86_64, or Frida 17.4.2, stop here.
 
 ### 2. Check how BugBazaar handles the PIN
 
@@ -88,7 +91,7 @@ The correct PIN opens `NavigationDrawer_Dashboard` and shows `Passcode correct!`
 
 **Where:** host desktop, JADX.
 
-On the host, open JADX and use **File → Open** to select the verified `BugBazaar_v1.2.1.apk` from BugBazaar setup. After it loads, use JADX's class search to find `PasscodeActivity`, then open `com.BugBazaar.ui.PasscodeActivity`.
+On the host, launch the bundled JADX with `./.labkit/jadx/bin/jadx-gui` and use **File → Open** to select `apk/BugBazaar_v1.2.1.apk`. After it loads, use JADX's class search to find `PasscodeActivity`, then open `com.BugBazaar.ui.PasscodeActivity`.
 
 In the displayed code, find `btnValidate.setOnClickListener`. Inside its `onClick` method, find the call to `UserAuthSave.getpasscode()` and the `enteredPasscode.equals(passcode)` comparison. The screenshot below shows these lines in the pinned source; JADX may display the code differently.
 
@@ -113,14 +116,30 @@ First check whether a Frida server is already running on the emulator:
 adb -s "$SERIAL" shell 'ps -A | grep frida'
 ```
 
-If a `frida-server` line appears, write down its version and skip to the next command. If nothing appears, start the server file already installed on the emulator. The file name must match your server version:
+If a `frida-server` process is already running, stop and verify that it is the matching 17.4.2 server before continuing. If nothing appears, copy the matching server bundled in the LabKit. Verify both the local and device copies; do not overwrite a different file already present at the chosen path:
 
 ```bash
-adb -s "$SERIAL" shell 'su -c "nohup /data/local/tmp/frida-server-17.4.2 >/data/local/tmp/frida.log 2>&1 &"'
+FRIDA_SERVER=.labkit/tools/frida-server-17.4.2-android-x86_64
+SERVER_SHA=23ad2e64028e3aa778731ec3019d8bde4314d0d5894892e18bae2256c18293c9
+DEVICE_SERVER=/data/local/tmp/labkit-frida-server-17.4.2
+printf '%s  %s\n' "$SERVER_SHA" "$FRIDA_SERVER" | sha256sum --check -
+if adb -s "$SERIAL" shell "test -e '$DEVICE_SERVER'"; then
+  DEVICE_SHA=$(adb -s "$SERIAL" shell sha256sum "$DEVICE_SERVER")
+  DEVICE_SHA=${DEVICE_SHA%% *}
+  DEVICE_SHA=${DEVICE_SHA//$'\r'/}
+  if [ "$DEVICE_SHA" != "$SERVER_SHA" ]; then
+    echo 'A different server file exists at the LabKit path; stopping without overwriting it.' >&2
+    exit 1
+  fi
+else
+  adb -s "$SERIAL" push "$FRIDA_SERVER" "$DEVICE_SERVER"
+fi
+adb -s "$SERIAL" shell "sha256sum '$DEVICE_SERVER'"
+adb -s "$SERIAL" shell "su -c 'chmod 755 $DEVICE_SERVER && nohup $DEVICE_SERVER >/data/local/tmp/frida.log 2>&1 &'"
 adb -s "$SERIAL" shell 'ps -A | grep frida'
 ```
 
-The second command must now show the server process. If `su` is denied, or the file is missing, stop. The server must already be installed on the disposable lab emulator; do not download a different server.
+The output must show the matching server process. If `su` is denied or the device hash differs, stop. This step copies only the pinned server file and does not change the emulator image or app data.
 
 On the host, confirm that the client can see BugBazaar:
 
@@ -134,28 +153,12 @@ The output should list `BugBazaar` with the identifier `com.BugBazaar`. If the l
 
 **Where:** host shell for Frida, then the Android emulator for the keypad entry.
 
-Create the hook script on the host in the directory where you will run Frida:
-
-```bash
-cat > lab30-hook.js <<'EOF'
-Java.perform(function () {
-  const Auth = Java.use('com.BugBazaar.controller.UserAuthSave');
-  const getPasscode = Auth.getpasscode.overload();
-  getPasscode.implementation = function () {
-    console.log('[lab30] getpasscode called; substituting lab value');
-    return '0000';
-  };
-  console.log('[lab30] hook installed');
-});
-EOF
-```
-
-The script replaces the value returned by `UserAuthSave.getpasscode()` with `0000`. `PasscodeActivity` reads the stored PIN through that method, so a `0000` entry now matches instead of failing.
+Use the reviewed hook script bundled at `hooks/lab30-hook.js`. It replaces the value returned by `UserAuthSave.getpasscode()` with `0000`. `PasscodeActivity` reads the stored PIN through that method, so a `0000` entry now matches instead of failing.
 
 Attach to the running BugBazaar process and load the script:
 
 ```bash
-frida -U -n BugBazaar -l lab30-hook.js
+frida -U -n BugBazaar -l hooks/lab30-hook.js
 ```
 
 Wait for both lines:

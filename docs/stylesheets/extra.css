@@ -17,6 +17,7 @@
 .header-home:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .md-content__inner { padding: 0 clamp(1rem, 2.5vw, 2.5rem) 3rem; }
 .md-typeset { line-height: 1.7; }
+.md-typeset a:not(.md-button):not(.header-home) { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .14em; }
 .md-typeset { font-size: .85rem; }
 .md-content .md-typeset { font-size: calc(.7rem * var(--content-scale, 1)); }
 .text-size-control { position: relative; display: flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; margin: 0 .2rem; border-radius: .3rem; color: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }

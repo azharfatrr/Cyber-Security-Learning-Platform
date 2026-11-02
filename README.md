@@ -9,6 +9,7 @@ Guided Android application and API security labs for an isolated training enviro
 - Ten guided labs covering authentication, file handling, API security, and Android components.
 - Linux/Bash setup and walkthrough instructions.
 - Coverage notes that identify source evidence and gaps.
+- One LabKit download for all ten labs: [Lab downloads](docs/downloads.md).
 
 ## Run the site locally
 

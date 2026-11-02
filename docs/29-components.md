@@ -24,7 +24,7 @@ Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bug
 - Android SDK Platform Tools (`adb`) and a terminal on the host computer.
 - The BugBazaar target app and the Module 29 caller app, installed as described in [BugBazaar setup](02-bugbazaar-setup.md).
 
-The caller is a small prebuilt APK, published with this guide as [module-29-caller.apk](assets/apk/module-29-caller.apk). Its source is kept at `engineering/fixtures/module-29-caller/` in the repository; you do not need to build it.
+The caller is a small prebuilt APK included in the LabKit as `apk/module-29-caller.apk`. Install it from the extracted LabKit directory with `./install-apk.sh module-29-caller.apk`; you do not need a repository checkout or build tools.
 
 Run ADB commands in the host terminal. Do the login, address search, and caller-screen check in the emulator. This walkthrough does not install or build apps.
 

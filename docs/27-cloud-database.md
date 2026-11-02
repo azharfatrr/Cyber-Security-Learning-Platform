@@ -22,27 +22,21 @@ In this lab you will:
 
 **Verification status:** verified end to end on 2 November 2026 on Android 14 / API 34 with the published APK. The outputs below are from that run.
 
-**Target:** the repository-built `bugbazaar-lab27-emulator.apk` (package `com.BugBazaar.lab27`), built from BugBazaar source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md), including its Lab 27 install section.
+**Target:** the bundled `bugbazaar-lab27-emulator.apk` (package `com.BugBazaar.lab27`), built from BugBazaar source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md), including its Lab 27 install section.
 
 ## Before you begin
 
 ### Tools needed
 
-- The repository checkout, because the emulator configuration and lifecycle scripts live in `engineering/lab27/`.
-- Node.js and `npm`, to install the pinned Firebase CLI once.
+- The extracted LabKit directory, which includes the emulator configuration, synthetic fixtures, and lifecycle scripts under `lab27/`.
+- The LabKit bootstrap, which installs the pinned Firebase CLI once.
 - `curl` and `python3` on the host, for the object reads and JSON formatting.
 - An Android emulator with ADB access and a route to the host alias `10.0.2.2`.
-- The published Lab 27 APK from [Lab downloads](downloads.md).
+- The Lab 27 APK bundled in the LabKit and installed with `./install-apk.sh bugbazaar-lab27-emulator.apk`.
 
-Install the pinned CLI from the repository root:
+Run `./setup.sh` once from the extracted LabKit directory before starting this lab. It installs the locked Firebase CLI and prefetches the pinned Storage emulator, so no separate repository checkout or CLI installation is needed.
 
-```bash title="Install the pinned Firebase CLI"
-cd engineering/lab27
-npm install --no-audit --no-fund
-cd ../..
-```
-
-`package.json` pins `firebase-tools@15.34.2`. The build also used Gradle 8.4, Android Gradle plugin 8.3.1, NDK 26.1.10909125, and OpenJDK 21.0.12.1.
+The included package lock pins `firebase-tools@15.34.2`. The artifact build used Gradle 8.4, Android Gradle plugin 8.3.1, NDK 26.1.10909125, and OpenJDK 21.0.12.1.
 
 Keep host egress restricted to the loopback path used here. The emulator must be able to reach the host; confirm that the approved firewall allows `127.0.0.1:9199` and `127.0.0.1:4000` from the lab boundary and blocks unrelated egress. Do not expose either port to a LAN or the internet.
 
@@ -62,12 +56,12 @@ That rule makes the object effectively public to anyone who can reach the emulat
 
 ### 1. Start the emulator and confirm the baseline
 
-**Where:** host shell, repository root.
+**Where:** host shell, extracted LabKit directory.
 
 `reset.sh` stops any running instance, clears the emulator's runtime state, starts it, and uploads the fixtures:
 
 ```bash title="01 · Reset, start, and seed the local emulator"
-./engineering/lab27/reset.sh
+./lab27/reset.sh
 ```
 
 Expected output from the verified run:
@@ -109,7 +103,7 @@ Expected: two items, both in bucket `lab27-local.appspot.com`:
 
 ### 2. Read a seeded record without credentials
 
-**Where:** host shell, repository root.
+**Where:** host shell, extracted LabKit directory.
 
 The URL path encodes `/` as `%2F`. `alt=media` asks the Storage API for the object bytes instead of metadata.
 
@@ -132,14 +126,14 @@ Marker: LAB27-ALICE-SYNTHETIC
 
 ### 3. Confirm the app and configuration are local
 
-**Where:** host shell, repository root.
+**Where:** host shell, extracted LabKit directory.
 
 Verify the published APK you installed:
 
 ```bash title="04 · Verify the Lab 27 APK identity"
 printf '%s  %s\n' \
   b3f0249634f7bc401fb79c43eb7f6093a030501b4d36a7e0c05864cbb8041604 \
-  docs/assets/apk/bugbazaar-lab27-emulator.apk | sha256sum --check -
+  apk/bugbazaar-lab27-emulator.apk | sha256sum --check -
 adb shell pm path com.BugBazaar.lab27
 ```
 
@@ -149,7 +143,7 @@ Read the committed identifiers:
 
 ```bash title="05 · Show the local project identifiers"
 grep -E '"project_id"|"storage_bucket"|"package_name"' \
-  engineering/lab27/google-services.json
+  lab27/google-services.json
 ```
 
 Expected output:
@@ -160,7 +154,7 @@ Expected output:
           "package_name": "com.BugBazaar.lab27",
 ```
 
-**Check:** the package is `com.BugBazaar.lab27` and both Firebase identifiers are local. The APK hash ties the installed file to this configuration and to the `10.0.2.2:9199` endpoint added by `engineering/lab27/prepare.py`.
+**Check:** the package is `com.BugBazaar.lab27` and both Firebase identifiers are local. The APK hash ties the installed file to this configuration and to the `10.0.2.2:9199` endpoint in the variant built from the pinned source.
 
 ### 4. Sign in and open My Profile
 
@@ -199,7 +193,7 @@ Use only these synthetic values. Do not enter a real address, phone number, or e
 
 ### 6. Confirm the app-written object
 
-**Where:** host shell, repository root.
+**Where:** host shell, extracted LabKit directory.
 
 ```bash title="06 · List objects after the app save"
 curl -fsS 'http://127.0.0.1:9199/v0/b/lab27-local.appspot.com/o' \
@@ -234,7 +228,7 @@ If the object is missing, see the troubleshooting section before changing anythi
 
 ### 7. Read the app-written object without credentials
 
-**Where:** host shell, repository root.
+**Where:** host shell, extracted LabKit directory.
 
 Substitute your object prefix. In the verified run it was `Google sdk_gphone64_x86_64`, and the space is encoded as `%20`:
 
@@ -256,10 +250,10 @@ Address: 1 Synthetic Way
 
 ### 8. Compare the result with the deployed rule
 
-**Where:** host shell, repository root.
+**Where:** host shell, extracted LabKit directory.
 
 ```bash title="08 · Show the committed Storage rule"
-sed -n '1,20p' engineering/lab27/storage.rules
+sed -n '1,20p' lab27/storage.rules
 ```
 
 Expected: the `match /{allPaths=**}` block contains `allow read, write: if true;`.
@@ -271,7 +265,7 @@ Expected: the `match /{allPaths=**}` block contains `allow read, write: if true;
 
 ## Troubleshooting
 
-- **`reset.sh` cannot start the emulator:** check that ports `9199` and `4000` are free, run `./engineering/lab27/stop.sh`, then retry. If it still fails, read `engineering/lab27/.runtime/emulator.log`.
+- **`reset.sh` cannot start the emulator:** check that ports `9199` and `4000` are free, run `./lab27/stop.sh`, then retry. If it still fails, read `lab27/.runtime/emulator.log`.
 - **The app shows network errors or the object never appears:** confirm the emulator has a route to the host alias `10.0.2.2` and that the approved firewall allows loopback port `9199`. Then restart the app and save again. Inspect app logs with `adb logcat --pid=$(adb shell pidof com.BugBazaar.lab27)`.
 - **The object prefix differs from the example:** use the exact prefix from your object list. The prefix is the emulator's manufacturer and model, not a fixed value.
 - **The app is already installed with a different signature:** the Lab 27 variant has its own package. If `com.BugBazaar.lab27` is present but not yours, use a fresh disposable emulator; do not uninstall the official `com.BugBazaar`.
@@ -315,7 +309,7 @@ The evidence here is limited to the local synthetic emulator and the published A
 Stop the emulator when the lab ends:
 
 ```bash title="Cleanup · Stop the local emulator"
-./engineering/lab27/stop.sh
+./lab27/stop.sh
 ```
 
 If you no longer need the app in this disposable emulator, remove only the Lab 27 package:

@@ -22,5 +22,5 @@ printf 'sdk.dir=%s\n' "$SDK_DIR" > "$SRC_DIR/local.properties"
 
 (cd "$SRC_DIR" && ./gradlew --no-daemon assembleDebug)
 cp "$SRC_DIR/app/build/outputs/apk/debug/app-debug.apk" \
-  "$ROOT_DIR/docs/assets/apk/bugbazaar-lab27-emulator.apk"
-sha256sum "$ROOT_DIR/docs/assets/apk/bugbazaar-lab27-emulator.apk"
+  "$ROOT_DIR/labkit/input/apk/bugbazaar-lab27-emulator.apk"
+sha256sum "$ROOT_DIR/labkit/input/apk/bugbazaar-lab27-emulator.apk"
