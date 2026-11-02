@@ -30,7 +30,7 @@ Run ADB commands in the host terminal. Do the login, address search, and caller-
 
 ## Understand the scenario
 
-Android apps can share data through content providers. A provider declares whether other apps may reach it with `android:exported`, and may require a permission. BugBazaar exposes an address provider with no read permission, so the boundary it relies on is the caller's identity: any app with a different UID should have been denied. This lab uses a fixed, read-only caller that asks for one synthetic nickname, so the result is attributable to a separate app rather than to an ADB shell or to your own app.
+Android apps can share data through content providers. A provider uses `android:exported` to declare whether other apps may reach it and can require a permission for access. BugBazaar exposes its address provider without a read permission, allowing an app with a different UID to request records that should be private. The supplied read-only caller requests one fixed synthetic nickname. Its separate UID establishes that the request came from another app, not from an ADB shell or BugBazaar itself.
 
 ## Guided walkthrough
 
@@ -149,7 +149,7 @@ Use these checks to write your finding:
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **BugBazaar screenshot:** the marked fake address in BugBazaar, with any other address rows kept out of the image (Step 2).
 - [ ] **Caller screenshot:** the caller's package and UID, provider URI, exact nickname filter, and returned fake address (Step 3).
@@ -176,10 +176,10 @@ This confirms access to that one synthetic record. It does not show access to ot
 
 ## Cleanup and review
 
-The app has no address-delete control, and the provider's `delete()` method returns `0`. No safe way to remove the row has been verified.
+The app has no control for deleting an address, and the provider's `delete()` method returns `0`. No safe method for removing the row has been verified.
 
 - Leave the synthetic record on the disposable emulator. Its nickname is `LAB29-20261028-7F3A`.
 - Do not clear BugBazaar data, uninstall apps, or call provider delete.
-- Dispose of the disposable emulator according to your lab policy when finished.
+- When finished, dispose of the emulator according to your lab policy.
 
 Which access control would prevent an unrelated app from reading these addresses? What negative test would confirm that the same caller is denied after the provider is protected?

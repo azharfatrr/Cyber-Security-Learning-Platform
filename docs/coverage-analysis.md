@@ -6,7 +6,7 @@
 
 ## Executive assessment
 
-Devom is the stronger foundation for the selected backend and API scenarios: its server source contains direct candidates for seven modules. BugBazaar is the stronger candidate for Android components and local runtime manipulation. The cloud module is now served by a repository-built BugBazaar variant and a committed local Firebase Storage emulator with synthetic fixtures, verified end to end on 2 November 2026.
+Devom's server source supports the seven backend and API modules. BugBazaar supports the Android component and local runtime exercises. The cloud-storage module uses a separately built BugBazaar variant and a local Firebase Storage emulator with synthetic fixtures, verified end to end on 2 November 2026.
 
 **Verification status (2 November 2026):** All ten labs were re-executed end to end in isolated environments, and their guides include observed output and fresh screenshots. Lab 27 used the local Firebase Storage emulator; the other nine used the pinned Devom or BugBazaar targets described on their pages. The assessment below records the original static review and is kept for traceability; each lab page states what its test run observed.
 
@@ -21,7 +21,7 @@ Devom is the stronger foundation for the selected backend and API scenarios: its
 
 ## Module-by-module assessment
 
-The “Verification points” and “Guide gap” lines below record the checks the static review identified. The lab pages record the tested results and how each gap was addressed.
+The “Verification points” and “Guide gap” entries record checks and missing guidance identified during the static review. For tested results and the updated instructions, use the individual lab pages.
 
 ### 9 — JWT-based account state bypass: Devom, source-backed
 

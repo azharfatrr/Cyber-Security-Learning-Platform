@@ -1,6 +1,6 @@
 # Common prerequisites
 
-**Status:** Shared safety and tooling guidance for all labs. Use an isolated, disposable lab. These deliberately vulnerable apps and services must not be exposed to the internet or corporate networks.
+These safety and tooling requirements apply to every lab. Use an isolated, disposable environment. Never expose these deliberately vulnerable apps and services to the internet or corporate networks.
 
 ## Download and prepare the LabKit once
 
@@ -11,9 +11,15 @@ Download the single [LabKit for all ten labs](downloads.md), extract it, then ru
 ./setup.sh
 ```
 
-The first command checks prerequisites without changing files or device state. The second fetches the pinned Devom source and host dependencies, installs the locked Firebase CLI, prefetches its Storage emulator, and prepares the pinned Frida and JADX tools. It does not install or launch apps, clear app data, or copy `frida-server` onto the emulator. For a selected lab, its setup page tells you which bundled APK to install with `./install-apk.sh <apk-filename>`.
+The first command checks prerequisites without changing files or device state. The second downloads the pinned Devom source and host dependencies, installs the locked Firebase CLI, downloads its Storage emulator, and prepares the pinned Frida and JADX tools.
 
-The LabKit supports **Linux x86_64** and requires Bash, Python 3.12 or newer with `venv` and `ensurepip`, Git, curl, `sha256sum`, Node.js 20 or newer, npm, Java 17 or newer, and Android SDK Platform Tools (`adb`). It also requires an already installed and booted disposable Android 14 / API 34 x86_64 instrumentable emulator. Android Studio, SDK components, and emulator system images are not included. The LabKit is a one-time manual download, not an offline bundle: first-time setup contacts the pinned GitHub, PyPI, npm, and Google Storage sources and may download large analysis-tool packages.
+Setup does not install or launch apps, clear app data, or copy `frida-server` onto the emulator. Follow your lab's setup page to choose the bundled APK, then install it with `./install-apk.sh <apk-filename>`.
+
+The LabKit supports **Linux x86_64**. You need Bash, Python 3.12 or newer with `venv` and `ensurepip`, Git, curl, `sha256sum`, Node.js 20 or newer, npm, Java 17 or newer, and Android SDK Platform Tools (`adb`).
+
+You also need a disposable Android 14 / API 34 x86_64 emulator that is already installed, booted, and supports runtime instrumentation. Android Studio, SDK components, and emulator system images are not included.
+
+You download the LabKit once, but setup still needs network access. It downloads pinned dependencies from GitHub, PyPI, npm, and Google Storage, including some large analysis-tool packages.
 
 Keep setup egress restricted to the documented package/release endpoints and their download hosts. After setup, apply the more restrictive runtime policy below; do not leave broad bootstrap egress enabled for a lab.
 

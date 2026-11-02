@@ -2,7 +2,7 @@
 
 ## Download once for all ten labs
 
-The LabKit archive contains all four verified APKs plus the lab-owned setup scripts, Lab 27 Firebase configuration and synthetic fixtures, the Lab 30 hook, pinned dependency locks, and checksum manifest.
+The LabKit contains all four verified APKs and the files you need for the labs: setup scripts, Lab 27 Firebase configuration and synthetic test data, the Lab 30 hook, pinned dependency lock files, and a checksum manifest.
 
 [Download LabKit-linux-x86_64.zip](assets/labkit/LabKit-linux-x86_64.zip)
 
@@ -16,7 +16,7 @@ sha256sum --check <<'EOF'
 EOF
 ```
 
-After extraction, use the [Common prerequisites](00-common-setup.md) and run `./setup.sh` from the `LabKit` directory. The kit targets Linux x86_64 and requires an already installed Android 14 / API 34 x86_64 emulator. It does not bundle an Android SDK or emulator image and is not an offline package: its first-time bootstrap downloads pinned dependencies and analysis tools from documented upstream sources.
+After extraction, follow [Common prerequisites](00-common-setup.md) and run `./setup.sh` from the `LabKit` directory. You need Linux x86_64 and an Android 14 / API 34 x86_64 emulator that is already installed. The kit does not include an Android SDK or emulator image. First-time setup needs network access to download pinned dependencies and analysis tools from the documented upstream sources.
 
 ## Included APK inventory
 

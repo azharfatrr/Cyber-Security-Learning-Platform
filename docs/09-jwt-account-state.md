@@ -32,7 +32,7 @@ Every API request below sends `User-Agent: Postman`. Without it, Devom encrypts 
 
 ## Understand the scenario
 
-Devom issues a signed JWT at login. The token copies the account's current blocked state into a `locked` claim. Protected endpoints verify the signature and read that claim, but they do not re-read the user row. The security boundary is therefore the token's contents and the server's signing key, not the live account status. This lab compares a token issued before a block, one issued after it, and a re-signed token whose claim was changed with the lab key.
+Devom issues a signed JWT at login and copies the account's blocked state into a `locked` claim. Protected endpoints verify the signature and read that claim without checking the user row again. Access therefore depends on the token's contents and the server's signing key, even if the account status has changed. Compare a token issued before the block with one issued after it, then test a token whose claim you changed and re-signed with the lab key.
 
 ## Guided walkthrough
 
@@ -115,7 +115,7 @@ curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
 !!! success "Expected"
     `HTTP/1.1 200 OK` with `"status": "locked"`, `"account_locked": true`, and a fresh `session_token`.
 
-Note that login still returns `200` and a usable-looking token; the app is expected to read `status` and refuse to continue. Save this new token and call the profile with it:
+Login still returns `200` and a token. The app is expected to read `status` and refuse to continue. Save the new token and use it to request the profile:
 
 ```bash title="Use the post-block token"
 BLOCKED='PASTE_NEW_SESSION_TOKEN_HERE'
@@ -193,7 +193,7 @@ Restore the account before you finish:
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Baseline:** the redacted `200` profile response from Step 2, plus the `user_id` and token claims (`sub`, `locked`, `iat`, `exp`) from Step 1.
 - [ ] **Blocked state:** the admin-console screenshot showing `cala` as `BLOCKED` (Step 3).
@@ -215,7 +215,7 @@ Redact the full token, `password`, `recovery_pin`, and `security_answer` from ev
 
 Devom issues a 24-hour JWT at login and copies the account's blocked state into a `locked` claim. Protected endpoints check that claim and never re-read the account row. In the inspected source, a block therefore does not end an existing session: the token keeps working until it expires or the key changes. Because `validate_jwt` loads the signing key from a local file named by the token's `kid` header, anyone with read access to the checkout can also mint a token that says `"locked": false`.
 
-The impact is that suspending an account does not immediately cut off API access, and a token's claims are only as trustworthy as the server's key handling. This is a server-side authorization issue, not a mobile-screen bypass. In a real deployment the key would not be readable by the client, so the re-signed-token step demonstrates the trust boundary rather than a production attack path.
+Suspending an account does not immediately cut off API access. The integrity of the token's claims also depends on protecting the signing key. This is a server-side authorization issue, not a mobile-screen bypass. In a real deployment the client should not be able to read the key. The re-signed-token step shows why the key must be protected; it does not establish that a production client could obtain it.
 
 ## Cleanup and review
 

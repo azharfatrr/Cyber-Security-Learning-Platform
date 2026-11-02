@@ -25,7 +25,7 @@ Send the payload **once** and only against your own Devom instance on `127.0.0.1
 
 ## Understand the scenario
 
-A multipart upload separates the file content from metadata such as the filename. Devom takes that metadata and builds a shell command string, then runs it with `shell=True`. The boundary is crossed when the filename is treated as shell syntax instead of data. This lab compares a normal filename with one that appends a harmless `echo` command.
+A multipart upload sends the file content and its filename separately. Devom inserts the filename into a shell command string and runs it with `shell=True`, allowing filename characters to become shell syntax. Compare a normal filename with one that appends a harmless `echo` command.
 
 ## Guided walkthrough
 
@@ -144,7 +144,7 @@ cmd = f"echo Processing file: {fname}"
 debug_output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT).decode()
 ```
 
-The submitted filename is pasted into a string that is handed to a shell. That single line is where the boundary is crossed: the filename is data, but `shell=True` treats it as syntax.
+The server inserts the submitted filename into a command string and passes it to a shell. With `shell=True`, characters in the filename can become shell syntax.
 
 ### 6. Record the limit of the finding
 
@@ -164,7 +164,7 @@ The submitted filename is pasted into a string that is handed to a shell. That s
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Baseline:** the redacted response from Step 2, including the full `server_debug` value.
 - [ ] **Injected request:** the exact multipart filename you sent and the response from Step 3.

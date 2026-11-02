@@ -20,10 +20,6 @@ Guides for testing Android applications and APIs in an isolated lab.
 
 </div>
 
-<div class="catalog-notice" markdown="1">
-**Before you start:** All ten walkthroughs are complete and were tested end to end; every page includes observed output and states what its run covered. Use only an isolated, disposable environment with synthetic data. [Review the common prerequisites](00-common-setup.md), then follow the setup module for the target used by your lab.
-</div>
-
 ## Lab catalog
 
 Choose a topic and open a lab. The numbers match the training curriculum.
@@ -79,7 +75,7 @@ Investigate upload processing and file retrieval.
 
 - **25 · [Path traversal](25-path-traversal.md)**  
   <span class="card-meta">Devom</span><br>
-  Check a retrieval boundary using a harmless marker.
+  Use a harmless marker to test reads outside the uploads directory.
 
 </div>
 

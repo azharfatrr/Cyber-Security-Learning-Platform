@@ -18,7 +18,7 @@ The endpoint checks only that a valid token is present. It does not check that t
 
 Complete [Common prerequisites](00-common-setup.md) and [Devom setup](01-devom-setup.md). Use only the two seeded accounts: `cala` (`100500`) and `admin` (`133700`). Both are disposable, and no real financial data is involved.
 
-Keep every amount small. The lab uses `5` and `1` so the balances stay printable and easy to restore. Do not repeat the tests in a loop.
+Keep every amount small. The lab uses `5` and `1` so you can easily compare and restore the balances. Do not repeat the tests in a loop.
 
 ### Tools needed
 
@@ -29,7 +29,7 @@ Every request sends `User-Agent: Postman` so the JSON responses are readable.
 
 ## Understand the scenario
 
-A transfer is a request to move value from one account to another. The server has three separate decisions to make: is the caller authenticated, does the caller own the source account, and is the amount a valid positive value the sender can cover. Devom's `@token_required` decorator answers only the first. The handler takes `from_id`, `to_id`, and `amount` from the request body and applies them to the database directly. This lab varies one input at a time and watches the two balances, so the missing checks appear as balance changes rather than as status codes.
+Before moving money, the server must authenticate the caller, confirm ownership of the source account, and check that the amount is positive and within the sender's balance. Devom's `@token_required` decorator only authenticates the caller. The handler takes `from_id`, `to_id`, and `amount` directly from the request body and applies them to the database. Change one input at a time and compare both balances after each request. The balance changes show what happened to the money; a status code alone does not.
 
 ## Guided walkthrough
 
@@ -152,7 +152,7 @@ There is no amount check, no ownership check against `decoded_token['sub']`, and
 - **Funds:** nothing stops a debit that exceeds the balance, so the sender can go negative.
 - **Record:** the transaction row stores whatever amount was sent, including the negative one.
 
-Each has its own fix. A response of `200` alone does not show a balance change, so quote the before and after numbers.
+Each issue needs a separate fix. Record the balances before and after each request; a response of `200` alone does not show that money moved.
 
 ## Troubleshooting
 
@@ -164,7 +164,7 @@ Each has its own fix. A response of `200` alone does not show a balance change, 
 
 ## Evidence
 
-Submit a sanitized record with these items. Each maps to the step that produces it.
+Submit the evidence below with sensitive data removed. The step references show where to collect each item.
 
 - [ ] **Baseline:** both account IDs and the starting balances from Step 1.
 - [ ] **Normal transfer:** the request body, the response, and the two balances after it (Step 2).

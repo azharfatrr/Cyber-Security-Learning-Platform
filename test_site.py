@@ -496,16 +496,21 @@ class SiteTest(unittest.TestCase):
             with self.subTest(apk_hash=digest):
                 self.assertIn(digest, downloads)
 
-    def test_lab_downloads_follow_common_prerequisites_in_setup_navigation(self):
+    def test_lab_downloads_are_first_in_setup_navigation(self):
         config = (Path(__file__).parent / "mkdocs.yml").read_text()
         pages = (
-            "Common prerequisites: 00-common-setup.md",
             "Lab downloads: downloads.md",
+            "Common prerequisites: 00-common-setup.md",
             "Devom setup: 01-devom-setup.md",
             "BugBazaar setup: 02-bugbazaar-setup.md",
         )
         positions = [config.index(page) for page in pages]
         self.assertEqual(positions, sorted(positions))
+
+    def test_homepage_omits_readiness_notice(self):
+        homepage = (Path(__file__).parent / "docs/index.md").read_text()
+        self.assertNotIn('class="catalog-notice"', homepage)
+        self.assertNotIn("**Before you start:**", homepage)
 
     def test_maintainer_contract_is_not_published_and_license_404_are_present(self):
         root = Path(__file__).parent
