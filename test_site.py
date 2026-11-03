@@ -1,5 +1,6 @@
 import unittest
 import hashlib
+import json
 import os
 import re
 import subprocess
@@ -35,6 +36,98 @@ class SiteTest(unittest.TestCase):
             with self.subTest(path=required_file):
                 self.assertTrue((root / required_file).is_file())
 
+    def test_lab27_download_includes_executable_cli_and_emulator_dependencies(self):
+        files = labkit_builder.source_files()
+        for name in (
+            "lab27/firebase-tools-linux",
+            "lab27/emulators/cloud-storage-rules-runtime-v1.1.3.jar",
+            "lab27/emulators/ui-v1.15.0.zip",
+        ):
+            with self.subTest(asset=name):
+                self.assertIn(name, files)
+
+    def test_vendor_fetch_preserves_existing_partial_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "vendor").mkdir()
+            original = root / "vendor/asset.bin.part"
+            original.write_bytes(b"someone else's partial download")
+            upstream = root / "upstream.bin"
+            upstream.write_bytes(b"verified dependency")
+            manifest = root / "vendor-manifest.json"
+            manifest.write_text(json.dumps({"lab27/asset.bin": {
+                "url": upstream.as_uri(), "sha256": hashlib.sha256(upstream.read_bytes()).hexdigest(),
+            }}))
+            with patch.multiple(labkit_builder, KIT_ROOT=root, VENDOR_MANIFEST=manifest):
+                try:
+                    labkit_builder.fetch_vendor()
+                except FileExistsError:
+                    pass
+            self.assertTrue(original.exists(), "fetch deleted an existing partial download")
+            self.assertEqual(original.read_bytes(), b"someone else's partial download")
+            self.assertEqual((root / "vendor/asset.bin").read_bytes(), b"verified dependency")
+
+    def test_vendor_fetch_rejects_changed_cache_without_replacing_it(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "vendor").mkdir()
+            cached = root / "vendor/asset.bin"
+            cached.write_bytes(b"changed cache")
+            manifest = root / "vendor-manifest.json"
+            manifest.write_text(json.dumps({"lab27/asset.bin": {
+                "url": "https://example.invalid/not-fetched", "sha256": "0" * 64,
+            }}))
+            with patch.multiple(labkit_builder, KIT_ROOT=root, VENDOR_MANIFEST=manifest):
+                with self.assertRaisesRegex(labkit_builder.LabKitError, "Unverified cache"):
+                    labkit_builder.fetch_vendor()
+            self.assertEqual(cached.read_bytes(), b"changed cache")
+
+    def test_independent_apk_recipe_installs_only_after_a_successful_absence_check(self):
+        root = Path(__file__).parent
+        section = (root / "docs/00-common-setup.md").read_text().split(
+            "### APK installation without the helper", 1
+        )[1]
+        recipe = re.search(r"```bash\n(.*?)```", section, re.S).group(1)
+        for state in ("absent", "present", "transport-error"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as directory:
+                workspace = Path(directory)
+                (workspace / "apk").mkdir()
+                apk = workspace / "apk/BugBazaar_v1.2.1.apk"
+                apk.write_bytes(b"verified fixture")
+                digest = hashlib.sha256(apk.read_bytes()).hexdigest()
+                (workspace / "manifest.sha256").write_text(f"{digest}  apk/{apk.name}\n")
+                binary = workspace / "bin"
+                binary.mkdir()
+                adb = binary / "adb"
+                marker = workspace / "installed"
+                adb.write_text(
+                    "#!/bin/bash\n"
+                    "case \"$*\" in\n"
+                    " *ro.kernel.qemu*) echo 1;;\n"
+                    " *ro.build.version.sdk*) echo 34;;\n"
+                    " *ro.product.cpu.abi*) echo x86_64;;\n"
+                    " *'pm list packages'*)\n"
+                    "   case \"$FAKE_STATE\" in present) echo package:com.BugBazaar;; transport-error) exit 1;; esac;;\n"
+                    " *'pm path'*)\n"
+                    f"   if [[ -f '{marker}' || \"$FAKE_STATE\" == present ]]; then echo package:/data/app/base.apk; else exit 1; fi;;\n"
+                    f" *'shell sha256sum'*) echo '{digest}  /data/app/base.apk';;\n"
+                    f" *'install apk/'*) touch '{marker}';;\n"
+                    " *) exit 2;;\n"
+                    "esac\n"
+                )
+                adb.chmod(0o755)
+                result = subprocess.run(
+                    ["bash", "-c", recipe], cwd=workspace, text=True, capture_output=True,
+                    env={**os.environ, "PATH": f"{binary}:{os.environ['PATH']}", "FAKE_STATE": state},
+                )
+                if state == "absent":
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertTrue(marker.exists())
+                else:
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse(marker.exists(), "existing or unknown package state must not be replaced")
+
+
     def test_labkit_build_is_deterministic_and_contains_verified_apks(self):
         root = Path(__file__).parent
         expected_hashes = {
@@ -62,6 +155,8 @@ class SiteTest(unittest.TestCase):
             "LabKit/hooks/lab30-hook.js",
             "LabKit/tools/frida-requirements.lock",
             "LabKit/tools/versions.env",
+            "LabKit/tools/firebase-LICENSE.txt",
+            "LabKit/tools/firebase-ui-LICENSE.txt",
             "LabKit/lab27/README.md",
             "LabKit/lab27/firebase.json",
             "LabKit/lab27/google-services.json",
@@ -75,6 +170,9 @@ class SiteTest(unittest.TestCase):
             "LabKit/lab27/process.sh",
             "LabKit/lab27/fixtures/alice-userinfo.txt",
             "LabKit/lab27/fixtures/bob-userinfo.txt",
+            "LabKit/lab27/firebase-tools-linux",
+            "LabKit/lab27/emulators/cloud-storage-rules-runtime-v1.1.3.jar",
+            "LabKit/lab27/emulators/ui-v1.15.0.zip",
         }
         with tempfile.TemporaryDirectory() as temp_dir:
             first = Path(temp_dir) / "first.zip"
@@ -462,7 +560,7 @@ class SiteTest(unittest.TestCase):
                     pass
                 emulator.wait(timeout=5)
 
-    def test_learner_setup_uses_labkit_instead_of_manual_artifact_installs(self):
+    def test_setup_supports_optional_labkit_and_independent_preparation(self):
         root = Path(__file__).parent
         common = (root / "docs/00-common-setup.md").read_text()
         devom = (root / "docs/01-devom-setup.md").read_text()
@@ -471,14 +569,48 @@ class SiteTest(unittest.TestCase):
 
         self.assertIn("./setup.sh --check", common)
         self.assertIn("./setup.sh", common)
+        for heading in ("## Host requirements", "## Android emulator", "## Common tools", "## Lab-specific tools", "## Optional LabKit setup", "## Independent preparation"):
+            self.assertIn(heading, common)
+        for section in common.split("## ")[1:5]:
+            self.assertRegex(section, r"(?m)^- ")
+        self.assertIn("labkit/payload", common)
+        self.assertIn("--require-hashes", devom)
+        self.assertRegex(devom, r"git(?: -C \S+)? checkout --detach af4290ce8d2178765bfc2bd96cf233f6d3d03161")
+        self.assertIn("npm ci", common)
+        self.assertIn("setup:emulators:storage", common)
+        self.assertIn("frida-requirements.lock", common)
+        for page in (devom, bugbazaar, lab27):
+            self.assertNotIn("run the LabKit bootstrap once", page)
         self.assertIn("./install-apk.sh Dvom.apk", devom)
-        self.assertNotIn("git clone", devom.lower())
-        self.assertNotIn("pip install", devom.lower())
         self.assertIn("./install-apk.sh BugBazaar_v1.2.1.apk", bugbazaar)
         self.assertIn("./install-apk.sh module-29-caller.apk", bugbazaar)
         self.assertIn("./install-apk.sh bugbazaar-lab27-emulator.apk", bugbazaar)
         self.assertNotIn("npm install", lab27.lower())
         self.assertNotIn("docs/assets/apk/", "\n".join((devom, bugbazaar, lab27)))
+
+    def test_all_labs_introduce_scenario_and_numbered_goal_before_setup(self):
+        root = Path(__file__).parent
+        labs = ("09-jwt-account-state", "10-otp-bypass", "14-command-injection",
+                "24-file-upload", "25-path-traversal", "26-transactions",
+                "27-cloud-database", "28-bola", "29-components", "30-runtime-bypass")
+        for lab in labs:
+            with self.subTest(lab=lab):
+                content = (root / "docs" / f"{lab}.md").read_text()
+                self.assertNotIn("## Complete when", content)
+                for heading in ("## Scenario", "## Goal"):
+                    self.assertIn(heading, content)
+                positions = [content.index(heading) for heading in (
+                    "## Scenario", "## Goal", "## Before you begin", "## Guided walkthrough")]
+                self.assertEqual(positions, sorted(positions))
+                for heading in ("## Scenario", "## Goal"):
+                    section = content.split(heading + "\n", 1)[1].split("\n## ", 1)[0]
+                    self.assertGreater(len(section.strip()), 40)
+                goal = content.split("## Goal\n", 1)[1].split("\n## ", 1)[0]
+                self.assertIn("You will:", goal)
+                numbers = re.findall(r"(?m)^(\d+)\. ", goal)
+                self.assertTrue(numbers, "goal actions must be numbered")
+                self.assertEqual(numbers, [str(index) for index in range(1, len(numbers) + 1)])
+                self.assertNotRegex(content.lower(), r"\blearner\b")
 
     def test_download_page_has_one_labkit_link_and_no_individual_apk_links(self):
         root = Path(__file__).parent

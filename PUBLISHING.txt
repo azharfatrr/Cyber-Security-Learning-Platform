@@ -6,6 +6,7 @@ Run from this folder:
 Visit the URL printed by MkDocs. For a production build, generate the LabKit
 archive before building the site:
 
+    python3 labkit/build.py --fetch-vendor
     python3 labkit/build.py
     python3 -m mkdocs build --strict
 
@@ -13,8 +14,14 @@ The generated LabKit archive lives under `docs/assets/labkit/` only as a
 build input and is ignored by Git. Do not commit it or the generated `site/`
 directory. The strict build copies the archive into the published site.
 
+The fetch step downloads hash-pinned Lab 27 release assets into the ignored
+labkit/vendor cache. This is a build-time operation, not a reader setup step.
+Review third-party redistribution terms in NOTICE before publishing changes
+to these assets. The builder fails closed on a missing or changed cache.
+
 The local equivalent of the validation workflow is:
 
+    python3 labkit/build.py --fetch-vendor
     python3 labkit/build.py
     python3 -m unittest -v test_site
     python3 -m mkdocs build --strict
@@ -22,6 +29,7 @@ The local equivalent of the validation workflow is:
     npm ci --prefix engineering/qa
     engineering/qa/node_modules/.bin/playwright install chromium
     node engineering/qa/accessibility_audit.mjs site
+    node engineering/qa/evidence_layout.mjs site /tmp/opencode/evidence-layout.json
 
 The `validate` job is the required PR check. It reports local references and
 audits each rendered page with axe-core in dark desktop mode; serious and

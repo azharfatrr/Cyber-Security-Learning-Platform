@@ -1,6 +1,6 @@
 # Cyber Security Learning Platform LabKit
 
-This archive contains the verified Android targets and lab-owned support files for all ten labs. It is a single Linux x86_64 download. Start with the public Lab Downloads guide for host/emulator prerequisites and safety requirements, then run these commands from the extracted `LabKit` directory:
+This optional archive contains the verified Android targets and support files for all ten labs. Start with the public Common prerequisites guide for point-by-point host/emulator requirements and safety boundaries. You can prepare only your chosen lab's tools independently, or run the convenience bootstrap from the extracted `LabKit` directory:
 
 ```bash
 ./setup.sh --check  # read-only host and emulator preflight
@@ -9,8 +9,10 @@ This archive contains the verified Android targets and lab-owned support files f
 
 The setup does not launch apps, change app data, or install APKs. Install only the target needed for a lab, for example `./install-apk.sh Dvom.apk` or `./install-apk.sh BugBazaar_v1.2.1.apk`. An existing package is left untouched; installation stops if its APK hash is different.
 
-The LabKit requires Linux x86_64, Bash, Python 3.12+, Git, curl, Node.js 20+, npm, Java 17+, ADB, and an already booted Android 14/API 34 x86_64 instrumentable emulator. It does not contain Android SDK components or emulator images. First-time setup retrieves pinned dependencies and tools from their documented upstream sources; the kit is not an offline bundle.
+The full bootstrap requires Linux x86_64, Bash, Python 3.12+ with venv/ensurepip, Git, curl, Node.js 20+, npm, Java 17+, ADB and an already booted Android 14/API 34 x86_64 emulator. Only Lab 30 requires instrumentation support. The archive does not contain Android SDK components or emulator images.
 
-The setup pins Devom to its reviewed source commit, installs the bundled Python lock and Firebase CLI npm lock, prefetches the local Storage emulator, and installs matching Frida 17.4.2 and JADX 1.5.1 host tools. It does not copy or start `frida-server` on the emulator; follow Lab 30's explicit ADB commands when you choose to do that exercise.
+Lab 27 includes its pinned Linux Firebase CLI executable, Storage runtime, emulator UI, APK, configuration and fixtures. With the host tools and Android emulator ready, follow BugBazaar setup to install the variant, then run `./lab27/reset.sh`. This archive path needs no npm installation, Firebase account or separate Lab 27 dependency fetch. The repository-only path still uses the included npm lock to prepare its CLI independently.
+
+Other labs are not a fully disconnected environment. The optional bootstrap downloads the reviewed Devom source and hash-locked Python dependencies, matching Frida 17.4.2 and JADX 1.5.1 tools. It does not copy or start `frida-server` on Android; follow Lab 30's explicit ADB commands.
 
 Use only a disposable lab environment with synthetic data. Keep vulnerable services and emulator endpoints isolated, and follow each lab's documented egress restrictions.

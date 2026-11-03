@@ -1,6 +1,8 @@
 # Lab 27 local Storage emulator
 
-Run these scripts from the extracted LabKit directory after `./setup.sh` has installed the pinned Firebase CLI.
+The download includes Firebase CLI 15.34.2 as `firebase-tools-linux`, Storage runtime 1.1.3 and emulator UI 1.15.0 in the workspace cache. Verify the archive and manifest first. With your Linux x86_64 host tools and Java ready, no npm installation or separate Lab 27 dependency download is needed. The repository-only preparation path uses `node_modules/.bin/firebase` instead; the lifecycle scripts accept either path.
+
+From the extracted LabKit directory:
 
 ```bash
 cd lab27

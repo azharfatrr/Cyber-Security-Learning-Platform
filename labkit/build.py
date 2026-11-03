@@ -5,11 +5,14 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path, PurePosixPath
 import stat
 import sys
+import tempfile
 import zipfile
+import urllib.request
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -20,6 +23,7 @@ README = KIT_ROOT / "README.md"
 ARCHIVE_PREFIX = "LabKit/"
 OUTPUT_MANIFEST = "LabKit/manifest.sha256"
 DEFAULT_OUTPUT = ROOT / "docs" / "assets" / "labkit" / "LabKit-linux-x86_64.zip"
+VENDOR_MANIFEST = KIT_ROOT / "vendor-manifest.json"
 
 
 class LabKitError(Exception):
@@ -101,7 +105,40 @@ def source_files() -> dict[str, Path]:
                     raise LabKitError(f"Duplicate LabKit source path: {relative}")
                 files[relative] = path
 
+    if VENDOR_MANIFEST.parent == KIT_ROOT:
+        for member, asset in json.loads(VENDOR_MANIFEST.read_text()).items():
+            if not is_safe_member(f"{ARCHIVE_PREFIX}{member}") or member in files:
+                raise LabKitError(f"Unsafe or duplicate vendored asset: {member}")
+            cached = KIT_ROOT / "vendor" / Path(member).name
+            if not cached.is_file() or cached.is_symlink() or sha256_file(cached) != asset["sha256"]:
+                raise LabKitError(f"Missing or unverified {member}; run python3 labkit/build.py --fetch-vendor")
+            files[member] = cached
     return files
+
+
+def fetch_vendor() -> None:
+    """Fetch release bytes once at build time; never accept an unverified cache."""
+    cache = KIT_ROOT / "vendor"
+    cache.mkdir(exist_ok=True)
+    for member, asset in json.loads(VENDOR_MANIFEST.read_text()).items():
+        destination = cache / Path(member).name
+        if destination.exists():
+            if destination.is_symlink() or sha256_file(destination) != asset["sha256"]:
+                raise LabKitError(f"Unverified cache left untouched: {destination}")
+        else:
+            with tempfile.NamedTemporaryFile(dir=cache, prefix=destination.name + ".part-", delete=False) as output:
+                temporary = Path(output.name)
+            try:
+                with urllib.request.urlopen(asset["url"], timeout=120) as source, temporary.open("wb") as output:
+                    while chunk := source.read(1024 * 1024):
+                        output.write(chunk)
+                if sha256_file(temporary) != asset["sha256"]:
+                    raise LabKitError(f"Vendored download failed SHA-256: {member}")
+                temporary.rename(destination)
+            finally:
+                temporary.unlink(missing_ok=True)
+        destination.chmod(0o755 if asset.get("executable") else 0o644)
+        print(f"Verified vendored asset: {member}")
 
 
 def is_safe_member(name: str) -> bool:
@@ -175,9 +212,12 @@ def main() -> int:
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--output", type=Path, metavar="ZIP", help="build the LabKit archive")
     group.add_argument("--check", type=Path, metavar="ZIP", help="validate a LabKit archive")
+    group.add_argument("--fetch-vendor", action="store_true", help="fetch hash-pinned Lab 27 release dependencies before building")
     args = parser.parse_args()
     try:
-        if args.check:
+        if args.fetch_vendor:
+            fetch_vendor()
+        elif args.check:
             validate_archive(args.check, expected_contents(source_files()))
             print(f"Verified {args.check}")
         else:

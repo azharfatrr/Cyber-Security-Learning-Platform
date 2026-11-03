@@ -2,11 +2,17 @@
 
 *Can one user's token read another user's profile?*
 
-## What this lab does
+## Scenario
 
-You will sign in as `cala`, read `cala`'s profile as a baseline, and then change only the user ID in the URL to read the seeded `admin` account with the same token.
+Devom's profile URL includes a user ID, while the session token identifies the caller. You are reviewing whether the server keeps those two identities consistent. Sign in as the seeded `cala` account and use only its profile and the seeded `admin` profile for a read-only comparison.
 
-If the second request returns the other account's record, the endpoint authorizes the token but never checks that the token's user owns the requested object.
+## Goal
+
+You will:
+
+1. Sign in as `cala` and read your own profile as a baseline.
+2. Change only the user ID in the URL and repeat the read with the same token.
+3. Check the related read-only account and transaction routes without modifying either account.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -72,7 +78,7 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 
 Only the path changed. The token still belongs to `cala`, but the server returned the profile for the ID in the URL. Keep this response as evidence of the cross-account read.
 
-![Host-terminal output showing the same cala token reading profiles 100500 and 133700, followed by successful read-only account and transaction requests. Only selected fields are shown.](images/lab-28/cross-account-profile.png)
+[![Host-terminal output showing the same cala token reading profiles 100500 and 133700, followed by successful read-only account and transaction requests. Only selected fields are shown.](images/lab-28/cross-account-profile.png)](images/lab-28/cross-account-profile.png "Open full-size screenshot")
 
 The captured QTerminal output shows both profile reads returned `200`, as did `/get_accounts/133700` and `/transactions/133700`. The token is omitted; only selected profile fields are displayed.
 

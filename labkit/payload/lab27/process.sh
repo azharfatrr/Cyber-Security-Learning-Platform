@@ -9,7 +9,7 @@ lab27_process_matches() {
   working_directory="$(readlink -f -- "/proc/$pid/cwd" 2>/dev/null)" || return 1
   expected_cli="./node_modules/.bin/firebase"
   [[ "$working_directory" == "$lab_dir" \
-    && "$command_line" == *"$expected_cli"* \
+    && ( "$command_line" == *"$expected_cli"* || "$command_line" == "$lab_dir/firebase-tools-linux "* || "$command_line" == "./firebase-tools-linux "* ) \
     && "$command_line" == *"emulators:start"* \
     && "$command_line" == *"--only storage"* \
     && "$command_line" == *"--project lab27-local"* \

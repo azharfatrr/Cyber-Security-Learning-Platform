@@ -1,6 +1,6 @@
 # Devom setup
 
-Complete [Common prerequisites](00-common-setup.md) first and run the LabKit bootstrap once. The LabKit prepares the pinned Devom checkout and isolated Python environment; the Android app is supplied as a verified prebuilt APK.
+Complete [Common prerequisites](00-common-setup.md) first. Prepare the pinned backend with either the optional LabKit bootstrap or the independent steps below. The seven Devom API labs need the backend, not the Android app; the verified prebuilt APK is optional for those walkthroughs.
 
 **Verification:** The backend and API steps on this page were tested again on 2 November 2026 over loopback, using Python 3.14 and Flask 3.1.3. The optional Android app steps depend on your emulator and certificate setup.
 
@@ -15,7 +15,27 @@ The server uses HTTPS with a generated, ad-hoc certificate. Certificate trust an
 
 ## Primary path: Python backend
 
-After completing the LabKit bootstrap, start the backend from the LabKit directory:
+### Independent backend preparation
+
+Skip this subsection if the optional bootstrap has already prepared `.labkit/Devom`. Otherwise, from the fresh workspace described in [Common prerequisites](00-common-setup.md#independent-preparation):
+
+```bash title="Prepare only the pinned Devom backend"
+set -euo pipefail
+mkdir -p .labkit
+test ! -e .labkit/Devom  # Stop rather than overwrite an existing checkout
+git clone https://github.com/memohk/Devom.git .labkit/Devom
+git -C .labkit/Devom checkout --detach af4290ce8d2178765bfc2bd96cf233f6d3d03161
+test "$(git -C .labkit/Devom rev-parse HEAD)" = af4290ce8d2178765bfc2bd96cf233f6d3d03161
+python3 -m venv .labkit/Devom/.venv
+.labkit/Devom/.venv/bin/python -m pip install --require-hashes -r backend/requirements.lock
+.labkit/Devom/.venv/bin/python -m pip check
+```
+
+Use the supplied hash lock, not upstream's unpinned `requirements.txt`. Stop if the commit check or dependency installation fails. This prepares only the backend; it does not require Firebase, Frida or an Android emulator.
+
+### Start the prepared backend
+
+After either preparation path, start the backend from your workspace:
 
 ```bash title="Start the pinned Devom backend"
 cd .labkit/Devom
@@ -25,7 +45,7 @@ python server.py
 
 The server listens on port `8080` and creates its SQLite database and runtime directories under this checkout on first launch. Keep the checkout and all generated data inside the disposable lab. Stop the server with `Ctrl+C`; do not delete or reset generated data unless your lab policy approves the cleanup procedure.
 
-Leave the server running in this terminal. Open a second terminal at the checkout root to check the local server. Return to the LabKit directory for APK installation. The source defines the response `DVOM SERVER LIVE` at `/`; check it with this loopback-only request:
+Leave the server running in this terminal. Open a second terminal at the checkout root to check the local server. Return to your workspace for optional APK installation. The source defines the response `DVOM SERVER LIVE` at `/`; check it with this loopback-only request:
 
 ```bash title="03 · Check the local HTTPS endpoint"
 curl --insecure -i https://127.0.0.1:8080/
@@ -36,11 +56,13 @@ curl --insecure -i https://127.0.0.1:8080/
 
 ## Install and configure the prebuilt Android app
 
-The verified `Dvom.apk` is included in the LabKit; see [Lab downloads](downloads.md) for its provenance and hash. From the LabKit directory, install it on the selected disposable emulator:
+The verified `Dvom.apk` is available in the archive or repository workspace; see [Lab downloads](downloads.md) for its provenance and hash. From your workspace, the optional helper installs it on the selected disposable emulator:
 
 ```bash title="04 · Verify and install the supplied Android APK"
 ./install-apk.sh Dvom.apk
 ```
+
+If you do not use the helper, follow [APK installation without the helper](00-common-setup.md#apk-installation-without-the-helper) with `APK=Dvom.apk` and `PACKAGE=com.example.vulnappowasp`. Keep the hash, emulator and existing-package checks.
 
 !!! success "Expected"
     The installer verifies the bundled hash before using ADB. It installs only when the package is absent, or reports that the identical verified APK is already installed. If another version is present, stop and use a fresh disposable emulator; the installer will not replace it or clear app data.

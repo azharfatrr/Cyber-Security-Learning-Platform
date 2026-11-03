@@ -2,11 +2,16 @@
 
 *Can Devom store and serve a file it should have rejected?*
 
-## What this lab does
+## Scenario
 
-You will upload a harmless text file as a profile picture, retrieve it by the filename the server returns, and then upload a small HTML file the same way. The lab checks two things: whether the server validates the file type, and whether the stored file can be read without an authenticated session.
+Devom accepts profile pictures and provides a route for reading uploaded files. You are reviewing whether it restricts uploads to suitable file types and whether reading a stored file requires a session. Use tiny synthetic files so the test does not expose personal photos or overwrite existing uploads.
 
-A text file and an HTML file are not executable code. Storing them shows missing validation and missing access control; it does not show code execution.
+## Goal
+
+You will:
+
+1. Upload a harmless text file as a profile picture and retrieve it without a session.
+2. Repeat with a script-free HTML file, checking the returned marker and content type.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -89,7 +94,7 @@ curl --insecure -i "$BASE/view_upload/user_100500_lab24-page.html"
 !!! success "Expected"
     `HTTP/1.1 200 OK`, `Content-Type: text/html`, and the `<h1>` line as the body.
 
-![Host-terminal output showing accepted text and HTML uploads, their 200 unauthenticated reads, content types, and synthetic marker bodies.](images/lab-24/upload-and-retrieve.png)
+[![Host-terminal output showing accepted text and HTML uploads, their 200 unauthenticated reads, content types, and synthetic marker bodies.](images/lab-24/upload-and-retrieve.png)](images/lab-24/upload-and-retrieve.png "Open full-size screenshot")
 
 The captured QTerminal output shows both uploads succeeded and both reads returned `200` without an `Authorization` header: the text file as `text/plain`, the HTML file as `text/html`.
 

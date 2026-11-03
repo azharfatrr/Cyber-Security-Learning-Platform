@@ -2,26 +2,33 @@
 
 *Can changing BugBazaar's local PIN check make an incorrect PIN work?*
 
-## What this lab does
+## Scenario
 
-Set a synthetic PIN in BugBazaar, confirm that an incorrect PIN is rejected, then inspect the local PIN check. With Frida on a disposable emulator, change the check so the same incorrect PIN opens the app.
+BugBazaar asks for a PIN before opening its dashboard. You are reviewing whether this local check still protects the app when someone can inspect and modify its running process. Use a synthetic PIN on a disposable emulator so you can compare the same incorrect entry before and after instrumentation.
 
-This tests BugBazaar's local check only. Reaching another screen does not prove that a server accepted an unauthorized request.
+## Goal
+
+You will:
+
+1. Confirm that an incorrect PIN is rejected and the correct PIN opens the dashboard.
+2. Inspect the local PIN comparison in JADX.
+3. Start the matching Frida server and attach the reviewed hook to BugBazaar.
+4. Retry the same incorrect PIN and compare the result without changing the stored PIN.
 
 **Tested target:** BugBazaar release `v1.2.1` from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Re-executed on:** 2 November 2026, Android 14 / API 34 on x86_64 with Frida 17.4.2.
 
 ## Before you begin
 
-Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Run the LabKit bootstrap and install the verified BugBazaar APK. Use an instrumentable emulator with the bundled matching Frida client/server, and set a synthetic PIN.
+Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bugbazaar-setup.md). Prepare the tools with the optional bootstrap or the independent Lab 30 steps, and install the verified BugBazaar APK. Use an instrumentable emulator with matching Frida client/server versions, and set a synthetic PIN.
 
 The local passcode comparison is present in the source. The hook below was run on the tested setup: an incorrect PIN was rejected first, the correct PIN opened the dashboard, and the same incorrect PIN opened the dashboard after the hook. Use a synthetic PIN of your own and confirm the same two outcomes on your emulator.
 
 ### Tools needed
 
 - An instrumentable Android emulator with ADB access.
-- The LabKit's Frida 17.4.2 client and matching Android x86_64 `frida-server` file, prepared by `./setup.sh`.
-- The LabKit's JADX 1.5.1 desktop app, prepared by `./setup.sh`.
-- The verified `BugBazaar_v1.2.1.apk` included in the LabKit and installed on the emulator.
+- Frida 17.4.2 client and matching Android x86_64 `frida-server`, prepared by either path in Common prerequisites.
+- JADX 1.5.1 desktop app in `.labkit/jadx`.
+- The verified `BugBazaar_v1.2.1.apk` from the archive or repository workspace, installed on the emulator.
 
 Your Android emulator image must already be installed. The LabKit does not root the emulator or install the server automatically. For this lab only, you will copy the verified server file to the selected emulator by following the steps below.
 
@@ -31,7 +38,7 @@ BugBazaar stores its local passcode in shared preferences and compares the keypa
 
 ## Guided walkthrough
 
-You will use the host terminal, the Android emulator, and JADX. ADB commands go in the host terminal, not in the emulator. Run these commands from the extracted LabKit directory, add its pinned Frida commands to the shell path, and keep the emulator on the egress-restricted lab network described in [BugBazaar setup](02-bugbazaar-setup.md). Use only the synthetic PIN prepared for this lab.
+You will use the host terminal, the Android emulator and JADX. ADB commands go in the host terminal, not in the emulator. Run these commands from your workspace (the extracted LabKit directory or the independently prepared equivalent), add its pinned Frida commands to the shell path, and keep the emulator on the egress-restricted lab network described in [BugBazaar setup](02-bugbazaar-setup.md). Both preparation paths provide the `.labkit/`, `apk/` and `hooks/` paths used below. Use only the synthetic PIN prepared for this lab.
 
 !!! warning "Check the versions before you attach"
     The tested setup used Frida 17.4.2 on an x86_64 Android 14 / API 34 emulator. Confirm that your Frida client and the emulator's Frida server report the same version before you start.
@@ -76,11 +83,11 @@ Open BugBazaar from the app launcher.
 
 If the incorrect PIN is not rejected or the correct PIN does not reach the expected screen, stop. Do not continue to the runtime test with a different baseline.
 
-![BugBazaar passcode screen showing an incorrect-passcode message after entering the wrong PIN.](images/lab-30/passcode-rejected.png)
+[![BugBazaar passcode screen showing an incorrect-passcode message after entering the wrong PIN.](images/lab-30/passcode-rejected.png){ .phone-evidence }](images/lab-30/passcode-rejected.png "Open full-size screenshot")
 
 The rejected attempt stays on the passcode screen and shows `Incorrect passcode. Try again.`
 
-![BugBazaar dashboard after the correct lab PIN, with the Passcode correct message.](images/lab-30/passcode-correct.png)
+[![BugBazaar dashboard after the correct lab PIN, with the Passcode correct message.](images/lab-30/passcode-correct.png){ .phone-evidence }](images/lab-30/passcode-correct.png "Open full-size screenshot")
 
 The correct PIN opens `NavigationDrawer_Dashboard` and shows `Passcode correct!`.
 
@@ -102,7 +109,7 @@ Read both sides of the `if` statement:
 
 The tested app behaved as these source-code branches describe. If JADX shows a different class or comparison, check the installed APK before continuing.
 
-![Pinned PasscodeActivity.java source showing the PIN comparison and the success and mismatch branches.](images/lab-30/passcode-activity-source.png)
+[![Pinned PasscodeActivity.java source showing the PIN comparison and the success and mismatch branches.](images/lab-30/passcode-activity-source.png)](images/lab-30/passcode-activity-source.png "Open full-size screenshot")
 
 This pinned source screenshot shows the comparison and both branches.
 
@@ -180,7 +187,7 @@ Watch the Frida terminal. It should print:
 
 That line confirms the app reached the modified method. Then check the emulator screen and record which screen is shown.
 
-![Host QTerminal showing Frida 17.4.2, the installed PIN hook, and the hooked getpasscode call.](images/lab-30/frida-hook-output.png)
+[![Host QTerminal showing Frida 17.4.2, the installed PIN hook, and the hooked getpasscode call.](images/lab-30/frida-hook-output.png)](images/lab-30/frida-hook-output.png "Open full-size screenshot")
 
 The capture shows `[lab30] hook installed` and `[lab30] getpasscode called; substituting lab value` from the attached BugBazaar process.
 
@@ -188,7 +195,7 @@ If the app still reports `Incorrect passcode. Try again.`, the hook did not take
 
 To undo the hook, type `exit` at the Frida prompt and restart BugBazaar from the app launcher.
 
-![BugBazaar dashboard after the hooked 0000 attempt, with the Passcode correct! message visible.](images/lab-30/passcode-hook-success.png)
+[![BugBazaar dashboard after the hooked 0000 attempt, with the Passcode correct! message visible.](images/lab-30/passcode-hook-success.png){ .phone-evidence }](images/lab-30/passcode-hook-success.png "Open full-size screenshot")
 
 With the hook active, the same `0000` entry that was rejected in Step 2 opened `NavigationDrawer_Dashboard`. This fresh device capture shows the dashboard with the `Passcode correct!` message.
 

@@ -2,16 +2,19 @@
 
 *Does a blocked Devom account keep access through a token that says it is active?*
 
-## What this lab does
+## Scenario
+
+Devom lets an administrator block an account. You are reviewing whether that change also stops API access for someone who already holds a session token. Use the seeded `cala` account to compare the account's current status with what its tokens permit.
+
+## Goal
 
 You will:
 
-1. Sign in as the seeded `cala` account and read its profile with the returned token.
-2. Block `cala` in the Devom admin console.
-3. Repeat the profile request with the token from before the block, then with a token issued after the block.
-4. Re-sign the blocked token with `"locked": false` and repeat the request once more.
-
-If the pre-block token and the re-signed token both return the profile while the admin console shows `BLOCKED`, the server is trusting a claim inside the token instead of the account's current state.
+1. Read your seeded account's profile before blocking it.
+2. Block the account in the admin console.
+3. Compare profile access with the pre-block token and a token issued while blocked.
+4. Test a modified, re-signed lab token to check whether access follows the token or the current account state.
+5. Restore the seeded account's status.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -26,7 +29,7 @@ Keep the Devom server terminal and the checkout open. All commands below run in 
 - The running Devom backend from [Devom setup](01-devom-setup.md), with its Python environment.
 - Bash and `curl` on the lab VM.
 - A browser on the lab VM for the admin console.
-- PyJWT, already installed by `requirements.txt` in the Devom checkout.
+- PyJWT, installed from the hash-locked backend dependencies in Devom setup.
 
 Every API request below sends `User-Agent: Postman`. Without it, Devom encrypts JSON responses and the output is unreadable.
 
@@ -89,7 +92,7 @@ In the browser on the lab VM:
 !!! success "Expected"
     The row's status changes to the red `BLOCKED` badge and the button becomes **UNBLOCK**.
 
-![The admin console filtered to cala after blocking: the row shows the red BLOCKED badge and an UNBLOCK button.](images/lab-09/admin-console-blocked.png)
+[![The admin console filtered to cala after blocking: the row shows the red BLOCKED badge and an UNBLOCK button.](images/lab-09/admin-console-blocked.png)](images/lab-09/admin-console-blocked.png "Open full-size screenshot")
 
 ### 4. Compare the old token with a new one
 
@@ -160,7 +163,7 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $MUTATED" \
 !!! success "Expected"
     `HTTP/1.1 200 OK` with cala's profile, while the admin console still shows `BLOCKED`. A payload edit without a valid signature is not a valid control, so this test only works because you signed it with the lab key.
 
-![Host-terminal output showing the pre-block token returning 200 while the account is blocked, the post-block token returning 403, and the re-signed token returning 200; only selected profile fields are shown.](images/lab-09/jwt-stale-token.png)
+[![Host-terminal output showing the pre-block token returning 200 while the account is blocked, the post-block token returning 403, and the re-signed token returning 200; only selected profile fields are shown.](images/lab-09/jwt-stale-token.png)](images/lab-09/jwt-stale-token.png "Open full-size screenshot")
 
 The captured QTerminal output shows the pre-block token returning `200` while the admin console showed `BLOCKED`, the token issued while blocked returning `403`, and the same claims re-signed with `"locked": false` returning `200` again.
 

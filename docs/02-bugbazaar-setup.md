@@ -1,6 +1,6 @@
 # BugBazaar setup
 
-Complete [Common prerequisites](00-common-setup.md) and run the LabKit bootstrap once. Then follow this page to prepare the bundled BugBazaar APKs for Labs 27, 29, and 30. You do not build the apps from source. Lab 27 uses a separately built variant and a local Firebase emulator. For Lab 30, your Android emulator must support runtime instrumentation with Frida.
+Complete [Common prerequisites](00-common-setup.md), using either its optional LabKit bootstrap or the independent preparation for your selected lab. Then follow this page to prepare the verified BugBazaar APKs for Labs 27, 29 and 30. You do not build the apps from source. Lab 27 uses a separately built variant and a local Firebase emulator. Only Lab 30 needs runtime instrumentation with Frida.
 
 **Status:** The official APK hash and the Module 29 and 30 workflows were verified on 2 November 2026 on Android 14 / API 34. The Lab 27 variant and its local emulator workflow were also tested on 2 November 2026 on Android 14 / API 34. Other emulator images may behave differently.
 
@@ -17,7 +17,15 @@ All four verified APKs are included in the LabKit; see [Lab downloads](downloads
 - Lab 27 variant: `bugbazaar-lab27-emulator.apk`, package `com.BugBazaar.lab27`, SHA-256 `b3f0249634f7bc401fb79c43eb7f6093a030501b4d36a7e0c05864cbb8041604`.
 - Lab 29 also requires the prebuilt ordinary-caller APK, `module-29-caller.apk`. Its SHA-256 is `5f8d04886763a4d543cd66222d1f1de7d9f14e2fe73d96a6013754bcc55728cc`. Do not build or substitute another caller.
 
-Use the supported disposable emulator with ADB access on the restricted lab network described in [Common prerequisites](00-common-setup.md). Do not use a personal phone, real contacts, or personal addresses. Install an APK from the LabKit directory with `./install-apk.sh <apk-filename>`; do not copy APKs from a repository checkout. If the network egress policy, package identity, or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
+Use the supported disposable emulator with ADB access on the restricted lab network described in [Common prerequisites](00-common-setup.md). Do not use a personal phone, real contacts or personal addresses. The commands below use the optional `./install-apk.sh <apk-filename>` helper from your workspace, which can come from the archive or the repository's verified inputs. If the network egress policy, package identity or an existing installation cannot be verified, stop rather than replacing or clearing emulator state.
+
+To install without the helper, use [APK installation without the helper](00-common-setup.md#apk-installation-without-the-helper) with the matching APK/package pair:
+
+- Official target for Labs 29 and 30: `BugBazaar_v1.2.1.apk` / `com.BugBazaar`.
+- Lab 29 caller: `module-29-caller.apk` / `org.lab.module29caller`.
+- Lab 27 variant: `bugbazaar-lab27-emulator.apk` / `com.BugBazaar.lab27`.
+
+Keep every hash and installed-package check. For Lab 27, skip sections 1 to 3 and install only its separate variant in section 4. For Lab 30, skip the Lab 29 caller.
 
 ## Network policy for local labs
 
