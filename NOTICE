@@ -30,3 +30,13 @@ The repository owner has confirmed authorization for the verified APKs listed be
 - `labkit/input/apk/bugbazaar-lab27-emulator.apk` is built by this project from the pinned BugBazaar source revision `fef6a899a684245eb70b2ab4be926f62be849ed9`. It is a derivative of BugBazaar; the BugBazaar notice above also applies.
 
 Neither project-built APK is an official upstream release. The Lab 27 APK is configured for the local Firebase Storage emulator described in `engineering/lab27/`.
+
+## Lab 27 Firebase dependencies
+
+The archive build includes unchanged upstream release bytes listed with their URLs and SHA-256 hashes in `labkit/vendor-manifest.json`:
+
+- Firebase CLI 15.34.2 Linux executable: Firebase, <https://github.com/firebase/firebase-tools/tree/v15.34.2>. The CLI project's MIT license is retained at `tools/firebase-LICENSE.txt` in the archive. The standalone executable also contains third-party dependencies; the project's MIT license does not relicense those dependencies.
+- Firebase Emulator UI 1.15.0: <https://github.com/firebase/firebase-tools-ui>, Apache License 2.0. Upstream distribution URL is in the vendor manifest.
+- Firebase Storage rules runtime 1.1.3: Google-owned emulator code with third-party notices embedded at `com/google/firebase/rules/tools/local/FIREBASE_RULES_TOOLING_LICENSES` inside the unchanged JAR. Those notices do not establish a redistribution grant for all Google-owned code.
+
+The repository owner separately confirmed permission to publicly redistribute these newly bundled Firebase binaries, beyond the earlier authorization for the four APKs. This records the owner's confirmation; the technical review did not independently establish a license grant for all Google-owned runtime code. Retain upstream and embedded dependency notices. This permission does not transfer ownership or relicense third-party code under the root project license or the CLI's MIT license.

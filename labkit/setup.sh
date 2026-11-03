@@ -130,9 +130,12 @@ fi
   --require-hashes --requirement "$KIT_ROOT/backend/requirements.lock"
 "$DEVOM_DIR/.venv/bin/python" -m pip check
 
-FIREBASE="$KIT_ROOT/lab27/node_modules/.bin/firebase"
+FIREBASE="$KIT_ROOT/lab27/firebase-tools-linux"
+if [[ ! -x "$FIREBASE" ]]; then
+  FIREBASE="$KIT_ROOT/lab27/node_modules/.bin/firebase"
+fi
 if [[ -x "$FIREBASE" ]]; then
-  firebase_version="$("$FIREBASE" --version)"
+  firebase_version="$(HOME="$WORK_DIR/home" "$FIREBASE" --version)"
   [[ "$firebase_version" == "15.34.2" ]] \
     || fail "Existing Firebase CLI is $firebase_version, not locked 15.34.2; it was left untouched."
 elif [[ -e "$KIT_ROOT/lab27/node_modules" ]]; then
@@ -141,7 +144,10 @@ else
   (cd "$KIT_ROOT/lab27" && npm ci --no-audit --no-fund)
 fi
 mkdir -p "$WORK_DIR/home"
-STORAGE_RUNTIME="$WORK_DIR/home/.cache/firebase/emulators/cloud-storage-rules-runtime-$FIREBASE_STORAGE_RUNTIME_VERSION.jar"
+STORAGE_RUNTIME="$WORK_DIR/home/.cache/firebase/emulators/cloud-storage-rules-runtime-v$FIREBASE_STORAGE_RUNTIME_VERSION.jar"
+if [[ "$FIREBASE" == "$KIT_ROOT/lab27/firebase-tools-linux" ]]; then
+  STORAGE_RUNTIME="$KIT_ROOT/lab27/emulators/cloud-storage-rules-runtime-v$FIREBASE_STORAGE_RUNTIME_VERSION.jar"
+fi
 if [[ -e "$STORAGE_RUNTIME" ]]; then
   printf '%s  %s\n' "$FIREBASE_STORAGE_RUNTIME_SHA256" "$STORAGE_RUNTIME" | sha256sum --check --status \
     || fail "Cached Firebase Storage emulator has the wrong SHA-256; it was left untouched."

@@ -2,21 +2,29 @@
 
 ## Download once for all ten labs
 
-The LabKit contains all four verified APKs and the files you need for the labs: setup scripts, Lab 27 Firebase configuration and synthetic test data, the Lab 30 hook, pinned dependency lock files, and a checksum manifest.
+The optional LabKit bundles all four verified APKs, setup scripts, Lab 27 Firebase tools, configuration and synthetic test data, the Lab 30 hook, pinned dependency lock files and a checksum manifest. You can use the bundle without its bootstrap, or prepare a workspace from the repository as described in [Common prerequisites](00-common-setup.md#independent-preparation).
 
 [Download LabKit-linux-x86_64.zip](assets/labkit/LabKit-linux-x86_64.zip)
 
-LabKit SHA-256: `7d5042d8978f27b963ad4b28ce40f2111af6319b7dcd533e3a714340f98692cf`
+LabKit SHA-256: `2113cc896dde71761e32d4f1c01eefe6cb8b8e5d371b8aaa070d03d7221e9b88`
 
 Verify the downloaded archive before extracting it:
 
 ```bash
 sha256sum --check <<'EOF'
-7d5042d8978f27b963ad4b28ce40f2111af6319b7dcd533e3a714340f98692cf  LabKit-linux-x86_64.zip
+2113cc896dde71761e32d4f1c01eefe6cb8b8e5d371b8aaa070d03d7221e9b88  LabKit-linux-x86_64.zip
 EOF
 ```
 
-After extraction, follow [Common prerequisites](00-common-setup.md) and run `./setup.sh` from the `LabKit` directory. You need Linux x86_64 and an Android 14 / API 34 x86_64 emulator that is already installed. The kit does not include an Android SDK or emulator image. First-time setup needs network access to download pinned dependencies and analysis tools from the documented upstream sources.
+After extraction, follow [Common prerequisites](00-common-setup.md). You can run `./setup.sh` from the `LabKit` directory to prepare every lab, or prepare only your selected lab. Provide your own Linux x86_64 host tools, Android SDK and emulator image where required. Lab 27's dependencies are bundled; the other labs' backend and analysis tools still need the documented preparation downloads. The archive is not a complete preinstalled VM.
+
+### What Lab 27 includes
+
+- Ready lab assets: the verified variant APK, Firebase configuration, open exercise rules, synthetic fixtures and lifecycle scripts.
+- Included dependencies: Firebase CLI `15.34.2` as a Linux x86_64 executable, Storage rules runtime `1.1.3` and emulator UI `1.15.0`. You do not need `npm ci`, a Firebase account or a separate dependency fetch to run Lab 27 from this download. The package lock is also included for independent repository-based preparation.
+- Host prerequisites you provide: Node.js for the UI, Java, Bash, Python, curl, `sha256sum`, ADB and the disposable Android emulator. The kit supplies lab dependencies, not the host operating system or emulator image.
+
+After verifying the archive and manifest, install the variant using [BugBazaar setup](02-bugbazaar-setup.md#4-install-the-lab-27-variant), then run `./lab27/reset.sh` from the extracted directory. You can keep runtime networking restricted to loopback and the approved Android-to-host path throughout. The larger archive includes the tool/runtime bytes, not just lock files.
 
 ## Included APK inventory
 

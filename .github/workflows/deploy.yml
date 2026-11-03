@@ -29,7 +29,9 @@ jobs:
         run: python -m pip install -r requirements.txt
 
       - name: Build LabKit
-        run: python3 labkit/build.py
+        run: |
+          python3 labkit/build.py --fetch-vendor
+          python3 labkit/build.py
 
       - name: Test site
         run: python -m unittest -v test_site
@@ -55,6 +57,9 @@ jobs:
 
       - name: Audit accessibility
         run: node engineering/qa/accessibility_audit.mjs site
+
+      - name: Check evidence layout
+        run: node engineering/qa/evidence_layout.mjs site /tmp/opencode/evidence-layout.json
 
       - name: Upload Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -2,15 +2,19 @@
 
 *Can a transfer move money the server should have refused?*
 
-## What this lab does
+## Scenario
 
-You will use `cala`'s session to make three transfers between the two seeded accounts and compare the balances after each one:
+Devom lets a signed-in user transfer funds between accounts. You are reviewing whether the server checks the amount and the owner of the source account. Use only the two seeded disposable accounts and small synthetic amounts so you can track and restore every balance change.
 
-1. a normal small transfer in the intended direction,
-2. the same transfer with a negative amount,
-3. a transfer whose `from_id` is the other user's account.
+## Goal
 
-The endpoint checks only that a valid token is present. It does not check that the token's user owns `from_id`, that the amount is positive, or that the sender has enough money.
+You will:
+
+1. Record both seeded accounts' starting balances.
+2. Make a small normal transfer and check both balances.
+3. Test a negative amount with the same caller session and compare the balance changes.
+4. Name the other user's account as the transfer source and check whether the server accepts it.
+5. Restore the starting balances using the documented cleanup.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -122,7 +126,7 @@ curl --insecure -i -A 'Postman' -H "Authorization: Bearer $TOKEN" \
 !!! success "Expected"
     `HTTP/1.1 200 OK`, and the balances return to `1000` and `999999`.
 
-![Host-terminal output showing the normal, negative, cross-account, and restoring transfers with the two balances after each step.](images/lab-26/transfer-balances.png)
+[![Host-terminal output showing the normal, negative, cross-account, and restoring transfers with the two balances after each step.](images/lab-26/transfer-balances.png)](images/lab-26/transfer-balances.png "Open full-size screenshot")
 
 The captured QTerminal output shows balances moving `1000/999999` → `995/1000004` → `1000/999999` → `1001/999998` → `1000/999999`. Each transfer returned `200`, and the final balances were restored.
 

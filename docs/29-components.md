@@ -2,15 +2,17 @@
 
 *Can a separate app read a fake address from BugBazaar?*
 
-## What this lab does
+## Scenario
+
+BugBazaar stores addresses inside its app. You are reviewing whether a separate ordinary Android app can read one of those records. Use a uniquely marked fake address and the supplied read-only caller so you can identify exactly which record crossed the app boundary.
+
+## Goal
 
 You will:
 
-1. Find or add one fake address with a unique nickname in BugBazaar.
-2. Open the supplied Module 29 caller app. It asks BugBazaar for that exact address.
-3. Check whether the caller displays the address, then compare its UID (Android's numeric app ID) with BugBazaar's UID.
-
-If the caller displays the address and the UIDs differ, BugBazaar returned that record to a separate app. The lab tests one fake record only. It does not test real contacts or BugBazaar's other records.
+1. Find or create one uniquely marked fake address in BugBazaar.
+2. Run the supplied read-only caller and check whether it returns that exact record.
+3. Compare the apps' Android UIDs (numeric app IDs) to establish whether the read crossed an app boundary.
 
 **Tested target:** BugBazaar release `v1.2.1`, built from source revision [`fef6a899a684245eb70b2ab4be926f62be849ed9`](https://github.com/payatu/BugBazaar/tree/fef6a899a684245eb70b2ab4be926f62be849ed9). **Re-executed on:** 2 November 2026, Android 14 / API 34 on x86_64. BugBazaar UID `10197` and caller UID `10198` were distinct; the caller received the uniquely marked record.
 
@@ -24,7 +26,7 @@ Complete [Common prerequisites](00-common-setup.md) and [BugBazaar setup](02-bug
 - Android SDK Platform Tools (`adb`) and a terminal on the host computer.
 - The BugBazaar target app and the Module 29 caller app, installed as described in [BugBazaar setup](02-bugbazaar-setup.md).
 
-The caller is a small prebuilt APK included in the LabKit as `apk/module-29-caller.apk`. Install it from the extracted LabKit directory with `./install-apk.sh module-29-caller.apk`; you do not need a repository checkout or build tools.
+The caller is a small prebuilt APK at `apk/module-29-caller.apk` in either prepared workspace. Install and verify it using the optional helper or the independent ADB steps in BugBazaar setup; you do not need Android build tools.
 
 Run ADB commands in the host terminal. Do the login, address search, and caller-screen check in the emulator. This walkthrough does not install or build apps.
 
@@ -87,7 +89,7 @@ The address list may contain fictional seed records. Keep those records out of s
 !!! success "Expected"
     The Addresses screen shows exactly one card with nickname `LAB29-20261028-7F3A` and address `SYNTHETIC lab address 29 for lab only`.
 
-![BugBazaar's address screen showing the uniquely marked synthetic lab record.](images/lab-29/bugbazaar-synthetic-address.png)
+[![BugBazaar's address screen showing the uniquely marked synthetic lab record.](images/lab-29/bugbazaar-synthetic-address.png){ .phone-evidence }](images/lab-29/bugbazaar-synthetic-address.png "Open full-size screenshot")
 
 ### 3. Run the query from the ordinary caller app
 
@@ -125,7 +127,7 @@ SYNTHETIC lab address 29 for lab only
 
 If the screen says `No matching row returned` or `Query failed`, stop and use Troubleshooting. Do not broaden the query.
 
-![Ordinary caller app displaying its UID, the provider URI, and the returned synthetic row.](images/lab-29/ordinary-app-provider-result.png)
+[![Ordinary caller app displaying its UID, the provider URI, and the returned synthetic row.](images/lab-29/ordinary-app-provider-result.png){ .phone-evidence }](images/lab-29/ordinary-app-provider-result.png "Open full-size screenshot")
 
 !!! important "Key observation"
     Check that the caller's UID differs from BugBazaar's and that the ordinary caller displays the exact synthetic row. Together, these show that a separate app read this one record through the provider; an ADB shell query or access to other rows would not establish that result.

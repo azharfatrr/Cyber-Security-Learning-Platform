@@ -7,5 +7,7 @@ engineering/lab27/.runtime/
 engineering/lab27/node_modules/
 docs/assets/labkit/
 .labkit/
+labkit/vendor/
+lab-workspace/
 engineering/qa/node_modules/
 engineering/qa/accessibility-report.json

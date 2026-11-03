@@ -18,7 +18,7 @@
 - The custom root `404.html` rendered with the dark theme and linked to the Pages home and downloads paths under the project base URL.
 - The download page presents one LabKit archive CTA and no individual APK links.
 - axe-core audited all 18 pages: 0 critical, 0 serious, 12 moderate, and 0 minor findings. The moderate `landmark-unique` findings occur on code-tab navigation controls on 12 pages; they do not fail the configured release gate.
-- The linked archive was rebuilt and checked. SHA-256: `7d5042d8978f27b963ad4b28ce40f2111af6319b7dcd533e3a714340f98692cf`.
+- The linked archive was rebuilt for the clarity/layout follow-up with pinned Lab 27 dependencies included. SHA-256: `2113cc896dde71761e32d4f1c01eefe6cb8b8e5d371b8aaa070d03d7221e9b88`. See [the follow-up evidence](lab-clarity-and-layout.md) for its separate verification and publication caveat; the visual sweep below describes the earlier release.
 
 Screenshots are full-page captures at the viewport above. The following page-by-page visual sweep passed:
 
@@ -49,7 +49,7 @@ The same archive is linked from the rendered downloads page and present in the b
 
 ```text
 LabKit-linux-x86_64.zip
-SHA-256  7d5042d8978f27b963ad4b28ce40f2111af6319b7dcd533e3a714340f98692cf
+SHA-256  2113cc896dde71761e32d4f1c01eefe6cb8b8e5d371b8aaa070d03d7221e9b88
 ```
 
 The automated browser sweep uses a loopback server mounted at the configured Pages base path and blocks external requests. No live deployment has been verified by this pre-merge report; that check is recorded after the protected-main PR deploys.

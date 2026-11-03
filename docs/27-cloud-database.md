@@ -5,20 +5,19 @@
 !!! danger "Use only the local emulator in a disposable lab"
     This lab runs entirely against the repository's Firebase Storage emulator on the host loopback interface. Do not point the app at a cloud project, reuse any key from the APK, or expose the emulator ports beyond the disposable lab. The committed rules are deliberately open for the exercise and must never be deployed to a real project.
 
-## What this lab does
+## Scenario
 
-BugBazaar's README describes a cloud-database module, but the shipped source uses Firebase **Storage**, not Firestore. Saving a profile in `MyProfile` builds a small text record and uploads it to `<device-name>/userinfo.txt` in the configured bucket.
+BugBazaar saves profile details to Firebase Storage as a text object. You are reviewing whether the storage service protects that object independently of the app's login and passcode. Use the separate Lab 27 app, synthetic profiles and the local Storage emulator; the upstream cloud project is out of scope.
 
-In this lab you will:
+## Goal
 
-1. Start the committed local Storage emulator and confirm its synthetic baseline.
-2. Read a seeded synthetic record with no credentials.
-3. Confirm that the installed app and its configuration point at that local emulator.
-4. Save a synthetic profile in the app and confirm the upload.
-5. Read the app-written object with no credentials.
-6. Compare the result with the committed Storage rule.
+You will:
 
-**Completion criteria:** you have a baseline read, an app-written object, an unauthenticated read of that object, and the matching rule text.
+1. Start the local Storage emulator and confirm its synthetic baseline.
+2. Read a seeded object without credentials.
+3. Verify the local APK/configuration identity before saving a synthetic profile in the app.
+4. Find the app-written object and read it without credentials.
+5. Compare the read result with the local Storage rule.
 
 **Verification status:** verified end to end on 2 November 2026 on Android 14 / API 34 with the published APK. The outputs below are from that run.
 
@@ -28,15 +27,15 @@ In this lab you will:
 
 ### Tools needed
 
-- The extracted LabKit directory, which includes the emulator configuration, synthetic fixtures, and lifecycle scripts under `lab27/`.
-- The LabKit bootstrap, which installs the pinned Firebase CLI once.
+- A prepared workspace with the emulator configuration, synthetic fixtures and lifecycle scripts under `lab27/`, from the archive or repository path in Common prerequisites.
+- Firebase CLI `15.34.2`, Storage runtime `1.1.3` and emulator UI `1.15.0`, already included in the download. Only the repository-only path needs the [independent Firebase tooling steps](00-common-setup.md#lab-27-firebase-tooling).
 - `curl` and `python3` on the host, for the object reads and JSON formatting.
 - An Android emulator with ADB access and a route to the host alias `10.0.2.2`.
 - The Lab 27 APK bundled in the LabKit and installed with `./install-apk.sh bugbazaar-lab27-emulator.apk`.
 
-Run `./setup.sh` once from the extracted LabKit directory before starting this lab. It installs the locked Firebase CLI and prefetches the pinned Storage emulator, so no separate repository checkout or CLI installation is needed.
+If you use the verified download, skip the all-lab bootstrap and start with Step 1 after installing the variant. No separate Lab 27 tool, runtime or support-file download is needed. The walkthrough says "extracted LabKit directory" for its command location; if you prepared independently, use your workspace root instead. Both paths provide the `lab27/` and `apk/` layout. The scripts select the bundled `lab27/emulators/` cache or the independent `.labkit/home` cache automatically.
 
-The included package lock pins `firebase-tools@15.34.2`. The artifact build used Gradle 8.4, Android Gradle plugin 8.3.1, NDK 26.1.10909125, and OpenJDK 21.0.12.1.
+The bundled standalone CLI and the included npm lock both pin Firebase CLI `15.34.2`. The APK build used Gradle 8.4, Android Gradle plugin 8.3.1, NDK 26.1.10909125 and OpenJDK 21.0.12.1; you do not need those build tools to run the lab.
 
 Keep host egress restricted to the loopback path used here. The emulator must be able to reach the host; confirm that the approved firewall allows `127.0.0.1:9199` and `127.0.0.1:4000` from the lab boundary and blocks unrelated egress. Do not expose either port to a LAN or the internet.
 
@@ -73,6 +72,8 @@ Emulator UI: http://127.0.0.1:4000
 Seeded alice-lab27%2Fuserinfo.txt
 Seeded bob-lab27%2Fuserinfo.txt
 ```
+
+The expanded download also prints SHA-256 `OK` checks for its bundled CLI, Storage runtime and UI before the readiness lines. The app and API outputs below remain from the verified Android run; the expanded bundle's host service was separately checked with external networking unavailable.
 
 List the objects:
 
@@ -185,7 +186,7 @@ Complete [BugBazaar setup](02-bugbazaar-setup.md#4-install-the-lab-27-variant) f
 
 **Check:** the screen returns to the read-only view and shows the values you entered. The app also writes `userinfo.txt` to its configured bucket; the next step confirms that write.
 
-![BugBazaar Lab 27 My Profile after saving the synthetic values, with the success message visible.](images/lab-27/profile-saved.png)
+[![BugBazaar Lab 27 My Profile after saving the synthetic values, with the success message visible.](images/lab-27/profile-saved.png){ .phone-evidence }](images/lab-27/profile-saved.png "Open full-size screenshot")
 
 The captured app screen shows the synthetic profile and `Profile has been updated successfully.` The next step verifies the device-named object in the local Storage emulator.
 

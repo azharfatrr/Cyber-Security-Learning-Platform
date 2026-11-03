@@ -2,16 +2,18 @@
 
 *Can a Devom session skip the one-time code, and can the code be guessed from a fixed value?*
 
-## What this lab does
+## Scenario
+
+Devom asks for a one-time code after you sign in. You are reviewing whether this second step actually protects the seeded account's profile, and whether the verification endpoint distinguishes an incorrect code from an accepted one. No real phone number or account is involved.
+
+## Goal
 
 You will:
 
-1. Sign in as `cala` and record the one-time code Devom returns in the login response.
-2. Read a protected profile with the session token **before** submitting any code.
-3. Submit one wrong code, then the code from the login response.
-4. Submit the fixed value `1293` that the pinned source accepts for any user.
-
-You will check three separate problems: the login response discloses the code, the session works before verification is complete, and a fixed value is accepted in place of the real code. A successful verification message alone does not prove that protected endpoints enforce the second factor.
+1. Check whether the login response exposes the one-time code.
+2. Try the session before submitting a code.
+3. Compare verification with one wrong code and the current code.
+4. Test the fixed lab value separately from the current code.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -104,7 +106,7 @@ curl --insecure -i -A 'Postman' -H 'Content-Type: application/json' \
 
 This is a fixed bypass value, not a guess. Send it once, record the result, and stop; do not loop over other codes.
 
-![Host-terminal output showing profile access before OTP verification, the rejected wrong code, and successful disclosed-code and fixed-value checks. The live code is redacted.](images/lab-10/otp-checks.png)
+[![Host-terminal output showing profile access before OTP verification, the rejected wrong code, and successful disclosed-code and fixed-value checks. The live code is redacted.](images/lab-10/otp-checks.png)](images/lab-10/otp-checks.png "Open full-size screenshot")
 
 The captured QTerminal output shows the profile returned `200` before code verification, `0000` returned `401`, the redacted `debug_token` returned `200`, and `1293` returned `200` for user `999999`.
 

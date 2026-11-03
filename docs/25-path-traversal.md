@@ -2,11 +2,17 @@
 
 *Can `/view_upload` read a file from outside the uploads directory?*
 
-## What this lab does
+## Scenario
 
-Place one harmless marker file next to `server.py`, outside Devom's `uploads/` directory. Retrieve a normal upload, then request the marker through the same endpoint and compare the responses.
+Devom serves uploaded files through a filename-based route. You are reviewing whether that route stays inside the uploads directory. Place a harmless marker beside the directory in your disposable checkout so you can test the boundary without reading application secrets.
 
-If the second request returns the marker, the endpoint joined the requested path onto the uploads directory without checking that the result stayed inside it. Only the marker file is in scope.
+## Goal
+
+You will:
+
+1. Create a harmless marker outside `uploads/` and retrieve a normal upload as a baseline.
+2. Request only that marker through `/view_upload` and the alternate download route.
+3. Compare the returned contents with the directory boundary you intended to test.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -85,7 +91,7 @@ curl --insecure -i --path-as-is "$BASE/download_pdf/../lab25-marker.txt"
 !!! success "Expected"
     `HTTP/1.1 200 OK` with the same marker. Two endpoints share the flaw.
 
-![Host-terminal output showing both raw traversal paths, each endpoint's HTTP 200 response, and the LAB25_TRAVERSAL_MARKER_7f3a body.](images/lab-25/traversal-marker.png)
+[![Host-terminal output showing both raw traversal paths, each endpoint's HTTP 200 response, and the LAB25_TRAVERSAL_MARKER_7f3a body.](images/lab-25/traversal-marker.png)](images/lab-25/traversal-marker.png "Open full-size screenshot")
 
 The captured QTerminal output shows `view_upload/../lab25-marker.txt` and `download_pdf/../lab25-marker.txt` each returned `200` with `LAB25_TRAVERSAL_MARKER_7f3a`. The walkthrough's baseline contract request also returned `200` during this run.
 

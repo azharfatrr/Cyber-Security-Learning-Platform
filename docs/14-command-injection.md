@@ -2,11 +2,16 @@
 
 *Can a file's name make the Devom server run an extra command?*
 
-## What this lab does
+## Scenario
 
-You will upload the same harmless text file twice. The first upload uses a normal filename and shows how the server reports its processing step. The second upload puts `; echo LAB14_MARKER_7f3a` at the end of the filename, which turns the server's filename-handling step into two shell commands.
+Devom processes a profile-picture upload and returns debugging output about the file. You are reviewing whether the filename stays ordinary input during that processing. Use a harmless text file on your own loopback backend to compare a normal name with a controlled test name.
 
-If `server_debug` in the second response contains `LAB14_MARKER_7f3a` on its own line, the filename reached a shell and the extra command ran. The payload only prints a marker: it makes no network request and reads no files.
+## Goal
+
+You will:
+
+1. Upload a harmless text file with a normal filename as a baseline.
+2. Change only the filename and compare the processing output to test whether the server runs an extra marker-printing command.
 
 **Target:** Devom at revision [`af4290ce8d2178765bfc2bd96cf233f6d3d03161`](https://github.com/memohk/Devom/tree/af4290ce8d2178765bfc2bd96cf233f6d3d03161). **Re-executed** on 2 November 2026 against the pinned revision running on loopback (Python 3.14, Flask 3.1.3).
 
@@ -113,7 +118,7 @@ python lab14-inject.py
 
 The first line ends where the `;` begins. The second line is not part of the echoed filename; it is the output of the separate `echo` command that the server ran.
 
-![Host-terminal output showing the normal upload's processing line and the injected filename's separate LAB14_MARKER_7f3a line.](images/lab-14/command-injection-server-debug.png)
+[![Host-terminal output showing the normal upload's processing line and the injected filename's separate LAB14_MARKER_7f3a line.](images/lab-14/command-injection-server-debug.png)](images/lab-14/command-injection-server-debug.png "Open full-size screenshot")
 
 The captured QTerminal output shows both uploads returned `200`; the baseline printed only `Processing file: user_100500_lab14-base.txt`, while the injected filename printed `LAB14_MARKER_7f3a` on its own line.
 
